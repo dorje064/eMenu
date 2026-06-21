@@ -1,0 +1,47 @@
+You are a Senior Product Designer and Design System Architect.
+
+Based on the ./eMenuRequirementsDocument.md, create a complete design system specification.
+
+Include:
+
+1. Design principles
+2. Color palette with hex values
+3. Typography scale
+4. Spacing system
+5. Border radius system
+6. Elevation/shadow system
+7. Grid system
+8. Mobile-first responsive breakpoints
+9. Iconography guidelines
+10. Component library
+
+For each component provide:
+
+- Purpose
+- Variants
+- States
+- Accessibility requirements
+
+Components should include:
+
+- Buttons
+- Inputs
+- Search
+- Cards
+- Menu Item Card
+- Category Navigation
+- Order Status Badge
+- Table QR Card
+- Modal
+- Drawer
+- Toast Notification
+- Data Table
+- Dashboard Cards
+- Tabs
+- Dropdown
+- Avatar
+- Pagination
+- Empty State
+- Loading State
+
+Output as a professional design system document suitable for Figma implementation.
