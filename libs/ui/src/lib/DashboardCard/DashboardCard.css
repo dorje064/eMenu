@@ -1,0 +1,182 @@
+.emenu-dashcard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  font-family: var(--font-family-base);
+  min-width: 0;
+  overflow: hidden;
+  transition: box-shadow 120ms ease, transform 80ms ease;
+}
+
+/* Left status accent stripe */
+.emenu-dashcard--accent-success,
+.emenu-dashcard--accent-error,
+.emenu-dashcard--accent-warning,
+.emenu-dashcard--accent-info {
+  border-left-width: 4px;
+}
+.emenu-dashcard--accent-success {
+  border-left-color: var(--color-success-text);
+}
+.emenu-dashcard--accent-error {
+  border-left-color: var(--color-error-text);
+}
+.emenu-dashcard--accent-warning {
+  border-left-color: var(--color-warning-text);
+}
+.emenu-dashcard--accent-info {
+  border-left-color: var(--color-info-text);
+}
+
+.emenu-dashcard__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.emenu-dashcard__label {
+  margin: 0;
+  font-size: var(--text-overline-size);
+  line-height: var(--text-overline-line);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-neutral-500);
+}
+
+.emenu-dashcard__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-neutral-400);
+  flex-shrink: 0;
+}
+
+.emenu-dashcard__value {
+  margin: 0;
+  font-size: var(--text-display-size);
+  line-height: var(--text-display-line);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-neutral-900);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+.emenu-dashcard__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.emenu-dashcard__delta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  font-weight: var(--font-weight-semibold);
+}
+.emenu-dashcard__delta--up {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+}
+.emenu-dashcard__delta--down {
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+}
+
+.emenu-dashcard__context {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  color: var(--color-neutral-500);
+}
+
+.emenu-dashcard__empty {
+  margin: 0;
+  font-size: var(--text-body-lg-size);
+  line-height: var(--text-body-lg-line);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-neutral-400);
+}
+
+.emenu-dashcard__footer {
+  margin-top: var(--space-1);
+}
+
+.emenu-dashcard__link {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary-600);
+}
+.emenu-dashcard__link:hover {
+  text-decoration: underline;
+}
+.emenu-dashcard__link:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+/* ---- Skeleton (mirrors label bar + big number block) ---- */
+.emenu-dashcard__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.emenu-dashcard__skeleton-label,
+.emenu-dashcard__skeleton-value {
+  display: block;
+  border-radius: var(--radius-sm);
+  background: var(--color-neutral-100);
+  background-image: linear-gradient(
+    90deg,
+    var(--color-neutral-100) 0%,
+    var(--color-neutral-200) 50%,
+    var(--color-neutral-100) 100%
+  );
+  background-size: 200% 100%;
+  animation: emenu-dashcard-shimmer 1.4s ease-in-out infinite;
+}
+.emenu-dashcard__skeleton-label {
+  width: 40%;
+  height: 12px;
+}
+.emenu-dashcard__skeleton-value {
+  width: 70%;
+  height: 40px;
+}
+
+@keyframes emenu-dashcard-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .emenu-dashcard__skeleton-label,
+  .emenu-dashcard__skeleton-value {
+    animation: emenu-dashcard-pulse 1.6s ease-in-out infinite;
+    background-image: none;
+  }
+}
+
+@keyframes emenu-dashcard-pulse {
+  50% {
+    opacity: 0.6;
+  }
+}

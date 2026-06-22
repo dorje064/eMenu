@@ -1,0 +1,142 @@
+.emenu-avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: visible;
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-neutral-0);
+  background: var(--color-neutral-300);
+  user-select: none;
+}
+
+.emenu-avatar__img,
+.emenu-avatar__initials,
+.emenu-avatar__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.emenu-avatar__img {
+  object-fit: cover;
+}
+
+.emenu-avatar__icon {
+  color: var(--color-neutral-500);
+  background: var(--color-neutral-100);
+}
+.emenu-avatar__icon svg {
+  width: 60%;
+  height: 60%;
+}
+
+/* ---- Shapes ---- */
+.emenu-avatar--circle {
+  border-radius: var(--radius-full);
+}
+.emenu-avatar--rounded-square {
+  border-radius: var(--radius-md);
+}
+
+/* clip image/initials to the avatar shape (status dot stays visible) */
+.emenu-avatar > .emenu-avatar__img,
+.emenu-avatar > .emenu-avatar__initials,
+.emenu-avatar > .emenu-avatar__icon {
+  overflow: hidden;
+}
+
+/* ---- Sizes ---- */
+.emenu-avatar--xs {
+  width: 24px;
+  height: 24px;
+  font-size: 10px;
+}
+.emenu-avatar--sm {
+  width: 32px;
+  height: 32px;
+  font-size: var(--text-caption-size);
+}
+.emenu-avatar--md {
+  width: 40px;
+  height: 40px;
+  font-size: var(--text-body-size);
+}
+.emenu-avatar--lg {
+  width: 48px;
+  height: 48px;
+  font-size: var(--text-body-lg-size);
+}
+.emenu-avatar--xl {
+  width: 64px;
+  height: 64px;
+  font-size: var(--text-h5-size);
+}
+
+/* ---- Contrast-safe initials palette (white text ≥ 4.5:1) ---- */
+.emenu-avatar--c0 {
+  background: var(--color-primary-700);
+}
+.emenu-avatar--c1 {
+  background: var(--color-info-text);
+}
+.emenu-avatar--c2 {
+  background: var(--color-success-text);
+}
+.emenu-avatar--c3 {
+  background: var(--status-accepted-fill);
+}
+.emenu-avatar--c4 {
+  background: var(--color-secondary-700);
+}
+.emenu-avatar--c5 {
+  background: var(--color-neutral-700);
+}
+
+/* ---- Status dot (white ring; meaning via aria-label) ---- */
+.emenu-avatar__status {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 28%;
+  height: 28%;
+  min-width: 8px;
+  min-height: 8px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 0 2px var(--surface-card);
+}
+.emenu-avatar__status--online {
+  background: var(--color-success-text);
+}
+.emenu-avatar__status--away {
+  background: var(--color-warning-text);
+}
+.emenu-avatar__status--offline {
+  background: var(--color-neutral-400);
+}
+.emenu-avatar__status--busy {
+  background: var(--color-error-text);
+}
+
+/* ---- Group ---- */
+.emenu-avatar-group {
+  display: inline-flex;
+  align-items: center;
+}
+.emenu-avatar-group__item {
+  display: inline-flex;
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 0 2px var(--surface-card);
+}
+.emenu-avatar-group__item:not(:first-child) {
+  margin-left: -10px;
+}
+.emenu-avatar-group__overflow {
+  background: var(--color-neutral-200);
+  color: var(--color-neutral-700);
+}

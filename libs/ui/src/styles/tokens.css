@@ -1,0 +1,200 @@
+/**
+ * eMenu Design System — Design Tokens
+ * Source of truth: eMenuDesignSystem.md v1.0
+ * Naming: category-role-scale (CSS-safe flattening of category.role.scale)
+ */
+
+:root {
+  /* ----------------------------------------------------------------------- */
+  /* 2. Color — Primary "Saffron" (warm orange)                              */
+  /* ----------------------------------------------------------------------- */
+  --color-primary-50: #fff7ed;
+  --color-primary-100: #ffedd5;
+  --color-primary-200: #fed7aa;
+  --color-primary-300: #fdba74;
+  --color-primary-400: #fb923c;
+  --color-primary-500: #f97316;
+  --color-primary-600: #ea580c; /* primary button fill / links — AA on white */
+  --color-primary-700: #c2410c;
+  --color-primary-800: #9a3412;
+  --color-primary-900: #7c2d12;
+
+  /* Secondary "Ember" (red) */
+  --color-secondary-50: #fef2f2;
+  --color-secondary-100: #fee2e2;
+  --color-secondary-500: #ef4444;
+  --color-secondary-600: #dc2626;
+  --color-secondary-700: #b91c1c;
+
+  /* Neutrals "Slate" */
+  --color-neutral-0: #ffffff;
+  --color-neutral-50: #f9fafb;
+  --color-neutral-100: #f3f4f6;
+  --color-neutral-200: #e5e7eb;
+  --color-neutral-300: #d1d5db;
+  --color-neutral-400: #9ca3af;
+  --color-neutral-500: #6b7280;
+  --color-neutral-600: #4b5563;
+  --color-neutral-700: #374151;
+  --color-neutral-800: #1f2937;
+  --color-neutral-900: #111827;
+
+  /* Functional / status — bg (tint) · border · text/fill */
+  --color-success-bg: #ecfdf5;
+  --color-success-border: #a7f3d0;
+  --color-success-text: #047857;
+
+  --color-warning-bg: #fffbeb;
+  --color-warning-border: #fde68a;
+  --color-warning-text: #b45309;
+
+  --color-error-bg: #fef2f2;
+  --color-error-border: #fecaca;
+  --color-error-text: #b91c1c;
+
+  --color-info-bg: #eff6ff;
+  --color-info-border: #bfdbfe;
+  --color-info-text: #1d4ed8;
+
+  --color-neutral-bg: #f3f4f6;
+  --color-neutral-border: #e5e7eb;
+  --color-neutral-text: #374151;
+
+  /* Order status (canonical, locked vocabulary) — fill · bg · text */
+  --status-placed-fill: #1d4ed8;
+  --status-placed-bg: #eff6ff;
+  --status-placed-text: #1d4ed8;
+
+  --status-accepted-fill: #7c3aed;
+  --status-accepted-bg: #f5f3ff;
+  --status-accepted-text: #6d28d9;
+
+  --status-preparing-fill: #b45309;
+  --status-preparing-bg: #fffbeb;
+  --status-preparing-text: #b45309;
+
+  --status-ready-fill: #047857;
+  --status-ready-bg: #ecfdf5;
+  --status-ready-text: #047857;
+
+  --status-completed-fill: #059669;
+  --status-completed-bg: #ecfdf5;
+  --status-completed-text: #047857;
+
+  --status-cancelled-fill: #b91c1c;
+  --status-cancelled-bg: #fef2f2;
+  --status-cancelled-text: #b91c1c;
+
+  /* Semantic surfaces / text (light mode; dark mode swaps in tokens-dark) */
+  --surface-canvas: #f9fafb;
+  --surface-card: #ffffff;
+  --surface-raised: #ffffff;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --border-default: #e5e7eb;
+  --primary-action: #ea580c;
+  --scrim: rgba(17, 24, 39, 0.5);
+
+  /* ----------------------------------------------------------------------- */
+  /* 3. Typography                                                           */
+  /* ----------------------------------------------------------------------- */
+  --font-family-base: 'Inter', 'SF Pro', -apple-system, 'Segoe UI', Roboto,
+    system-ui, sans-serif;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* size / line-height pairs */
+  --text-display-size: 40px;
+  --text-display-line: 48px;
+  --text-h1-size: 32px;
+  --text-h1-line: 40px;
+  --text-h2-size: 28px;
+  --text-h2-line: 36px;
+  --text-h3-size: 24px;
+  --text-h3-line: 32px;
+  --text-h4-size: 20px;
+  --text-h4-line: 28px;
+  --text-h5-size: 18px;
+  --text-h5-line: 26px;
+  --text-body-lg-size: 16px;
+  --text-body-lg-line: 24px;
+  --text-body-size: 14px;
+  --text-body-line: 20px;
+  --text-caption-size: 12px;
+  --text-caption-line: 16px;
+  --text-overline-size: 11px;
+  --text-overline-line: 16px;
+  --text-price-size: 18px;
+  --text-price-line: 24px;
+
+  /* ----------------------------------------------------------------------- */
+  /* 4. Spacing (base 4px)                                                   */
+  /* ----------------------------------------------------------------------- */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  --size-touch-min: 44px;
+
+  /* ----------------------------------------------------------------------- */
+  /* 5. Border radius                                                        */
+  /* ----------------------------------------------------------------------- */
+  --radius-none: 0;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+  --radius-full: 9999px;
+
+  /* ----------------------------------------------------------------------- */
+  /* 6. Elevation / shadow                                                   */
+  /* ----------------------------------------------------------------------- */
+  --elevation-0: none;
+  --elevation-1: 0 1px 2px rgba(17, 24, 39, 0.06),
+    0 1px 3px rgba(17, 24, 39, 0.1);
+  --elevation-2: 0 2px 4px rgba(17, 24, 39, 0.06),
+    0 4px 8px rgba(17, 24, 39, 0.08);
+  --elevation-3: 0 4px 8px rgba(17, 24, 39, 0.08),
+    0 12px 20px rgba(17, 24, 39, 0.1);
+  --elevation-4: 0 8px 16px rgba(17, 24, 39, 0.1),
+    0 24px 40px rgba(17, 24, 39, 0.14);
+  --elevation-5: 0 16px 32px rgba(17, 24, 39, 0.14),
+    0 40px 64px rgba(17, 24, 39, 0.18);
+
+  --focus-ring: 0 0 0 2px #ffffff, 0 0 0 4px #ea580c;
+
+  /* ----------------------------------------------------------------------- */
+  /* 7. Z-index                                                              */
+  /* ----------------------------------------------------------------------- */
+  --z-base: 0;
+  --z-sticky: 100;
+  --z-drawer: 200;
+  --z-dropdown: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+  --z-tooltip: 600;
+}
+
+/* 2.6 Dark mode scaffolding (Admin Dashboard — Phase 2) */
+[data-theme='dark'] {
+  --surface-canvas: #0b0f19;
+  --surface-card: #151a28;
+  --surface-raised: #1e2536;
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --border-default: #2a3142;
+  --primary-action: #fb923c;
+}

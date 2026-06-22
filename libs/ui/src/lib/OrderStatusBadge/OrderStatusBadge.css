@@ -1,0 +1,125 @@
+.emenu-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.emenu-status__icon {
+  flex: none;
+}
+
+.emenu-status__label {
+  line-height: 1;
+}
+
+.emenu-status__timer {
+  font-weight: var(--font-weight-regular);
+  opacity: 0.85;
+}
+
+/* ---- Sizes ---- */
+.emenu-status--sm {
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-caption-size);
+}
+.emenu-status--md {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-body-size);
+}
+
+/* ---- Dot style: compact for table cells ---- */
+.emenu-status--dot {
+  background: transparent;
+  padding: 0;
+  color: var(--text-primary);
+  border-radius: 0;
+}
+.emenu-status__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  flex: none;
+}
+.emenu-status--dot.emenu-status--sm .emenu-status__dot {
+  width: 7px;
+  height: 7px;
+}
+
+/* ----------------------------------------------------------------------- */
+/* Per-status colors — soft (default), solid pill, dot                     */
+/* ----------------------------------------------------------------------- */
+
+/* soft: tint bg + colored text */
+.emenu-status--soft.emenu-status--placed {
+  background: var(--status-placed-bg);
+  color: var(--status-placed-text);
+}
+.emenu-status--soft.emenu-status--accepted {
+  background: var(--status-accepted-bg);
+  color: var(--status-accepted-text);
+}
+.emenu-status--soft.emenu-status--preparing {
+  background: var(--status-preparing-bg);
+  color: var(--status-preparing-text);
+}
+.emenu-status--soft.emenu-status--ready {
+  background: var(--status-ready-bg);
+  color: var(--status-ready-text);
+}
+.emenu-status--soft.emenu-status--completed {
+  background: var(--status-completed-bg);
+  color: var(--status-completed-text);
+}
+.emenu-status--soft.emenu-status--cancelled {
+  background: var(--status-cancelled-bg);
+  color: var(--status-cancelled-text);
+}
+
+/* solid: filled pill + white text */
+.emenu-status--solid {
+  color: var(--color-neutral-0);
+}
+.emenu-status--solid.emenu-status--placed {
+  background: var(--status-placed-fill);
+}
+.emenu-status--solid.emenu-status--accepted {
+  background: var(--status-accepted-fill);
+}
+.emenu-status--solid.emenu-status--preparing {
+  background: var(--status-preparing-fill);
+}
+.emenu-status--solid.emenu-status--ready {
+  background: var(--status-ready-fill);
+}
+.emenu-status--solid.emenu-status--completed {
+  background: var(--status-completed-fill);
+}
+.emenu-status--solid.emenu-status--cancelled {
+  background: var(--status-cancelled-fill);
+}
+
+/* dot: colored dot + neutral text label */
+.emenu-status--dot.emenu-status--placed .emenu-status__dot {
+  background: var(--status-placed-fill);
+}
+.emenu-status--dot.emenu-status--accepted .emenu-status__dot {
+  background: var(--status-accepted-fill);
+}
+.emenu-status--dot.emenu-status--preparing .emenu-status__dot {
+  background: var(--status-preparing-fill);
+}
+.emenu-status--dot.emenu-status--ready .emenu-status__dot {
+  background: var(--status-ready-fill);
+}
+.emenu-status--dot.emenu-status--completed .emenu-status__dot {
+  background: var(--status-completed-fill);
+}
+.emenu-status--dot.emenu-status--cancelled .emenu-status__dot {
+  background: var(--status-cancelled-fill);
+}
