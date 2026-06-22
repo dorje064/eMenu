@@ -5,6 +5,12 @@
   "references": [
     {
       "path": "./libs/ui"
+    },
+    {
+      "path": "./apps/api-e2e"
+    },
+    {
+      "path": "./apps/api"
     }
   ]
 }

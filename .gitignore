@@ -51,3 +51,7 @@ Thumbs.db
 vite.config.*.timestamp*
 
 storybook-static
+
+# Local SQLite database (TypeORM dev persistence)
+*.sqlite
+*.sqlite-journal
