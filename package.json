@@ -5,6 +5,9 @@
   "scripts": {
     "api": "nx serve api",
     "api:build": "nx build api",
+    "admin": "nx dev admin",
+    "admin:build": "nx build admin",
+    "dev": "nx run-many -t serve dev --projects=api,admin",
     "storybook": "nx storybook ui",
     "storybook:build": "nx build-storybook ui",
     "ui:build": "nx build ui",
@@ -75,6 +78,7 @@
     "qrcode.react": "^4.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-router-dom": "6.30.3",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.0",
     "typeorm": "^0.3.30"

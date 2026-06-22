@@ -16,8 +16,9 @@ It currently hosts the design-system component library and its Storybook.
 
 | Project  | Path       | Description                                                  |
 | -------- | ---------- | ------------------------------------------------------------ |
-| `ui`     | `libs/ui`  | React component library implementing the eMenu Design System |
-| `api`    | `apps/api` | NestJS REST API (customer auth + menu management)            |
+| `ui`     | `libs/ui`   | React component library implementing the eMenu Design System |
+| `api`    | `apps/api`  | NestJS REST API (customer auth + menu management)            |
+| `admin`  | `apps/admin`| React + Vite admin dashboard (consumes `@org/ui` + the API)  |
 
 ## Component library — `@org/ui`
 
@@ -75,6 +76,22 @@ curl -X POST localhost:3000/api/menu/items -H "Authorization: Bearer $TOKEN" \
 > Note: `synchronize: true` is enabled for dev convenience (auto-creates the
 > schema). Switch to TypeORM migrations before production, and set a real
 > `JWT_SECRET`.
+
+## Admin dashboard — `apps/admin` (React + Vite)
+
+A single-page admin dashboard that consumes the `@org/ui` component library and
+the NestJS API. It has a login/sign-up screen (JWT stored in `localStorage`), a
+KPI dashboard, and a menu manager (list + add food item via a modal form).
+
+```sh
+npx nx serve api      # terminal 1 — API on :3000
+npx nx dev admin      # terminal 2 — dashboard on http://localhost:4200
+```
+
+In dev, the Vite server proxies `/api/*` to `http://localhost:3000` (override
+with `API_PROXY_TARGET`), so there are no CORS issues. For a production build,
+set `VITE_API_URL` to the API's base URL. Workspace libs resolve to source via
+the `@org/source` Vite condition (instant HMR, no prebuild of `@org/ui`).
 
 ## Common commands
 
