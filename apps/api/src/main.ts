@@ -27,6 +27,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .addBearerAuth()
     .addTag('auth', 'Customer sign up & login')
+    .addTag('categories', 'Menu category management')
     .addTag('menu', 'Menu / food item management')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);

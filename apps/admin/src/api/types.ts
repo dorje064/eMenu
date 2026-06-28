@@ -14,6 +14,23 @@ export interface AuthResponse {
   customer: Customer;
 }
 
+export interface Category {
+  id: string;
+  name: string;
+  description: string | null;
+  sortOrder: number;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCategoryInput {
+  name: string;
+  description?: string;
+  sortOrder?: number;
+  active?: boolean;
+}
+
 export interface FoodItem {
   id: string;
   name: string;

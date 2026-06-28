@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'node:path';
 import { AuthModule } from '../auth/auth.module';
+import { CategoryModule } from '../category/category.module';
 import { MenuModule } from '../menu/menu.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -20,6 +21,7 @@ import { AppService } from './app.service';
       synchronize: true,
     }),
     AuthModule,
+    CategoryModule,
     MenuModule,
   ],
   controllers: [AppController],

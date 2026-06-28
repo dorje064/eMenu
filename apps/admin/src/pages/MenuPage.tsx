@@ -6,12 +6,15 @@ import {
   EmptyState,
   Input,
   Modal,
+  Select,
   useToast,
   type DataTableColumn,
+  type SelectOption,
 } from '@org/ui';
 import { menuApi } from '../api/menu.api';
+import { categoryApi } from '../api/category.api';
 import { ApiError } from '../api/client';
-import type { CreateFoodItemInput, FoodItem } from '../api/types';
+import type { Category, CreateFoodItemInput, FoodItem } from '../api/types';
 import './MenuPage.css';
 
 const currency = (n: number) =>
@@ -30,6 +33,7 @@ const EMPTY_FORM: CreateFoodItemInput = {
 export function MenuPage() {
   const { show } = useToast();
   const [items, setItems] = useState<FoodItem[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -42,13 +46,23 @@ export function MenuPage() {
     setLoading(true);
     setLoadError(null);
     try {
-      setItems(await menuApi.list());
+      const [menuItems, cats] = await Promise.all([
+        menuApi.list(),
+        categoryApi.list(true),
+      ]);
+      setItems(menuItems);
+      setCategories(cats);
     } catch (err) {
       setLoadError(err instanceof ApiError ? err.message : 'Failed to load menu');
     } finally {
       setLoading(false);
     }
   }, []);
+
+  const categoryOptions: SelectOption[] = categories.map((c) => ({
+    value: c.name,
+    label: c.name,
+  }));
 
   useEffect(() => {
     load();
@@ -186,13 +200,21 @@ export function MenuPage() {
             onChange={(e) => update('name', e.currentTarget.value)}
             placeholder="Margherita Pizza"
           />
-          <Input
-            label="Category"
-            required
-            value={form.category}
-            onChange={(e) => update('category', e.currentTarget.value)}
-            placeholder="Mains"
-          />
+          <div className="menu-form__field">
+            <label className="menu-form__label">
+              Category <span aria-hidden="true">*</span>
+            </label>
+            <Select
+              options={categoryOptions}
+              value={form.category || undefined}
+              onChange={(value) => update('category', value)}
+              placeholder={
+                categoryOptions.length ? 'Select a category' : 'No categories yet'
+              }
+              disabled={categoryOptions.length === 0}
+              label="Category"
+            />
+          </div>
           <div className="menu-form__row">
             <Input
               label="Price"
