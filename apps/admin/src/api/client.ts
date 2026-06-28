@@ -1,16 +1,33 @@
 /**
- * Tiny fetch wrapper around the eMenu API.
+ * Tiny axios wrapper around the eMenu API.
  * - Base URL defaults to `/api` (proxied to the NestJS server in dev).
  * - Attaches the bearer token from a pluggable token provider.
  * - Normalizes errors into `ApiError` with the server's message(s).
  */
+import axios, { AxiosError, type AxiosInstance } from 'axios';
 
-const BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
+/**
+ * Resolve the configured base URL into something axios accepts.
+ * - empty/unset            → '/api' (relative, hits the Vite dev proxy)
+ * - relative path ('/api') → used as-is
+ * - full URL ('http://…')  → used as-is
+ * - schemeless host        → prefixed with 'http://' so axios doesn't read
+ *                            'localhost:' as an (unsupported) protocol.
+ */
+function normalizeBaseUrl(raw: string | undefined): string {
+  const value = raw?.trim();
+  if (!value) return '/api';
+  if (value.startsWith('/')) return value;
+  if (/^https?:\/\//i.test(value)) return value;
+  return `http://${value}`;
+}
+
+const BASE_URL = normalizeBaseUrl(import.meta.env.VITE_API_URL);
 
 export class ApiError extends Error {
   constructor(
     public readonly status: number,
-    message: string
+    message: string,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -24,6 +41,8 @@ export function setTokenProvider(provider: () => string | null) {
   tokenProvider = provider;
 }
 
+const http: AxiosInstance = axios.create({ baseURL: BASE_URL });
+
 interface RequestOptions {
   method?: string;
   body?: unknown;
@@ -32,37 +51,41 @@ interface RequestOptions {
 
 export async function apiRequest<T>(
   path: string,
-  { method = 'GET', body, auth = false }: RequestOptions = {}
+  { method = 'GET', body, auth = false }: RequestOptions = {},
 ): Promise<T> {
   const headers: Record<string, string> = {};
-  if (body !== undefined) headers['Content-Type'] = 'application/json';
 
   if (auth) {
     const token = tokenProvider();
     if (token) headers['Authorization'] = `Bearer ${token}`;
   }
 
-  let res: Response;
   try {
-    res = await fetch(`${BASE_URL}${path}`, {
+    const res = await http.request<T>({
+      url: path,
       method,
       headers,
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      data: body,
     });
-  } catch {
-    throw new ApiError(0, 'Network error — is the API running on :3000?');
+    return res.data;
+  } catch (err) {
+    throw toApiError(err);
   }
+}
 
-  if (res.status === 204) return undefined as T;
-
-  const text = await res.text();
-  const data = text ? JSON.parse(text) : undefined;
-
-  if (!res.ok) {
-    const message = extractMessage(data) ?? `Request failed (${res.status})`;
-    throw new ApiError(res.status, message);
+function toApiError(err: unknown): ApiError {
+  if (axios.isAxiosError(err)) {
+    const { response } = err as AxiosError;
+    if (response) {
+      const message =
+        extractMessage(response.data) ?? `Request failed (${response.status})`;
+      return new ApiError(response.status, message);
+    }
+    debugger;
+    // No response → connection refused, DNS failure, CORS, etc.
+    return new ApiError(0, 'Network error — is the API running on :3000?');
   }
-  return data as T;
+  return new ApiError(0, 'Unexpected error');
 }
 
 function extractMessage(data: unknown): string | null {
