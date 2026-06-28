@@ -52,8 +52,10 @@
   border-bottom: 1px solid var(--border-default);
   padding: var(--space-2) var(--space-4);
   white-space: nowrap;
-  text-align: start;
   vertical-align: middle;
+  /* Horizontal alignment comes from the per-column --start/--center/--end
+     (or --checkbox) modifier classes — keeping it out of this two-class base
+     rule avoids out-specifying those single-class modifiers. */
 }
 
 .emenu-table--sticky .emenu-table__head .emenu-table__th {
