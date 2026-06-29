@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Pencil, Plus, Trash2, UtensilsCrossed } from 'lucide-react';
+import { Eye, Pencil, Plus, Trash2, UtensilsCrossed } from 'lucide-react';
 import {
   Button,
   DataTable,
@@ -15,6 +15,7 @@ import { menuApi } from '../api/menu.api';
 import { categoryApi } from '../api/category.api';
 import { ApiError } from '../api/client';
 import { ImagePicker } from '../components/ImagePicker';
+import { MenuPreview } from '../components/MenuPreview';
 import type { Category, CreateFoodItemInput, FoodItem } from '../api/types';
 import './MenuPage.css';
 
@@ -46,6 +47,8 @@ export function MenuPage() {
 
   const [deleteTarget, setDeleteTarget] = useState<FoodItem | null>(null);
   const [removing, setRemoving] = useState(false);
+
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -220,9 +223,19 @@ export function MenuPage() {
             {items.length} item{items.length === 1 ? '' : 's'} on the menu
           </p>
         </div>
-        <Button leadingIcon={<Plus size={18} />} onClick={openCreate}>
-          Add item
-        </Button>
+        <div className="menu-page__actions">
+          <Button
+            variant="secondary"
+            leadingIcon={<Eye size={18} />}
+            onClick={() => setPreviewOpen(true)}
+            disabled={items.length === 0}
+          >
+            Preview menu
+          </Button>
+          <Button leadingIcon={<Plus size={18} />} onClick={openCreate}>
+            Add item
+          </Button>
+        </div>
       </div>
 
       {loadError ? (
@@ -360,6 +373,16 @@ export function MenuPage() {
         <p>
           Delete “{deleteTarget?.name}” from the menu? This can’t be undone.
         </p>
+      </Modal>
+
+      <Modal
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        title="Menu preview"
+        variant="informational"
+        size="full-screen"
+      >
+        <MenuPreview items={items} categories={categories} />
       </Modal>
     </div>
   );
