@@ -1,11 +1,24 @@
 import { useMemo } from 'react';
 import { ImageOff } from 'lucide-react';
-import type { Category, FoodItem } from '../api/types';
+import type { Category, FoodItem, MenuTemplate } from '../api/types';
 import './MenuPreview.css';
+
+/** The selectable layouts, with copy for the admin picker. */
+export const MENU_TEMPLATES: {
+  id: MenuTemplate;
+  label: string;
+  description: string;
+}[] = [
+  { id: 'classic', label: 'Classic', description: 'Thumbnail list — easy to scan' },
+  { id: 'showcase', label: 'Showcase', description: 'Large photos, image-forward' },
+  { id: 'grid', label: 'Grid', description: 'Compact two-column tiles' },
+];
 
 interface MenuPreviewProps {
   items: FoodItem[];
   categories: Category[];
+  /** Layout to render. @default 'classic' */
+  template?: MenuTemplate;
 }
 
 const currency = (n: number) =>
@@ -24,7 +37,11 @@ interface Group {
  * MenuPreview — a customer-facing, mobile-friendly rendering of the menu,
  * grouped into category sections with item photos, descriptions and prices.
  */
-export function MenuPreview({ items, categories }: MenuPreviewProps) {
+export function MenuPreview({
+  items,
+  categories,
+  template = 'classic',
+}: MenuPreviewProps) {
   const groups = useMemo<Group[]>(() => {
     const byName = new Map<string, FoodItem[]>();
     for (const item of items) {
@@ -64,7 +81,7 @@ export function MenuPreview({ items, categories }: MenuPreviewProps) {
   }, [items, categories]);
 
   return (
-    <div className="menu-preview">
+    <div className={`menu-preview menu-preview--${template}`}>
       <div className="menu-preview__device">
         <header className="menu-preview__header">
           <h2 className="menu-preview__brand">Our Menu</h2>

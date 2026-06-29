@@ -1,3 +1,55 @@
+/* Admin chrome: template picker + save, sticky atop the scrolling preview. */
+.menu-preview-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-default);
+  border-bottom: 1px solid var(--border-default);
+}
+.menu-preview-toolbar__templates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.tpl-option {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+  min-width: 150px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-canvas);
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+.tpl-option:hover {
+  border-color: var(--color-primary-300);
+}
+.tpl-option--active {
+  border-color: var(--color-primary-600);
+  background: var(--color-primary-50);
+}
+.tpl-option__label {
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+.tpl-option__current {
+  color: var(--color-primary-600);
+  font-weight: var(--font-weight-semibold);
+}
+.tpl-option__desc {
+  font-size: var(--text-caption-size);
+  color: var(--text-secondary);
+}
+
 .menu-preview {
   display: flex;
   justify-content: center;
@@ -129,4 +181,51 @@
   font-weight: var(--font-weight-semibold);
   background: var(--color-error-bg);
   color: var(--color-error-text);
+}
+
+/* ---------------------------------------------------------------------------
+   Template: Showcase — large stacked photos, image-forward.
+   --------------------------------------------------------------------------- */
+.menu-preview--showcase .menu-preview__item {
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--surface-default);
+}
+.menu-preview--showcase .menu-preview__thumb {
+  width: 100%;
+  height: 180px;
+  border: none;
+  border-radius: 0;
+}
+.menu-preview--showcase .menu-preview__body {
+  padding: var(--space-3);
+  width: 100%;
+}
+
+/* ---------------------------------------------------------------------------
+   Template: Grid — compact two-column tiles.
+   --------------------------------------------------------------------------- */
+.menu-preview--grid .menu-preview__list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+.menu-preview--grid .menu-preview__item {
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.menu-preview--grid .menu-preview__thumb {
+  width: 100%;
+  height: 110px;
+}
+.menu-preview--grid .menu-preview__row {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+.menu-preview--grid .menu-preview__desc {
+  display: none;
 }

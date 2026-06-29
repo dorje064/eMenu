@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { AuthModule } from '../auth/auth.module';
 import { CategoryModule } from '../category/category.module';
 import { MenuModule } from '../menu/menu.module';
+import { SettingsModule } from '../settings/settings.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -23,6 +24,7 @@ import { AppService } from './app.service';
     AuthModule,
     CategoryModule,
     MenuModule,
+    SettingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

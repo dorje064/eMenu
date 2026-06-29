@@ -13,10 +13,16 @@ import {
 } from '@org/ui';
 import { menuApi } from '../api/menu.api';
 import { categoryApi } from '../api/category.api';
+import { settingsApi } from '../api/settings.api';
 import { ApiError } from '../api/client';
 import { ImagePicker } from '../components/ImagePicker';
-import { MenuPreview } from '../components/MenuPreview';
-import type { Category, CreateFoodItemInput, FoodItem } from '../api/types';
+import { MenuPreview, MENU_TEMPLATES } from '../components/MenuPreview';
+import type {
+  Category,
+  CreateFoodItemInput,
+  FoodItem,
+  MenuTemplate,
+} from '../api/types';
 import './MenuPage.css';
 
 const currency = (n: number) =>
@@ -49,17 +55,24 @@ export function MenuPage() {
   const [removing, setRemoving] = useState(false);
 
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<MenuTemplate>('classic');
+  const [savedTemplate, setSavedTemplate] = useState<MenuTemplate>('classic');
+  const [savingTemplate, setSavingTemplate] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
     setLoadError(null);
     try {
-      const [menuItems, cats] = await Promise.all([
+      const [menuItems, cats, settings] = await Promise.all([
         menuApi.list(),
         categoryApi.list(true),
+        settingsApi.get(),
       ]);
       setItems(menuItems);
       setCategories(cats);
+      setSavedTemplate(settings.menuTemplate);
+      setSelectedTemplate(settings.menuTemplate);
     } catch (err) {
       setLoadError(err instanceof ApiError ? err.message : 'Failed to load menu');
     } finally {
@@ -163,6 +176,36 @@ export function MenuPage() {
     }
   };
 
+  const openPreview = () => {
+    setSelectedTemplate(savedTemplate);
+    setPreviewOpen(true);
+  };
+
+  const saveTemplate = async () => {
+    setSavingTemplate(true);
+    try {
+      const updated = await settingsApi.update({
+        menuTemplate: selectedTemplate,
+      });
+      setSavedTemplate(updated.menuTemplate);
+      const label =
+        MENU_TEMPLATES.find((t) => t.id === updated.menuTemplate)?.label ??
+        updated.menuTemplate;
+      show({
+        semantic: 'success',
+        message: `Customer menu set to the “${label}” template`,
+      });
+    } catch (err) {
+      show({
+        semantic: 'error',
+        message:
+          err instanceof ApiError ? err.message : 'Could not save the template.',
+      });
+    } finally {
+      setSavingTemplate(false);
+    }
+  };
+
   const columns: DataTableColumn<FoodItem>[] = [
     { key: 'name', header: 'Item', render: (r) => <strong>{r.name}</strong> },
     { key: 'category', header: 'Category' },
@@ -227,7 +270,7 @@ export function MenuPage() {
           <Button
             variant="secondary"
             leadingIcon={<Eye size={18} />}
-            onClick={() => setPreviewOpen(true)}
+            onClick={openPreview}
             disabled={items.length === 0}
           >
             Preview menu
@@ -382,7 +425,48 @@ export function MenuPage() {
         variant="informational"
         size="full-screen"
       >
-        <MenuPreview items={items} categories={categories} />
+        <div className="menu-preview-toolbar">
+          <div
+            className="menu-preview-toolbar__templates"
+            role="radiogroup"
+            aria-label="Menu template"
+          >
+            {MENU_TEMPLATES.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                role="radio"
+                aria-checked={selectedTemplate === t.id}
+                className={`tpl-option${
+                  selectedTemplate === t.id ? ' tpl-option--active' : ''
+                }`}
+                onClick={() => setSelectedTemplate(t.id)}
+              >
+                <span className="tpl-option__label">
+                  {t.label}
+                  {savedTemplate === t.id && (
+                    <span className="tpl-option__current"> · live</span>
+                  )}
+                </span>
+                <span className="tpl-option__desc">{t.description}</span>
+              </button>
+            ))}
+          </div>
+          <Button
+            onClick={saveTemplate}
+            loading={savingTemplate}
+            disabled={selectedTemplate === savedTemplate}
+          >
+            {selectedTemplate === savedTemplate
+              ? 'Current customer menu'
+              : 'Set as customer menu'}
+          </Button>
+        </div>
+        <MenuPreview
+          items={items}
+          categories={categories}
+          template={selectedTemplate}
+        />
       </Modal>
     </div>
   );

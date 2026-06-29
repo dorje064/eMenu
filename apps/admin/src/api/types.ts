@@ -58,6 +58,19 @@ export interface CreateFoodItemInput {
 
 export type UpdateFoodItemInput = Partial<CreateFoodItemInput>;
 
+/** Menu layouts the customer app can render. */
+export type MenuTemplate = 'classic' | 'showcase' | 'grid';
+
+export interface Settings {
+  id: string;
+  menuTemplate: MenuTemplate;
+  updatedAt: string;
+}
+
+export interface UpdateSettingsInput {
+  menuTemplate: MenuTemplate;
+}
+
 /** One image-search hit shown in the picker grid. */
 export interface ImageSearchResult {
   id: string;
