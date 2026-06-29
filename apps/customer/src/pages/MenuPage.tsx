@@ -22,6 +22,7 @@ const currency = (n: number) =>
 
 export function MenuPage() {
   const [params] = useSearchParams();
+  const cafe = params.get('cafe')?.trim() ?? '';
   const table = params.get('table')?.trim() ?? '';
 
   const { show } = useToast();
@@ -38,23 +39,26 @@ export function MenuPage() {
   const [confirmed, setConfirmed] = useState<Order | null>(null);
 
   const load = useCallback(async () => {
+    if (!cafe) {
+      setLoading(false);
+      setLoadError(
+        'This menu link is invalid. Please scan the QR code on your table.'
+      );
+      return;
+    }
     setLoading(true);
     setLoadError(null);
     try {
-      const [menuItems, cats, settings] = await Promise.all([
-        menuApi.items(),
-        menuApi.categories(),
-        menuApi.settings(),
-      ]);
-      setItems(menuItems);
-      setCategories(cats);
-      setTemplate(settings.menuTemplate);
+      const menu = await menuApi.forCafe(cafe);
+      setItems(menu.items);
+      setCategories(menu.categories);
+      setTemplate(menu.menuTemplate);
     } catch (err) {
       setLoadError(err instanceof ApiError ? err.message : 'Failed to load menu');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [cafe]);
 
   useEffect(() => {
     load();
@@ -100,6 +104,7 @@ export function MenuPage() {
     setPlacing(true);
     try {
       const order = await ordersApi.create({
+        cafeId: cafe,
         tableNumber: table,
         items: cartLines.map((l) => ({ foodItemId: l.item.id, quantity: l.qty })),
         note: note.trim() || undefined,

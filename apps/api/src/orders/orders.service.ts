@@ -21,7 +21,7 @@ export class OrdersService {
     private readonly foodItems: Repository<FoodItem>
   ) {}
 
-  async create(dto: CreateOrderDto): Promise<Order> {
+  async create(ownerId: string, dto: CreateOrderDto): Promise<Order> {
     // Collapse duplicate lines for the same item into a single quantity.
     const quantities = new Map<string, number>();
     for (const line of dto.items) {
@@ -32,7 +32,8 @@ export class OrdersService {
     }
 
     const ids = [...quantities.keys()];
-    const found = await this.foodItems.find({ where: { id: In(ids) } });
+    // Only this café's items can be ordered.
+    const found = await this.foodItems.find({ where: { id: In(ids), ownerId } });
     const byId = new Map(found.map((f) => [f.id, f]));
 
     const lines: OrderItem[] = [];
@@ -55,6 +56,7 @@ export class OrdersService {
     }
 
     const order = this.orders.create({
+      ownerId,
       tableNumber: dto.tableNumber,
       note: dto.note ?? null,
       status: 'pending',
@@ -64,23 +66,27 @@ export class OrdersService {
     return this.orders.save(order);
   }
 
-  findAll(status?: string): Promise<Order[]> {
+  findAll(ownerId: string, status?: string): Promise<Order[]> {
     return this.orders.find({
-      where: status ? { status: status as OrderStatus } : {},
+      where: status ? { ownerId, status: status as OrderStatus } : { ownerId },
       order: { createdAt: 'DESC' },
     });
   }
 
-  async findOne(id: string): Promise<Order> {
-    const order = await this.orders.findOne({ where: { id } });
+  async findOne(ownerId: string, id: string): Promise<Order> {
+    const order = await this.orders.findOne({ where: { id, ownerId } });
     if (!order) {
       throw new NotFoundException(`Order ${id} not found`);
     }
     return order;
   }
 
-  async updateStatus(id: string, dto: UpdateOrderStatusDto): Promise<Order> {
-    const order = await this.findOne(id);
+  async updateStatus(
+    ownerId: string,
+    id: string,
+    dto: UpdateOrderStatusDto
+  ): Promise<Order> {
+    const order = await this.findOne(ownerId, id);
     order.status = dto.status;
     return this.orders.save(order);
   }

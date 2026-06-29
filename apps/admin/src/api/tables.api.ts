@@ -6,7 +6,7 @@ import type {
 } from './types';
 
 export const tablesApi = {
-  list: () => apiRequest<RestaurantTable[]>('/tables'),
+  list: () => apiRequest<RestaurantTable[]>('/tables', { auth: true }),
 
   create: (input: CreateTableInput) =>
     apiRequest<RestaurantTable>('/tables', {

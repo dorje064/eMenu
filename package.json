@@ -16,7 +16,11 @@
     "ui:typecheck": "nx typecheck ui",
     "build": "nx run-many -t build",
     "typecheck": "nx run-many -t typecheck",
-    "graph": "nx graph"
+    "graph": "nx graph",
+    "migration:run": "TS_NODE_PROJECT=apps/api/tsconfig.app.json TS_NODE_TRANSPILE_ONLY=1 typeorm-ts-node-commonjs migration:run -d apps/api/src/database/data-source.ts",
+    "migration:revert": "TS_NODE_PROJECT=apps/api/tsconfig.app.json TS_NODE_TRANSPILE_ONLY=1 typeorm-ts-node-commonjs migration:revert -d apps/api/src/database/data-source.ts",
+    "migration:show": "TS_NODE_PROJECT=apps/api/tsconfig.app.json TS_NODE_TRANSPILE_ONLY=1 typeorm-ts-node-commonjs migration:show -d apps/api/src/database/data-source.ts",
+    "migration:generate": "TS_NODE_PROJECT=apps/api/tsconfig.app.json TS_NODE_TRANSPILE_ONLY=1 typeorm-ts-node-commonjs migration:generate -d apps/api/src/database/data-source.ts"
   },
   "private": true,
   "devDependencies": {
@@ -72,12 +76,13 @@
     "@nestjs/typeorm": "^11.0.2",
     "axios": "^1.6.0",
     "bcryptjs": "^3.0.3",
-    "better-sqlite3": "^12.11.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
+    "dotenv": "^17.4.2",
     "lucide-react": "^1.21.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
+    "pg": "^8.22.0",
     "qrcode.react": "^4.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

@@ -28,6 +28,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { OwnerId } from '../auth/owner-id.decorator';
 import { CreateFoodItemDto } from './dto/create-food-item.dto';
 import { UpdateFoodItemDto } from './dto/update-food-item.dto';
 import { FoodItemDto } from './dto/food-item.dto';
@@ -50,16 +51,25 @@ export class MenuController {
   @ApiOperation({ summary: 'Add a food item to the menu (requires auth)' })
   @ApiCreatedResponse({ type: FoodItemDto })
   @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
-  create(@Body() dto: CreateFoodItemDto): Promise<FoodItemDto> {
-    return this.menuService.create(dto);
+  create(
+    @OwnerId() ownerId: string,
+    @Body() dto: CreateFoodItemDto
+  ): Promise<FoodItemDto> {
+    return this.menuService.create(ownerId, dto);
   }
 
   @Get('items')
-  @ApiOperation({ summary: 'List menu items, optionally filtered by category' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "List this café's menu items (requires auth)" })
   @ApiQuery({ name: 'category', required: false, example: 'Mains' })
   @ApiOkResponse({ type: [FoodItemDto] })
-  findAll(@Query('category') category?: string): Promise<FoodItemDto[]> {
-    return this.menuService.findAll(category);
+  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
+  findAll(
+    @OwnerId() ownerId: string,
+    @Query('category') category?: string
+  ): Promise<FoodItemDto[]> {
+    return this.menuService.findAll(ownerId, category);
   }
 
   @Get('image-search')
@@ -94,11 +104,17 @@ export class MenuController {
   }
 
   @Get('items/:id')
-  @ApiOperation({ summary: 'Get a single menu item by id' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get a single menu item by id (requires auth)' })
   @ApiOkResponse({ type: FoodItemDto })
   @ApiNotFoundResponse({ description: 'Item not found' })
-  findOne(@Param('id') id: string): Promise<FoodItemDto> {
-    return this.menuService.findOne(id);
+  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
+  findOne(
+    @OwnerId() ownerId: string,
+    @Param('id') id: string
+  ): Promise<FoodItemDto> {
+    return this.menuService.findOne(ownerId, id);
   }
 
   @Patch('items/:id')
@@ -109,10 +125,11 @@ export class MenuController {
   @ApiNotFoundResponse({ description: 'Item not found' })
   @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
   update(
+    @OwnerId() ownerId: string,
     @Param('id') id: string,
-    @Body() dto: UpdateFoodItemDto,
+    @Body() dto: UpdateFoodItemDto
   ): Promise<FoodItemDto> {
-    return this.menuService.update(id, dto);
+    return this.menuService.update(ownerId, id, dto);
   }
 
   @Delete('items/:id')
@@ -123,7 +140,10 @@ export class MenuController {
   @ApiNoContentResponse({ description: 'Item deleted' })
   @ApiNotFoundResponse({ description: 'Item not found' })
   @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
-  remove(@Param('id') id: string): Promise<void> {
-    return this.menuService.remove(id);
+  remove(
+    @OwnerId() ownerId: string,
+    @Param('id') id: string
+  ): Promise<void> {
+    return this.menuService.remove(ownerId, id);
   }
 }

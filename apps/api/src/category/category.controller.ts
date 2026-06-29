@@ -22,65 +22,73 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { OwnerId } from '../auth/owner-id.decorator';
 import { CategoryService } from './category.service';
 import { CategoryDto } from './dto/category.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @ApiTags('categories')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
+@ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
 @Controller('categories')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Create a menu category (requires auth)' })
+  @ApiOperation({ summary: 'Create a menu category' })
   @ApiCreatedResponse({ type: CategoryDto })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
-  create(@Body() dto: CreateCategoryDto): Promise<CategoryDto> {
-    return this.categoryService.create(dto);
+  create(
+    @OwnerId() ownerId: string,
+    @Body() dto: CreateCategoryDto
+  ): Promise<CategoryDto> {
+    return this.categoryService.create(ownerId, dto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'List menu categories' })
+  @ApiOperation({ summary: "List this café's menu categories" })
   @ApiQuery({ name: 'activeOnly', required: false, type: Boolean })
   @ApiOkResponse({ type: [CategoryDto] })
-  findAll(@Query('activeOnly') activeOnly?: boolean): Promise<CategoryDto[]> {
-    return this.categoryService.findAll(activeOnly);
+  findAll(
+    @OwnerId() ownerId: string,
+    @Query('activeOnly') activeOnly?: boolean
+  ): Promise<CategoryDto[]> {
+    return this.categoryService.findAll(ownerId, activeOnly);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a single category by id' })
   @ApiOkResponse({ type: CategoryDto })
   @ApiNotFoundResponse({ description: 'Category not found' })
-  findOne(@Param('id') id: string): Promise<CategoryDto> {
-    return this.categoryService.findOne(id);
+  findOne(
+    @OwnerId() ownerId: string,
+    @Param('id') id: string
+  ): Promise<CategoryDto> {
+    return this.categoryService.findOne(ownerId, id);
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update a category (requires auth)' })
+  @ApiOperation({ summary: 'Update a category' })
   @ApiOkResponse({ type: CategoryDto })
   @ApiNotFoundResponse({ description: 'Category not found' })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
   update(
+    @OwnerId() ownerId: string,
     @Param('id') id: string,
-    @Body() dto: UpdateCategoryDto,
+    @Body() dto: UpdateCategoryDto
   ): Promise<CategoryDto> {
-    return this.categoryService.update(id, dto);
+    return this.categoryService.update(ownerId, id, dto);
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
   @HttpCode(204)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Delete a category (requires auth)' })
+  @ApiOperation({ summary: 'Delete a category' })
   @ApiNoContentResponse({ description: 'Category deleted' })
   @ApiNotFoundResponse({ description: 'Category not found' })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
-  remove(@Param('id') id: string): Promise<void> {
-    return this.categoryService.remove(id);
+  remove(
+    @OwnerId() ownerId: string,
+    @Param('id') id: string
+  ): Promise<void> {
+    return this.categoryService.remove(ownerId, id);
   }
 }

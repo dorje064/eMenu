@@ -9,9 +9,11 @@ export const categoryApi = {
   list: (activeOnly?: boolean) =>
     apiRequest<Category[]>(
       `/categories${activeOnly ? '?activeOnly=true' : ''}`,
+      { auth: true },
     ),
 
-  get: (id: string) => apiRequest<Category>(`/categories/${id}`),
+  get: (id: string) =>
+    apiRequest<Category>(`/categories/${id}`, { auth: true }),
 
   create: (input: CreateCategoryInput) =>
     apiRequest<Category>('/categories', {

@@ -2,15 +2,21 @@ import {
   Column,
   Entity,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 import { DEFAULT_MENU_TEMPLATE, type MenuTemplate } from '../menu-template';
 
-/** Singleton row of restaurant-wide settings shared by admin and customer apps. */
+/** Per-café settings shared by the admin and customer apps (one row per owner). */
 @Entity({ name: 'settings' })
+@Unique(['ownerId'])
 export class Settings {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
+
+  /** Owning café account (Customer.id). */
+  @Column({ name: 'owner_id', type: 'varchar' })
+  ownerId!: string;
 
   /** Which menu layout the customer app should render. */
   @Column({

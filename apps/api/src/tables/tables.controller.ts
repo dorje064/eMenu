@@ -20,64 +20,69 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { OwnerId } from '../auth/owner-id.decorator';
 import { CreateTableDto } from './dto/create-table.dto';
 import { TableDto } from './dto/table.dto';
 import { UpdateTableDto } from './dto/update-table.dto';
 import { TablesService } from './tables.service';
 
 @ApiTags('tables')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
+@ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
 @Controller('tables')
 export class TablesController {
   constructor(private readonly tablesService: TablesService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Add a table (requires auth)' })
+  @ApiOperation({ summary: 'Add a table' })
   @ApiCreatedResponse({ type: TableDto })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
-  create(@Body() dto: CreateTableDto): Promise<TableDto> {
-    return this.tablesService.create(dto);
+  create(
+    @OwnerId() ownerId: string,
+    @Body() dto: CreateTableDto
+  ): Promise<TableDto> {
+    return this.tablesService.create(ownerId, dto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'List tables' })
+  @ApiOperation({ summary: "List this café's tables" })
   @ApiOkResponse({ type: [TableDto] })
-  findAll(): Promise<TableDto[]> {
-    return this.tablesService.findAll();
+  findAll(@OwnerId() ownerId: string): Promise<TableDto[]> {
+    return this.tablesService.findAll(ownerId);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a single table by id' })
   @ApiOkResponse({ type: TableDto })
   @ApiNotFoundResponse({ description: 'Table not found' })
-  findOne(@Param('id') id: string): Promise<TableDto> {
-    return this.tablesService.findOne(id);
+  findOne(
+    @OwnerId() ownerId: string,
+    @Param('id') id: string
+  ): Promise<TableDto> {
+    return this.tablesService.findOne(ownerId, id);
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update a table (requires auth)' })
+  @ApiOperation({ summary: 'Update a table' })
   @ApiOkResponse({ type: TableDto })
   @ApiNotFoundResponse({ description: 'Table not found' })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
   update(
+    @OwnerId() ownerId: string,
     @Param('id') id: string,
     @Body() dto: UpdateTableDto
   ): Promise<TableDto> {
-    return this.tablesService.update(id, dto);
+    return this.tablesService.update(ownerId, id, dto);
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
   @HttpCode(204)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Delete a table (requires auth)' })
+  @ApiOperation({ summary: 'Delete a table' })
   @ApiNoContentResponse({ description: 'Table deleted' })
   @ApiNotFoundResponse({ description: 'Table not found' })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
-  remove(@Param('id') id: string): Promise<void> {
-    return this.tablesService.remove(id);
+  remove(
+    @OwnerId() ownerId: string,
+    @Param('id') id: string
+  ): Promise<void> {
+    return this.tablesService.remove(ownerId, id);
   }
 }

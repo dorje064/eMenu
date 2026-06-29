@@ -16,8 +16,9 @@ export class TablesService {
     private readonly tables: Repository<RestaurantTable>
   ) {}
 
-  async create(dto: CreateTableDto): Promise<RestaurantTable> {
+  async create(ownerId: string, dto: CreateTableDto): Promise<RestaurantTable> {
     const table = this.tables.create({
+      ownerId,
       name: dto.name,
       active: dto.active ?? true,
     });
@@ -31,20 +32,24 @@ export class TablesService {
     }
   }
 
-  findAll(): Promise<RestaurantTable[]> {
-    return this.tables.find({ order: { name: 'ASC' } });
+  findAll(ownerId: string): Promise<RestaurantTable[]> {
+    return this.tables.find({ where: { ownerId }, order: { name: 'ASC' } });
   }
 
-  async findOne(id: string): Promise<RestaurantTable> {
-    const table = await this.tables.findOne({ where: { id } });
+  async findOne(ownerId: string, id: string): Promise<RestaurantTable> {
+    const table = await this.tables.findOne({ where: { id, ownerId } });
     if (!table) {
       throw new NotFoundException(`Table ${id} not found`);
     }
     return table;
   }
 
-  async update(id: string, dto: UpdateTableDto): Promise<RestaurantTable> {
-    const table = await this.findOne(id);
+  async update(
+    ownerId: string,
+    id: string,
+    dto: UpdateTableDto
+  ): Promise<RestaurantTable> {
+    const table = await this.findOne(ownerId, id);
     if (dto.name !== undefined) table.name = dto.name;
     if (dto.active !== undefined) table.active = dto.active;
     try {
@@ -57,8 +62,8 @@ export class TablesService {
     }
   }
 
-  async remove(id: string): Promise<void> {
-    const result = await this.tables.delete(id);
+  async remove(ownerId: string, id: string): Promise<void> {
+    const result = await this.tables.delete({ id, ownerId });
     if (!result.affected) {
       throw new NotFoundException(`Table ${id} not found`);
     }

@@ -2,17 +2,26 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 
-/** A grouping for menu items, e.g. Breakfast, Lunch, Drinks. */
+/** A grouping for menu items, e.g. Breakfast, Lunch, Drinks.
+ *  Scoped to the café owner; names are unique per owner. */
 @Entity({ name: 'categories' })
+@Unique(['ownerId', 'name'])
 export class Category {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ unique: true })
+  /** Owning café account (Customer.id). */
+  @Index()
+  @Column({ name: 'owner_id', type: 'varchar' })
+  ownerId!: string;
+
+  @Column()
   name!: string;
 
   @Column({ type: 'text', nullable: true })

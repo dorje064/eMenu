@@ -1,10 +1,10 @@
 import { apiRequest } from './client';
-import type { Category, FoodItem, Settings } from './types';
+import type { PublicMenu } from './types';
 
 export const menuApi = {
-  items: () => apiRequest<FoodItem[]>('/menu/items'),
-
-  categories: () => apiRequest<Category[]>('/categories?activeOnly=true'),
-
-  settings: () => apiRequest<Settings>('/settings'),
+  /** Fetch a single café's menu (categories, items, template). */
+  forCafe: (cafeId: string) =>
+    apiRequest<PublicMenu>(
+      `/public/menu?cafe=${encodeURIComponent(cafeId)}`
+    ),
 };

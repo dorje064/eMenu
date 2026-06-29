@@ -11,9 +11,11 @@ export const menuApi = {
   list: (category?: string) =>
     apiRequest<FoodItem[]>(
       `/menu/items${category ? `?category=${encodeURIComponent(category)}` : ''}`,
+      { auth: true },
     ),
 
-  get: (id: string) => apiRequest<FoodItem>(`/menu/items/${id}`),
+  get: (id: string) =>
+    apiRequest<FoodItem>(`/menu/items/${id}`, { auth: true }),
 
   create: (input: CreateFoodItemInput) =>
     apiRequest<FoodItem>('/menu/items', {

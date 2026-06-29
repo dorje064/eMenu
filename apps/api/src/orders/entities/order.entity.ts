@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -9,13 +10,18 @@ import {
 import { type OrderStatus } from '../order-status';
 import { OrderItem } from './order-item.entity';
 
-/** A customer order placed from a table's QR menu. */
+/** A customer order placed from a table's QR menu. Scoped to the café owner. */
 @Entity({ name: 'orders' })
 export class Order {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  /** The table the order was placed from (matches RestaurantTable.number). */
+  /** Owning café account (Customer.id). */
+  @Index()
+  @Column({ name: 'owner_id', type: 'varchar' })
+  ownerId!: string;
+
+  /** The table the order was placed from (matches RestaurantTable.name). */
   @Column({ name: 'table_number', type: 'varchar' })
   tableNumber!: string;
 

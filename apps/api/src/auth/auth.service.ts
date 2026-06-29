@@ -7,6 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { Repository } from 'typeorm';
+import { CategoryService } from '../category/category.service';
 import { AuthResponseDto, CustomerDto } from './dto/auth-response.dto';
 import { LoginDto } from './dto/login.dto';
 import { SignupDto } from './dto/signup.dto';
@@ -18,6 +19,7 @@ export class AuthService {
     @InjectRepository(Customer)
     private readonly customers: Repository<Customer>,
     private readonly jwt: JwtService,
+    private readonly categoryService: CategoryService,
   ) {}
 
   async signup(dto: SignupDto): Promise<AuthResponseDto> {
@@ -35,6 +37,9 @@ export class AuthService {
       phone: dto.phone ?? null,
     });
     await this.customers.save(customer);
+
+    // Give the new café a starter set of categories.
+    await this.categoryService.seedDefaults(customer.id);
 
     return this.buildAuthResponse(customer);
   }

@@ -21,10 +21,11 @@ export interface FoodItem {
   available: boolean;
 }
 
-export interface Settings {
-  id: string;
+/** One café's full menu, returned by GET /public/menu?cafe=<id>. */
+export interface PublicMenu {
+  categories: Category[];
+  items: FoodItem[];
   menuTemplate: MenuTemplate;
-  updatedAt: string;
 }
 
 export interface OrderLineInput {
@@ -33,6 +34,7 @@ export interface OrderLineInput {
 }
 
 export interface CreateOrderInput {
+  cafeId: string;
   tableNumber: string;
   items: OrderLineInput[];
   note?: string;

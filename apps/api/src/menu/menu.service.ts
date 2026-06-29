@@ -9,11 +9,12 @@ import { FoodItem } from './entities/food-item.entity';
 export class MenuService {
   constructor(
     @InjectRepository(FoodItem)
-    private readonly foodItems: Repository<FoodItem>,
+    private readonly foodItems: Repository<FoodItem>
   ) {}
 
-  create(dto: CreateFoodItemDto): Promise<FoodItem> {
+  create(ownerId: string, dto: CreateFoodItemDto): Promise<FoodItem> {
     const item = this.foodItems.create({
+      ownerId,
       name: dto.name,
       description: dto.description ?? null,
       category: dto.category,
@@ -25,23 +26,27 @@ export class MenuService {
     return this.foodItems.save(item);
   }
 
-  findAll(category?: string): Promise<FoodItem[]> {
+  findAll(ownerId: string, category?: string): Promise<FoodItem[]> {
     return this.foodItems.find({
-      where: category ? { category } : {},
+      where: category ? { ownerId, category } : { ownerId },
       order: { category: 'ASC', name: 'ASC' },
     });
   }
 
-  async findOne(id: string): Promise<FoodItem> {
-    const item = await this.foodItems.findOne({ where: { id } });
+  async findOne(ownerId: string, id: string): Promise<FoodItem> {
+    const item = await this.foodItems.findOne({ where: { id, ownerId } });
     if (!item) {
       throw new NotFoundException(`Food item ${id} not found`);
     }
     return item;
   }
 
-  async update(id: string, dto: UpdateFoodItemDto): Promise<FoodItem> {
-    const item = await this.findOne(id);
+  async update(
+    ownerId: string,
+    id: string,
+    dto: UpdateFoodItemDto
+  ): Promise<FoodItem> {
+    const item = await this.findOne(ownerId, id);
     if (dto.name !== undefined) item.name = dto.name;
     if (dto.description !== undefined)
       item.description = dto.description ?? null;
@@ -54,8 +59,8 @@ export class MenuService {
     return this.foodItems.save(item);
   }
 
-  async remove(id: string): Promise<void> {
-    const result = await this.foodItems.delete(id);
+  async remove(ownerId: string, id: string): Promise<void> {
+    const result = await this.foodItems.delete({ id, ownerId });
     if (!result.affected) {
       throw new NotFoundException(`Food item ${id} not found`);
     }

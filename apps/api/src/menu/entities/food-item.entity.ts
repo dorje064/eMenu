@@ -2,15 +2,21 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
-/** A dish on a restaurant menu. */
+/** A dish on a restaurant menu. Scoped to the café owner. */
 @Entity({ name: 'food_items' })
 export class FoodItem {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
+
+  /** Owning café account (Customer.id). */
+  @Index()
+  @Column({ name: 'owner_id', type: 'varchar' })
+  ownerId!: string;
 
   @Column()
   name!: string;

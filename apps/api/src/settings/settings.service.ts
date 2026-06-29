@@ -8,21 +8,18 @@ import { Settings } from './entities/settings.entity';
 export class SettingsService {
   constructor(
     @InjectRepository(Settings)
-    private readonly settings: Repository<Settings>,
+    private readonly settings: Repository<Settings>
   ) {}
 
-  /** Returns the singleton settings row, creating it with defaults if absent. */
-  async get(): Promise<Settings> {
-    const existing = await this.settings.findOne({
-      where: {},
-      order: { updatedAt: 'ASC' },
-    });
+  /** Returns this café's settings row, creating it with defaults if absent. */
+  async get(ownerId: string): Promise<Settings> {
+    const existing = await this.settings.findOne({ where: { ownerId } });
     if (existing) return existing;
-    return this.settings.save(this.settings.create({}));
+    return this.settings.save(this.settings.create({ ownerId }));
   }
 
-  async update(dto: UpdateSettingsDto): Promise<Settings> {
-    const current = await this.get();
+  async update(ownerId: string, dto: UpdateSettingsDto): Promise<Settings> {
+    const current = await this.get(ownerId);
     current.menuTemplate = dto.menuTemplate;
     return this.settings.save(current);
   }

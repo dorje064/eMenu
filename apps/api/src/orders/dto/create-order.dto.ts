@@ -25,6 +25,11 @@ export class CreateOrderItemDto {
 }
 
 export class CreateOrderDto {
+  @ApiProperty({ example: 'b1f1…', description: 'Café (owner) id, from the QR.' })
+  @IsString()
+  @MinLength(1)
+  cafeId!: string;
+
   @ApiProperty({ example: '12' })
   @IsString()
   @MinLength(1)

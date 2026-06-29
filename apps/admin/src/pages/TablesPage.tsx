@@ -10,6 +10,7 @@ import {
 } from '@org/ui';
 import { tablesApi } from '../api/tables.api';
 import { ApiError } from '../api/client';
+import { useAuth } from '../auth/AuthContext';
 import type { CreateTableInput, RestaurantTable } from '../api/types';
 import './MenuPage.css';
 import './TablesPage.css';
@@ -19,19 +20,23 @@ const CUSTOMER_URL = (
   import.meta.env.VITE_CUSTOMER_URL ?? 'http://localhost:4201'
 ).replace(/\/+$/, '');
 
-const menuUrlFor = (tableName: string) =>
-  `${CUSTOMER_URL}/?table=${encodeURIComponent(tableName)}`;
+const menuUrlFor = (cafeId: string, tableName: string) =>
+  `${CUSTOMER_URL}/?cafe=${encodeURIComponent(cafeId)}&table=${encodeURIComponent(
+    tableName
+  )}`;
 
 /** One table's card: shows its auto-generated QR and a PNG download. */
 function TableCard({
   table,
+  cafeId,
   onDelete,
 }: {
   table: RestaurantTable;
+  cafeId: string;
   onDelete: (table: RestaurantTable) => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const url = menuUrlFor(table.name);
+  const url = menuUrlFor(cafeId, table.name);
 
   const download = () => {
     const canvas = canvasRef.current;
@@ -99,6 +104,8 @@ const EMPTY_FORM: CreateTableInput = { name: '', active: true };
 
 export function TablesPage() {
   const { show } = useToast();
+  const { customer } = useAuth();
+  const cafeId = customer?.id ?? '';
   const [tables, setTables] = useState<RestaurantTable[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -211,7 +218,12 @@ export function TablesPage() {
       ) : (
         <div className="table-grid">
           {tables.map((table) => (
-            <TableCard key={table.id} table={table} onDelete={setDeleteTarget} />
+            <TableCard
+              key={table.id}
+              table={table}
+              cafeId={cafeId}
+              onDelete={setDeleteTarget}
+            />
           ))}
         </div>
       )}

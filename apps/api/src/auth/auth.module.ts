@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule, JwtModuleOptions, JwtSignOptions } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CategoryModule } from '../category/category.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { Customer } from './entities/customer.entity';
@@ -11,6 +12,7 @@ import { JwtStrategy } from './jwt.strategy';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Customer]),
+    CategoryModule,
     PassportModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
