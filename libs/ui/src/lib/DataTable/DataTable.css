@@ -64,9 +64,15 @@
   z-index: var(--z-sticky);
 }
 
-.emenu-table__th--start { text-align: start; }
-.emenu-table__th--center { text-align: center; }
-.emenu-table__th--end { text-align: end; }
+.emenu-table__th--start {
+  text-align: start;
+}
+.emenu-table__th--center {
+  text-align: center;
+}
+.emenu-table__th--end {
+  text-align: end;
+}
 
 .emenu-table__th--checkbox {
   width: 44px;
@@ -124,9 +130,15 @@
   border-bottom: none;
 }
 
-.emenu-table__td--start { text-align: start; }
-.emenu-table__td--center { text-align: center; }
-.emenu-table__td--end { text-align: end; }
+.emenu-table__td--start {
+  text-align: start;
+}
+.emenu-table__td--center {
+  text-align: center;
+}
+.emenu-table__td--end {
+  text-align: end;
+}
 
 .emenu-table__td--checkbox {
   width: 44px;

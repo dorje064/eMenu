@@ -28,10 +28,16 @@ export const Secondary: Story = { args: { variant: 'secondary' } };
 export const Tertiary: Story = { args: { variant: 'tertiary' } };
 
 export const Destructive: Story = {
-  args: { variant: 'destructive', children: 'Delete item', leadingIcon: <Trash2 size={18} /> },
+  args: {
+    variant: 'destructive',
+    children: 'Delete item',
+    leadingIcon: <Trash2 size={18} />,
+  },
 };
 
-export const Link: Story = { args: { variant: 'link', children: 'View report' } };
+export const Link: Story = {
+  args: { variant: 'link', children: 'View report' },
+};
 
 export const Hierarchy: Story = {
   render: () => (
@@ -47,7 +53,14 @@ export const Hierarchy: Story = {
 
 export const Sizes: Story = {
   render: () => (
-    <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+    <div
+      style={{
+        display: 'flex',
+        gap: 12,
+        alignItems: 'center',
+        flexWrap: 'wrap',
+      }}
+    >
       <Button size="sm">Small</Button>
       <Button size="md">Medium</Button>
       <Button size="lg">Large</Button>

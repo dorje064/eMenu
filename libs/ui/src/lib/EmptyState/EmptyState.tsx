@@ -5,11 +5,7 @@ import { Button } from '../Button/Button';
 import './EmptyState.css';
 
 export type EmptyStateVariant =
-  | 'first-use'
-  | 'no-results'
-  | 'cleared'
-  | 'error-empty'
-  | 'permission';
+  'first-use' | 'no-results' | 'cleared' | 'error-empty' | 'permission';
 export type EmptyStateSize = 'inline' | 'full-page';
 
 export interface EmptyStateAction {
@@ -19,8 +15,10 @@ export interface EmptyStateAction {
   onClick?: () => void;
 }
 
-export interface EmptyStateProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
+export interface EmptyStateProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'title'
+> {
   /** Icon (rendered `icon.xl`, muted, aria-hidden) or an illustration node. */
   icon?: ReactNode;
   /** Heading — a real heading in the page outline (`text.h4`). */
@@ -62,7 +60,7 @@ export const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(
       className,
       ...rest
     },
-    ref
+    ref,
   ) => {
     const Heading = `h${headingLevel}` as const;
 
@@ -73,7 +71,7 @@ export const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(
           'emenu-empty',
           `emenu-empty--${size}`,
           `emenu-empty--${variant}`,
-          className
+          className,
         )}
         {...rest}
       >
@@ -100,7 +98,7 @@ export const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 EmptyState.displayName = 'EmptyState';

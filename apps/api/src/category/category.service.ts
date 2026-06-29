@@ -12,26 +12,27 @@ import { Category } from './entities/category.entity';
 
 /** Default categories seeded when the table is empty, so the menu form
  *  has something to choose from out of the box. */
-const DEFAULT_CATEGORIES: ReadonlyArray<Pick<Category, 'name' | 'sortOrder'>> = [
-  { name: 'Breakfast', sortOrder: 0 },
-  { name: 'Lunch', sortOrder: 1 },
-  { name: 'Dinner', sortOrder: 2 },
-  { name: 'Drinks', sortOrder: 3 },
-  { name: 'Desserts', sortOrder: 4 },
-];
+const DEFAULT_CATEGORIES: ReadonlyArray<Pick<Category, 'name' | 'sortOrder'>> =
+  [
+    { name: 'Breakfast', sortOrder: 0 },
+    { name: 'Lunch', sortOrder: 1 },
+    { name: 'Dinner', sortOrder: 2 },
+    { name: 'Drinks', sortOrder: 3 },
+    { name: 'Desserts', sortOrder: 4 },
+  ];
 
 @Injectable()
 export class CategoryService implements OnModuleInit {
   constructor(
     @InjectRepository(Category)
-    private readonly categories: Repository<Category>
+    private readonly categories: Repository<Category>,
   ) {}
 
   async onModuleInit(): Promise<void> {
     const count = await this.categories.count();
     if (count === 0) {
       await this.categories.save(
-        DEFAULT_CATEGORIES.map((c) => this.categories.create(c))
+        DEFAULT_CATEGORIES.map((c) => this.categories.create(c)),
       );
     }
   }

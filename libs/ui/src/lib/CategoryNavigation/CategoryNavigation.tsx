@@ -16,8 +16,10 @@ export interface CategoryNavigationItem {
   disabled?: boolean;
 }
 
-export interface CategoryNavigationProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
+export interface CategoryNavigationProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'onChange'
+> {
   /** Categories to render. */
   items: CategoryNavigationItem[];
   /** Currently selected category id (controlled). */
@@ -53,7 +55,7 @@ export const CategoryNavigation = forwardRef<
       className,
       ...rest
     },
-    ref
+    ref,
   ) => {
     const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
@@ -99,11 +101,7 @@ export const CategoryNavigation = forwardRef<
         role="tablist"
         aria-label={ariaLabel}
         aria-orientation={variant === 'vertical' ? 'vertical' : 'horizontal'}
-        className={cn(
-          'emenu-catnav',
-          `emenu-catnav--${variant}`,
-          className
-        )}
+        className={cn('emenu-catnav', `emenu-catnav--${variant}`, className)}
         {...rest}
       >
         {items.map((item, i) => {
@@ -123,7 +121,7 @@ export const CategoryNavigation = forwardRef<
               disabled={item.disabled}
               className={cn(
                 'emenu-catnav__chip',
-                selected && 'emenu-catnav__chip--active'
+                selected && 'emenu-catnav__chip--active',
               )}
               onClick={() => !item.disabled && onChange(item.id)}
               onKeyDown={(e) => handleKeyDown(e, i)}
@@ -139,7 +137,7 @@ export const CategoryNavigation = forwardRef<
         })}
       </div>
     );
-  }
+  },
 );
 
 CategoryNavigation.displayName = 'CategoryNavigation';

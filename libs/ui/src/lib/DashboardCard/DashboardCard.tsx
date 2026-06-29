@@ -5,7 +5,8 @@ import { cn } from '../utils/cn';
 import './DashboardCard.css';
 
 export type DashboardCardState = 'loaded' | 'loading' | 'empty';
-export type DashboardCardAccent = 'none' | 'success' | 'error' | 'warning' | 'info';
+export type DashboardCardAccent =
+  'none' | 'success' | 'error' | 'warning' | 'info';
 
 export interface DashboardCardDelta {
   /** Direction of change vs the prior period. */
@@ -16,8 +17,10 @@ export interface DashboardCardDelta {
   srLabel?: string;
 }
 
-export interface DashboardCardProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
+export interface DashboardCardProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'title'
+> {
   /** Small eyebrow label above the value (rendered as `text.overline`), e.g. "Today's revenue". */
   label: string;
   /** The headline metric, pre-formatted, e.g. "$1,240" or "84". */
@@ -61,7 +64,7 @@ export const DashboardCard = forwardRef<HTMLDivElement, DashboardCardProps>(
       className,
       ...rest
     },
-    ref
+    ref,
   ) => {
     const isLoading = state === 'loading';
     const isEmpty = state === 'empty';
@@ -84,7 +87,7 @@ export const DashboardCard = forwardRef<HTMLDivElement, DashboardCardProps>(
         className={cn(
           'emenu-dashcard',
           accent !== 'none' && `emenu-dashcard--accent-${accent}`,
-          className
+          className,
         )}
         aria-busy={isLoading || undefined}
         {...rest}
@@ -116,7 +119,7 @@ export const DashboardCard = forwardRef<HTMLDivElement, DashboardCardProps>(
                   <span
                     className={cn(
                       'emenu-dashcard__delta',
-                      `emenu-dashcard__delta--${delta.direction}`
+                      `emenu-dashcard__delta--${delta.direction}`,
                     )}
                   >
                     {delta.direction === 'up' ? (
@@ -148,7 +151,7 @@ export const DashboardCard = forwardRef<HTMLDivElement, DashboardCardProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 DashboardCard.displayName = 'DashboardCard';

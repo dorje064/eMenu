@@ -71,11 +71,15 @@
   border: 1px solid transparent;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background-color 120ms ease, border-color 120ms ease,
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
     color 120ms ease;
 }
 
-.emenu-pagination__btn:hover:not([aria-disabled]):not(.emenu-pagination__btn--current) {
+.emenu-pagination__btn:hover:not([aria-disabled]):not(
+    .emenu-pagination__btn--current
+  ) {
   background: var(--color-neutral-100);
   color: var(--color-neutral-900);
 }

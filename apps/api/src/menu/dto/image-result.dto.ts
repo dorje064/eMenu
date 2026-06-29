@@ -17,7 +17,9 @@ export class ImageResultDto {
   @ApiProperty({ description: 'Photographer / source attribution.' })
   credit!: string;
 
-  @ApiProperty({ description: 'Link to the source page (attribution requirement).' })
+  @ApiProperty({
+    description: 'Link to the source page (attribution requirement).',
+  })
   sourceUrl!: string;
 }
 

@@ -14,11 +14,11 @@ It currently hosts the design-system component library and its Storybook.
 
 ## Projects
 
-| Project  | Path       | Description                                                  |
-| -------- | ---------- | ------------------------------------------------------------ |
-| `ui`     | `libs/ui`   | React component library implementing the eMenu Design System |
-| `api`    | `apps/api`  | NestJS REST API (customer auth + menu management)            |
-| `admin`  | `apps/admin`| React + Vite admin dashboard (consumes `@org/ui` + the API)  |
+| Project | Path         | Description                                                  |
+| ------- | ------------ | ------------------------------------------------------------ |
+| `ui`    | `libs/ui`    | React component library implementing the eMenu Design System |
+| `api`   | `apps/api`   | NestJS REST API (customer auth + menu management)            |
+| `admin` | `apps/admin` | React + Vite admin dashboard (consumes `@org/ui` + the API)  |
 
 ## Component library — `@org/ui`
 
@@ -55,14 +55,14 @@ npx nx serve api                         # http://localhost:3000/api
 
 ### Endpoints
 
-| Method | Path                  | Auth   | Description                          |
-| ------ | --------------------- | ------ | ------------------------------------ |
-| POST   | `/api/auth/signup`    | public | Register a customer, returns a JWT   |
-| POST   | `/api/auth/login`     | public | Log in, returns a JWT                |
-| GET    | `/api/auth/me`        | Bearer | Current authenticated customer       |
-| POST   | `/api/menu/items`     | Bearer | Add a food item to the menu          |
-| GET    | `/api/menu/items`     | public | List items (optional `?category=`)   |
-| GET    | `/api/menu/items/:id` | public | Get one item                         |
+| Method | Path                  | Auth   | Description                        |
+| ------ | --------------------- | ------ | ---------------------------------- |
+| POST   | `/api/auth/signup`    | public | Register a customer, returns a JWT |
+| POST   | `/api/auth/login`     | public | Log in, returns a JWT              |
+| GET    | `/api/auth/me`        | Bearer | Current authenticated customer     |
+| POST   | `/api/menu/items`     | Bearer | Add a food item to the menu        |
+| GET    | `/api/menu/items`     | public | List items (optional `?category=`) |
+| GET    | `/api/menu/items/:id` | public | Get one item                       |
 
 ```sh
 # Quick smoke test

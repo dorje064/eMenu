@@ -58,6 +58,21 @@ export interface CreateFoodItemInput {
 
 export type UpdateFoodItemInput = Partial<CreateFoodItemInput>;
 
+export interface RestaurantTable {
+  id: string;
+  name: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateTableInput {
+  name: string;
+  active?: boolean;
+}
+
+export type UpdateTableInput = Partial<CreateTableInput>;
+
 /** Menu layouts the customer app can render. */
 export type MenuTemplate = 'classic' | 'showcase' | 'grid';
 

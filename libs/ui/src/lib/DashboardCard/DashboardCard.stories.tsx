@@ -67,7 +67,11 @@ export const ExpensesDown: Story = {
 export const Loading: Story = { args: { state: 'loading' } };
 
 export const Empty: Story = {
-  args: { label: 'Pending payments', state: 'empty', icon: <DollarSign size={18} /> },
+  args: {
+    label: 'Pending payments',
+    state: 'empty',
+    icon: <DollarSign size={18} />,
+  },
 };
 
 export const DashboardGrid: Story = {
@@ -82,7 +86,11 @@ export const DashboardGrid: Story = {
       <DashboardCard
         label="Today's revenue"
         value="$1,240"
-        delta={{ direction: 'up', label: '+12%', srLabel: 'up 12% vs yesterday' }}
+        delta={{
+          direction: 'up',
+          label: '+12%',
+          srLabel: 'up 12% vs yesterday',
+        }}
         context="vs yesterday"
         icon={<DollarSign size={18} />}
         accent="success"
@@ -104,7 +112,11 @@ export const DashboardGrid: Story = {
       <DashboardCard
         label="Expenses"
         value="$640"
-        delta={{ direction: 'down', label: '−4%', srLabel: 'down 4% vs last week' }}
+        delta={{
+          direction: 'down',
+          label: '−4%',
+          srLabel: 'down 4% vs last week',
+        }}
         context="vs last week"
         icon={<Receipt size={18} />}
         accent="error"

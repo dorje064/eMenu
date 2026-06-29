@@ -101,7 +101,10 @@ export const OrderStatus: Story = {
         </h1>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {statuses.map((s) => (
-            <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div
+              key={s}
+              style={{ display: 'flex', alignItems: 'center', gap: 12 }}
+            >
               <span
                 style={{
                   width: 16,

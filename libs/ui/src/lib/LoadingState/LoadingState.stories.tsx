@@ -26,7 +26,14 @@ export const MenuCardSkeleton: Story = {
       }}
     >
       <Skeleton shape="rect" height={160} radius={0} />
-      <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div
+        style={{
+          padding: 16,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 10,
+        }}
+      >
         <Skeleton width="70%" height={18} />
         <Skeleton width="90%" />
         <Skeleton width="40%" height={20} />
@@ -39,7 +46,15 @@ export const SkeletonShapes: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
       <Skeleton shape="circle" width={48} />
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 240 }}>
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 8,
+          maxWidth: 240,
+        }}
+      >
         <Skeleton width="60%" />
         <Skeleton width="100%" />
       </div>
@@ -71,7 +86,14 @@ export const SpinnerInButton: Story = {
 
 export const UploadProgress: Story = {
   render: () => (
-    <div style={{ maxWidth: 360, display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div
+      style={{
+        maxWidth: 360,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 16,
+      }}
+    >
       <ProgressBar value={64} label="Uploading food photo" showValue />
       <ProgressBar value={100} label="Bulk menu import" showValue />
     </div>

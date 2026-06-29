@@ -9,12 +9,7 @@ import { cn } from '../utils/cn';
 import './Input.css';
 
 export type InputType =
-  | 'text'
-  | 'email'
-  | 'password'
-  | 'number'
-  | 'currency'
-  | 'textarea';
+  'text' | 'email' | 'password' | 'number' | 'currency' | 'textarea';
 export type InputSize = 'md' | 'lg';
 
 /** Native attributes shared by `<input>` and `<textarea>` we delegate to the field. */
@@ -56,7 +51,10 @@ export interface InputProps extends NativeFieldAttrs {
  * helper/error text, success state, and md/lg densities. Supports text, email,
  * password (with reveal toggle), number, currency, and textarea types.
  */
-export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
+export const Input = forwardRef<
+  HTMLInputElement | HTMLTextAreaElement,
+  InputProps
+>(
   (
     {
       type = 'text',
@@ -77,7 +75,7 @@ export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputPro
       inputMode,
       ...rest
     },
-    ref
+    ref,
   ) => {
     const generatedId = useId();
     const id = idProp ?? generatedId;
@@ -99,10 +97,10 @@ export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputPro
         ? 'text'
         : 'password'
       : isCurrency
-      ? 'text'
-      : type === 'textarea'
-      ? undefined
-      : type;
+        ? 'text'
+        : type === 'textarea'
+          ? undefined
+          : type;
     const resolvedInputMode =
       inputMode ??
       (isCurrency ? 'decimal' : type === 'number' ? 'numeric' : undefined);
@@ -112,9 +110,17 @@ export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputPro
 
     // Trailing slot priority: password reveal > success/error status icon > custom icon.
     const statusIcon = isInvalid ? (
-      <AlertCircle className="emenu-input__status-icon emenu-input__status-icon--error" aria-hidden="true" size={18} />
+      <AlertCircle
+        className="emenu-input__status-icon emenu-input__status-icon--error"
+        aria-hidden="true"
+        size={18}
+      />
     ) : isSuccess ? (
-      <Check className="emenu-input__status-icon emenu-input__status-icon--success" aria-hidden="true" size={18} />
+      <Check
+        className="emenu-input__status-icon emenu-input__status-icon--success"
+        aria-hidden="true"
+        size={18}
+      />
     ) : null;
 
     const fieldClassName = cn('emenu-input__field', className);
@@ -139,7 +145,7 @@ export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputPro
           isInvalid && 'emenu-input--error',
           isSuccess && 'emenu-input--success',
           disabled && 'emenu-input--disabled',
-          readOnly && 'emenu-input--readonly'
+          readOnly && 'emenu-input--readonly',
         )}
       >
         {label != null && (
@@ -157,16 +163,22 @@ export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputPro
         <div
           className={cn(
             'emenu-input__control',
-            isTextarea && 'emenu-input__control--textarea'
+            isTextarea && 'emenu-input__control--textarea',
           )}
         >
           {leadingIcon && (
-            <span className="emenu-input__adornment emenu-input__adornment--leading" aria-hidden="true">
+            <span
+              className="emenu-input__adornment emenu-input__adornment--leading"
+              aria-hidden="true"
+            >
               {leadingIcon}
             </span>
           )}
           {resolvedPrefix != null && (
-            <span className="emenu-input__affix emenu-input__affix--prefix" aria-hidden="true">
+            <span
+              className="emenu-input__affix emenu-input__affix--prefix"
+              aria-hidden="true"
+            >
               {resolvedPrefix}
             </span>
           )}
@@ -186,7 +198,10 @@ export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputPro
           )}
 
           {suffix != null && (
-            <span className="emenu-input__affix emenu-input__affix--suffix" aria-hidden="true">
+            <span
+              className="emenu-input__affix emenu-input__affix--suffix"
+              aria-hidden="true"
+            >
               {suffix}
             </span>
           )}
@@ -213,7 +228,10 @@ export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputPro
             </span>
           ) : (
             trailingIcon && (
-              <span className="emenu-input__adornment emenu-input__adornment--trailing" aria-hidden="true">
+              <span
+                className="emenu-input__adornment emenu-input__adornment--trailing"
+                aria-hidden="true"
+              >
                 {trailingIcon}
               </span>
             )
@@ -230,7 +248,7 @@ export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputPro
         </p>
       </div>
     );
-  }
+  },
 );
 
 Input.displayName = 'Input';

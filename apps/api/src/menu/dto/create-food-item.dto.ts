@@ -19,7 +19,8 @@ export class CreateFoodItemDto {
   name!: string;
 
   @ApiProperty({
-    example: 'Wood-fired pizza with San Marzano tomato, fresh mozzarella and basil.',
+    example:
+      'Wood-fired pizza with San Marzano tomato, fresh mozzarella and basil.',
     required: false,
   })
   @IsOptional()
@@ -32,12 +33,19 @@ export class CreateFoodItemDto {
   @MinLength(1)
   category!: string;
 
-  @ApiProperty({ example: 12.5, description: 'Price in the restaurant currency.' })
+  @ApiProperty({
+    example: 12.5,
+    description: 'Price in the restaurant currency.',
+  })
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
   price!: number;
 
-  @ApiProperty({ example: 15, default: 15, description: 'Preparation time in minutes.' })
+  @ApiProperty({
+    example: 15,
+    default: 15,
+    description: 'Preparation time in minutes.',
+  })
   @IsOptional()
   @IsInt()
   @Min(0)

@@ -9,7 +9,7 @@ import { FoodItem } from './entities/food-item.entity';
 export class MenuService {
   constructor(
     @InjectRepository(FoodItem)
-    private readonly foodItems: Repository<FoodItem>
+    private readonly foodItems: Repository<FoodItem>,
   ) {}
 
   create(dto: CreateFoodItemDto): Promise<FoodItem> {
@@ -43,7 +43,8 @@ export class MenuService {
   async update(id: string, dto: UpdateFoodItemDto): Promise<FoodItem> {
     const item = await this.findOne(id);
     if (dto.name !== undefined) item.name = dto.name;
-    if (dto.description !== undefined) item.description = dto.description ?? null;
+    if (dto.description !== undefined)
+      item.description = dto.description ?? null;
     if (dto.category !== undefined) item.category = dto.category;
     if (dto.price !== undefined) item.price = dto.price;
     if (dto.prepTimeMinutes !== undefined)

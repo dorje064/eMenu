@@ -5,6 +5,7 @@ import { CategoriesPage } from '../pages/CategoriesPage';
 import { DashboardHome } from '../pages/DashboardHome';
 import { LoginPage } from '../pages/LoginPage';
 import { MenuPage } from '../pages/MenuPage';
+import { TablesPage } from '../pages/TablesPage';
 
 export function App() {
   return (
@@ -15,6 +16,7 @@ export function App() {
           <Route path="/" element={<DashboardHome />} />
           <Route path="/menu" element={<MenuPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
+          <Route path="/tables" element={<TablesPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

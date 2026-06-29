@@ -31,7 +31,11 @@ export const Initials: Story = { args: { name: 'Priya Sharma' } };
 export const IconFallback: Story = { args: { name: '' } };
 
 export const RestaurantLogo: Story = {
-  args: { name: 'Spice Garden', shape: 'rounded-square', fallbackIcon: <Store /> },
+  args: {
+    name: 'Spice Garden',
+    shape: 'rounded-square',
+    fallbackIcon: <Store />,
+  },
 };
 
 export const ImageError: Story = {

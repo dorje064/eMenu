@@ -9,13 +9,7 @@ import {
 } from 'react';
 import type { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import {
-  CheckCircle2,
-  Info,
-  AlertTriangle,
-  XCircle,
-  X,
-} from 'lucide-react';
+import { CheckCircle2, Info, AlertTriangle, XCircle, X } from 'lucide-react';
 import { cn } from '../utils/cn';
 import './Toast.css';
 
@@ -90,7 +84,7 @@ export function Toast({
     startRef.current = Date.now();
     timerRef.current = window.setTimeout(
       () => dismissRef.current(),
-      remainingRef.current
+      remainingRef.current,
     );
     return () => {
       window.clearTimeout(timerRef.current);
@@ -184,7 +178,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
 
   const value = useMemo<ToastContextValue>(
     () => ({ show, dismiss }),
-    [show, dismiss]
+    [show, dismiss],
   );
 
   const visible = toasts.slice(-MAX_VISIBLE);
@@ -195,10 +189,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
       {children}
       {typeof document !== 'undefined' &&
         createPortal(
-          <div
-            className="emenu-toast-region"
-            aria-label="Notifications"
-          >
+          <div className="emenu-toast-region" aria-label="Notifications">
             {visible.map((t) => (
               <Toast
                 key={t.id}
@@ -216,7 +207,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
               </div>
             )}
           </div>,
-          document.body
+          document.body,
         )}
     </ToastContext.Provider>
   );

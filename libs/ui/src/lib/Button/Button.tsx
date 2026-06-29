@@ -5,11 +5,7 @@ import { cn } from '../utils/cn';
 import './Button.css';
 
 export type ButtonVariant =
-  | 'primary'
-  | 'secondary'
-  | 'tertiary'
-  | 'destructive'
-  | 'link';
+  'primary' | 'secondary' | 'tertiary' | 'destructive' | 'link';
 export type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
 export type ButtonShape = 'default' | 'pill' | 'icon';
 
@@ -51,7 +47,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       children,
       ...rest
     },
-    ref
+    ref,
   ) => {
     const isDisabled = disabled || loading;
     return (
@@ -67,12 +63,16 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           shape !== 'default' && `emenu-btn--${shape}`,
           fullWidth && 'emenu-btn--full',
           loading && 'emenu-btn--loading',
-          className
+          className,
         )}
         {...rest}
       >
         {loading ? (
-          <Loader2 className="emenu-btn__spinner" aria-hidden="true" size={18} />
+          <Loader2
+            className="emenu-btn__spinner"
+            aria-hidden="true"
+            size={18}
+          />
         ) : (
           leadingIcon && (
             <span className="emenu-btn__icon" aria-hidden="true">
@@ -88,7 +88,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         )}
       </button>
     );
-  }
+  },
 );
 
 Button.displayName = 'Button';

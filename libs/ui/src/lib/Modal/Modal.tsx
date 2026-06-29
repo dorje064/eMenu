@@ -7,10 +7,7 @@ import './Modal.css';
 
 export type ModalSize = 'sm' | 'md' | 'lg' | 'full-screen';
 export type ModalVariant =
-  | 'confirmation'
-  | 'form'
-  | 'informational'
-  | 'destructive';
+  'confirmation' | 'form' | 'informational' | 'destructive';
 
 export interface ModalProps {
   /** Whether the modal is mounted/visible. */
@@ -104,8 +101,10 @@ export function Modal({
       const panel = panelRef.current;
       if (!panel) return;
       const focusables = Array.from(
-        panel.querySelectorAll<HTMLElement>(FOCUSABLE)
-      ).filter((el) => el.offsetParent !== null || el === document.activeElement);
+        panel.querySelectorAll<HTMLElement>(FOCUSABLE),
+      ).filter(
+        (el) => el.offsetParent !== null || el === document.activeElement,
+      );
       if (focusables.length === 0) {
         e.preventDefault();
         return;
@@ -121,16 +120,13 @@ export function Modal({
         first.focus();
       }
     },
-    [escClosable, onClose]
+    [escClosable, onClose],
   );
 
   if (!open) return null;
 
   return createPortal(
-    <div
-      className="emenu-modal"
-      onKeyDown={onKeyDown}
-    >
+    <div className="emenu-modal" onKeyDown={onKeyDown}>
       <div
         className="emenu-modal__scrim"
         onClick={scrimClosable ? onClose : undefined}
@@ -141,7 +137,7 @@ export function Modal({
         className={cn(
           'emenu-modal__panel',
           `emenu-modal__panel--${size}`,
-          isDestructive && 'emenu-modal__panel--destructive'
+          isDestructive && 'emenu-modal__panel--destructive',
         )}
         role="dialog"
         aria-modal="true"
@@ -168,7 +164,7 @@ export function Modal({
         {footer && <footer className="emenu-modal__footer">{footer}</footer>}
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }
 

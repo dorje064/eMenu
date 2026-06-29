@@ -1,5 +1,10 @@
 import { useId } from 'react';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from 'lucide-react';
 import { cn } from '../utils/cn';
 import './Pagination.css';
 
@@ -40,7 +45,11 @@ function range(start: number, end: number): number[] {
 }
 
 /** Build the truncated page list, e.g. `1 … 4 5 6 … 20`. */
-function buildPages(page: number, pageCount: number, siblingCount: number): PageItem[] {
+function buildPages(
+  page: number,
+  pageCount: number,
+  siblingCount: number,
+): PageItem[] {
   // first + last + current + 2*siblings + 2 dots
   const totalSlots = siblingCount * 2 + 5;
   if (pageCount <= totalSlots) return range(1, pageCount);
@@ -116,7 +125,10 @@ export function Pagination({
           )}
           {showSizeSelector && (
             <div className="emenu-pagination__size">
-              <label htmlFor={selectId} className="emenu-pagination__size-label">
+              <label
+                htmlFor={selectId}
+                className="emenu-pagination__size-label"
+              >
                 Rows per page
               </label>
               <select
@@ -166,7 +178,11 @@ export function Pagination({
 
         {pages.map((item, idx) =>
           item === DOTS ? (
-            <li key={`dots-${idx}`} aria-hidden="true" className="emenu-pagination__dots">
+            <li
+              key={`dots-${idx}`}
+              aria-hidden="true"
+              className="emenu-pagination__dots"
+            >
               &hellip;
             </li>
           ) : (
@@ -176,7 +192,7 @@ export function Pagination({
                 className={cn(
                   'emenu-pagination__btn',
                   'emenu-pagination__btn--page',
-                  item === page && 'emenu-pagination__btn--current'
+                  item === page && 'emenu-pagination__btn--current',
                 )}
                 aria-label={`Page ${item}`}
                 aria-current={item === page ? 'page' : undefined}
@@ -185,7 +201,7 @@ export function Pagination({
                 {item}
               </button>
             </li>
-          )
+          ),
         )}
 
         <li>

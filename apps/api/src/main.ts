@@ -22,13 +22,13 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
       transform: true,
       transformOptions: { enableImplicitConversion: true },
-    })
+    }),
   );
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('eMenu API')
     .setDescription(
-      'Customer authentication and menu management endpoints for the eMenu platform.'
+      'Customer authentication and menu management endpoints for the eMenu platform.',
     )
     .setVersion('1.0')
     .addBearerAuth()
@@ -43,7 +43,9 @@ async function bootstrap() {
   const port = process.env.PORT || 3000;
   await app.listen(port);
   Logger.log(`🚀 API running on:  http://localhost:${port}/${globalPrefix}`);
-  Logger.log(`📚 Swagger docs:    http://localhost:${port}/${globalPrefix}/docs`);
+  Logger.log(
+    `📚 Swagger docs:    http://localhost:${port}/${globalPrefix}/docs`,
+  );
 }
 
 bootstrap();

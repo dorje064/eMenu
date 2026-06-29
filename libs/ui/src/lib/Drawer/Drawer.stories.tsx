@@ -26,7 +26,15 @@ const cartItems = [
 
 function CartBody() {
   return (
-    <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 12 }}>
+    <ul
+      style={{
+        listStyle: 'none',
+        margin: 0,
+        padding: 0,
+        display: 'grid',
+        gap: 12,
+      }}
+    >
       {cartItems.map((item) => (
         <li
           key={item.name}
@@ -134,9 +142,7 @@ export const NonModalFilters: Story = {
           edge="right"
           size="sm"
           modal={false}
-          footer={
-            <Button onClick={() => setOpen(false)}>Apply filters</Button>
-          }
+          footer={<Button onClick={() => setOpen(false)}>Apply filters</Button>}
         >
           <div style={{ display: 'grid', gap: 12 }}>
             <label>

@@ -17,7 +17,9 @@ export class SettingsController {
   constructor(private readonly settingsService: SettingsService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get restaurant settings (e.g. customer menu template)' })
+  @ApiOperation({
+    summary: 'Get restaurant settings (e.g. customer menu template)',
+  })
   @ApiOkResponse({ type: SettingsDto })
   get(): Promise<SettingsDto> {
     return this.settingsService.get();

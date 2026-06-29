@@ -8,7 +8,7 @@ import { Settings } from './entities/settings.entity';
 export class SettingsService {
   constructor(
     @InjectRepository(Settings)
-    private readonly settings: Repository<Settings>
+    private readonly settings: Repository<Settings>,
   ) {}
 
   /** Returns the singleton settings row, creating it with defaults if absent. */

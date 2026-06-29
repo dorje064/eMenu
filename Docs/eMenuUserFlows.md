@@ -21,18 +21,19 @@
 
 **Diagram legend**
 
-| Shape / style | Meaning |
-| --- | --- |
-| `([ ])` rounded | Start / entry point |
-| `[ ]` rectangle | Screen or system action |
-| `{ }` diamond | Decision |
-| `[[ ]]` subroutine | Sub-flow / repeated step |
-| Dashed arrow `-.->` | Error / unhappy path |
-| `(( ))` circle | Terminal success |
+| Shape / style       | Meaning                  |
+| ------------------- | ------------------------ |
+| `([ ])` rounded     | Start / entry point      |
+| `[ ]` rectangle     | Screen or system action  |
+| `{ }` diamond       | Decision                 |
+| `[[ ]]` subroutine  | Sub-flow / repeated step |
+| Dashed arrow `-.->` | Error / unhappy path     |
+| `(( ))` circle      | Terminal success         |
 
 **Screen-hierarchy notation:** indentation = containment; `→` = navigates to; `⤷` = modal/drawer/sheet overlay; `*` = role-gated by the Permissions Matrix (Requirements §6).
 
 **Platform mapping**
+
 - **Customer** → Customer App (mobile web, light-only, 480px max column).
 - **Owner / Kitchen / Waiter** → Admin Dashboard (responsive; staff roles optimized for tablet, 44px+ targets).
 
@@ -54,7 +55,7 @@ The diner holding a phone at the table. No login, no app install — QR-scan to 
 
 ### 1.1 User goals
 
-- See the menu for *this* table's restaurant/branch instantly.
+- See the menu for _this_ table's restaurant/branch instantly.
 - Find and understand dishes (price, prep time, dietary tags, photos).
 - Build an order and place it in one tap, with confidence it was received.
 - Track the order in real time and know when food is coming.
@@ -62,12 +63,12 @@ The diner holding a phone at the table. No login, no app install — QR-scan to 
 
 ### 1.2 Entry points
 
-| Entry point | Context |
-| --- | --- |
-| **QR scan** (primary) | Camera → deep link `emenu.app/r/{restaurant}/t/{table}` |
-| **Direct URL** | Shared link / typed short URL |
+| Entry point           | Context                                                               |
+| --------------------- | --------------------------------------------------------------------- |
+| **QR scan** (primary) | Camera → deep link `emenu.app/r/{restaurant}/t/{table}`               |
+| **Direct URL**        | Shared link / typed short URL                                         |
 | **"View order" link** | Returning to an in-progress order (session token in URL/localStorage) |
-| **Reopen tab** | Browser history → session resumes if order still open |
+| **Reopen tab**        | Browser history → session resumes if order still open                 |
 
 > No account is required to order. Optional sign-in (Google OAuth) only for order history across visits.
 
@@ -121,14 +122,14 @@ Customer App (single-column, ≤480px, sticky CTA in thumb zone)
 
 ### 1.6 Error path
 
-| Failure | Detection | Recovery (UX) |
-| --- | --- | --- |
-| Invalid / expired QR | Table token not found | Full-page empty/error state: "This code isn't active. Ask staff for help." + retry |
-| Menu fails to load | Fetch error / timeout | Skeleton → error state with **Retry**; never silent spinner |
-| Item sold out while browsing | Realtime availability push | Card desaturates, "Sold out" badge, Add disabled; toast if it was in cart |
-| Network drop during tracking | WebSocket disconnect | "Reconnecting…" banner; last known status retained; auto-resume |
-| Place Order fails | API error | Inline error on CTA, cart preserved, **Try again**; no duplicate on retry (idempotency key) |
-| Empty cart → Place tap | Client validation | CTA disabled until ≥1 item; helper text |
+| Failure                      | Detection                  | Recovery (UX)                                                                               |
+| ---------------------------- | -------------------------- | ------------------------------------------------------------------------------------------- |
+| Invalid / expired QR         | Table token not found      | Full-page empty/error state: "This code isn't active. Ask staff for help." + retry          |
+| Menu fails to load           | Fetch error / timeout      | Skeleton → error state with **Retry**; never silent spinner                                 |
+| Item sold out while browsing | Realtime availability push | Card desaturates, "Sold out" badge, Add disabled; toast if it was in cart                   |
+| Network drop during tracking | WebSocket disconnect       | "Reconnecting…" banner; last known status retained; auto-resume                             |
+| Place Order fails            | API error                  | Inline error on CTA, cart preserved, **Try again**; no duplicate on retry (idempotency key) |
+| Empty cart → Place tap       | Client validation          | CTA disabled until ≥1 item; helper text                                                     |
 
 ### 1.7 Flow diagram
 
@@ -178,12 +179,12 @@ The operator behind the dashboard. Sets up the restaurant, owns the menu, monito
 
 ### 2.2 Entry points
 
-| Entry point | Context |
-| --- | --- |
-| **Sign up / Sign in** | Email+password or Google OAuth → JWT session |
-| **Onboarding wizard** | First login with no restaurant → guided setup |
-| **Dashboard home** | Returning owner → revenue/orders overview |
-| **Deep links** | Email/notification → specific order, report, low-stock alert |
+| Entry point           | Context                                                      |
+| --------------------- | ------------------------------------------------------------ |
+| **Sign up / Sign in** | Email+password or Google OAuth → JWT session                 |
+| **Onboarding wizard** | First login with no restaurant → guided setup                |
+| **Dashboard home**    | Returning owner → revenue/orders overview                    |
+| **Deep links**        | Email/notification → specific order, report, low-stock alert |
 
 ### 2.3 Navigation structure
 
@@ -244,17 +245,17 @@ Admin Dashboard (256px left nav + content; collapses to rail→drawer)
 
 ### 2.6 Error path
 
-| Failure | Detection | Recovery (UX) |
-| --- | --- | --- |
-| Sign-in fails | Bad credentials / OAuth error | Inline form error; "Forgot password"; retry |
-| Image upload fails | S3 error / too large | Field error, keep form, retry; show size limit |
-| Save item validation | Missing name/price | Inline field errors (`aria-invalid`), focus first error |
-| Regenerate QR | Destructive | Confirm modal: "Old QR codes stop working"; undo not possible → explicit confirm |
-| Delete category with items | Conflict | Block + explain ("Move/delete N items first") |
-| Bulk import errors | Row validation | Per-row error report, partial-success summary, downloadable error CSV |
-| Report generation fails | Backend/timeout | Error state + **Retry**; never fake numbers (Principle 5) |
-| Subscription/payment fails | Billing gateway | Banner + retry; grace state, no silent feature loss |
-| Permission denied | RBAC (e.g., Manager hits Subscription) | Permission empty state: "You don't have access" |
+| Failure                    | Detection                              | Recovery (UX)                                                                    |
+| -------------------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
+| Sign-in fails              | Bad credentials / OAuth error          | Inline form error; "Forgot password"; retry                                      |
+| Image upload fails         | S3 error / too large                   | Field error, keep form, retry; show size limit                                   |
+| Save item validation       | Missing name/price                     | Inline field errors (`aria-invalid`), focus first error                          |
+| Regenerate QR              | Destructive                            | Confirm modal: "Old QR codes stop working"; undo not possible → explicit confirm |
+| Delete category with items | Conflict                               | Block + explain ("Move/delete N items first")                                    |
+| Bulk import errors         | Row validation                         | Per-row error report, partial-success summary, downloadable error CSV            |
+| Report generation fails    | Backend/timeout                        | Error state + **Retry**; never fake numbers (Principle 5)                        |
+| Subscription/payment fails | Billing gateway                        | Banner + retry; grace state, no silent feature loss                              |
+| Permission denied          | RBAC (e.g., Manager hits Subscription) | Permission empty state: "You don't have access"                                  |
 
 ### 2.7 Flow diagram
 
@@ -313,10 +314,10 @@ Heads-down, high-throughput, hands-busy. Usually a tablet/screen mounted in the 
 
 ### 3.2 Entry points
 
-| Entry point | Context |
-| --- | --- |
-| **Staff sign-in** | Kitchen account → Kitchen Display (KDS) as landing |
-| **Always-on KDS** | Mounted screen, session kept alive; auto-reconnect |
+| Entry point         | Context                                            |
+| ------------------- | -------------------------------------------------- |
+| **Staff sign-in**   | Kitchen account → Kitchen Display (KDS) as landing |
+| **Always-on KDS**   | Mounted screen, session kept alive; auto-reconnect |
 | **New-order alert** | Real-time toast + sound/vibration brings attention |
 
 ### 3.3 Navigation structure
@@ -357,14 +358,14 @@ Kitchen Display (KDS) — tablet-optimized, large targets, minimal chrome
 
 ### 3.6 Error path
 
-| Failure | Detection | Recovery (UX) |
-| --- | --- | --- |
-| WebSocket drop (missed orders) | Heartbeat lost | Prominent "Reconnecting…" banner; on reconnect, backfill + flash any missed tickets; orders also persist in list (never toast-only) |
-| Alert unheard (noisy kitchen) | Order unaccepted past threshold | Escalating visual highlight + repeat sound; aging timer turns Warning/Error color |
-| Accept conflict (already accepted elsewhere) | Concurrent update | Optimistic update reconciled; toast "Already accepted by …"; card state corrects |
-| Can't fulfill item | Staff action | **86 item** → confirm → availability pushed to customers; customer carts with it are warned |
-| Prep time overrun | Timer exceeds estimate | Ticket goes Warning then Error; ETA on customer view updates honestly |
-| Status update fails | API error | Inline retry on the ticket; status not silently changed |
+| Failure                                      | Detection                       | Recovery (UX)                                                                                                                       |
+| -------------------------------------------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| WebSocket drop (missed orders)               | Heartbeat lost                  | Prominent "Reconnecting…" banner; on reconnect, backfill + flash any missed tickets; orders also persist in list (never toast-only) |
+| Alert unheard (noisy kitchen)                | Order unaccepted past threshold | Escalating visual highlight + repeat sound; aging timer turns Warning/Error color                                                   |
+| Accept conflict (already accepted elsewhere) | Concurrent update               | Optimistic update reconciled; toast "Already accepted by …"; card state corrects                                                    |
+| Can't fulfill item                           | Staff action                    | **86 item** → confirm → availability pushed to customers; customer carts with it are warned                                         |
+| Prep time overrun                            | Timer exceeds estimate          | Ticket goes Warning then Error; ETA on customer view updates honestly                                                               |
+| Status update fails                          | API error                       | Inline retry on the ticket; status not silently changed                                                                             |
 
 ### 3.7 Flow diagram
 
@@ -412,12 +413,12 @@ Mobile/tablet on the floor. Bridges kitchen and table: assists customers, manage
 
 ### 4.2 Entry points
 
-| Entry point | Context |
-| --- | --- |
-| **Staff sign-in** | Waiter account → Floor view as landing |
-| **Ready notification** | Real-time toast + sound/vibration → jump to that order |
-| **Call-waiter / bill alert** | Customer-triggered → table flagged |
-| **Table tap** | Scan/select a table to view or place an order |
+| Entry point                  | Context                                                |
+| ---------------------------- | ------------------------------------------------------ |
+| **Staff sign-in**            | Waiter account → Floor view as landing                 |
+| **Ready notification**       | Real-time toast + sound/vibration → jump to that order |
+| **Call-waiter / bill alert** | Customer-triggered → table flagged                     |
+| **Table tap**                | Scan/select a table to view or place an order          |
 
 ### 4.3 Navigation structure
 
@@ -457,15 +458,15 @@ Waiter App — mobile/tablet, large targets, alert-driven
 
 ### 4.6 Error path
 
-| Failure | Detection | Recovery (UX) |
-| --- | --- | --- |
-| Missed Ready alert | Order Ready past threshold | Escalating highlight on Ready queue + repeat alert; persists in list (not toast-only) |
-| Connection drop | WebSocket lost | "Reconnecting…" banner; floor state restored on resume |
-| Wrong-table delivery risk | — | Order detail prominently shows table #; confirm-on-serve for high-value/large orders |
-| Assisted order fails to place | API error | Inline error, cart preserved, retry (idempotent) |
-| Marks Served prematurely | Mis-tap | Undo toast (short window) on status change |
-| Duplicate handling (two waiters) | Concurrent update | First-write wins; second sees "Already served by …" toast, state reconciles |
-| Bill request unresolved | Aging request | Request stays flagged until acknowledged; escalates color over time |
+| Failure                          | Detection                  | Recovery (UX)                                                                         |
+| -------------------------------- | -------------------------- | ------------------------------------------------------------------------------------- |
+| Missed Ready alert               | Order Ready past threshold | Escalating highlight on Ready queue + repeat alert; persists in list (not toast-only) |
+| Connection drop                  | WebSocket lost             | "Reconnecting…" banner; floor state restored on resume                                |
+| Wrong-table delivery risk        | —                          | Order detail prominently shows table #; confirm-on-serve for high-value/large orders  |
+| Assisted order fails to place    | API error                  | Inline error, cart preserved, retry (idempotent)                                      |
+| Marks Served prematurely         | Mis-tap                    | Undo toast (short window) on status change                                            |
+| Duplicate handling (two waiters) | Concurrent update          | First-write wins; second sees "Already served by …" toast, state reconciles           |
+| Bill request unresolved          | Aging request              | Request stays flagged until acknowledged; escalates color over time                   |
 
 ### 4.7 Flow diagram
 
@@ -535,14 +536,14 @@ sequenceDiagram
 
 ### Status-transition rules (who can move what)
 
-| From → To | Customer | Waiter | Kitchen | Owner/Manager |
-| --- | :---: | :---: | :---: | :---: |
-| (new) → Placed | ✓ (place) | ✓ (assist) | — | — |
-| Placed → Accepted | — | — | ✓ | ✓ |
-| Accepted → Preparing | — | — | ✓ | ✓ |
-| Preparing → Ready | — | — | ✓ | ✓ |
-| Ready → Served/Completed | — | ✓ | — | ✓ |
-| any → Cancelled | ✓ (pre-Accept) | — | ✓ (if unfulfillable) | ✓ |
+| From → To                |    Customer    |   Waiter   |       Kitchen        | Owner/Manager |
+| ------------------------ | :------------: | :--------: | :------------------: | :-----------: |
+| (new) → Placed           |   ✓ (place)    | ✓ (assist) |          —           |       —       |
+| Placed → Accepted        |       —        |     —      |          ✓           |       ✓       |
+| Accepted → Preparing     |       —        |     —      |          ✓           |       ✓       |
+| Preparing → Ready        |       —        |     —      |          ✓           |       ✓       |
+| Ready → Served/Completed |       —        |     ✓      |          —           |       ✓       |
+| any → Cancelled          | ✓ (pre-Accept) |     —      | ✓ (if unfulfillable) |       ✓       |
 
 > Transitions outside this table are blocked by RBAC and surfaced as permission errors, never silent no-ops (Design System Principle 5).
 

@@ -80,7 +80,7 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(
       placement = 'bottom-end',
       className,
     },
-    ref
+    ref,
   ) => {
     const menuId = useId();
     const [open, setOpen] = useState(false);
@@ -106,11 +106,11 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(
         setOpen(true);
         const next =
           start === 'first'
-            ? enabledIndices[0] ?? -1
-            : enabledIndices[enabledIndices.length - 1] ?? -1;
+            ? (enabledIndices[0] ?? -1)
+            : (enabledIndices[enabledIndices.length - 1] ?? -1);
         setActiveIndex(next);
       },
-      [enabledIndices]
+      [enabledIndices],
     );
 
     // Move DOM focus to the active item when it changes.
@@ -133,7 +133,7 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(
     useEffect(() => {
       if (!open) return;
       const onDocPointer = (e: PointerEvent) => {
-        const root = (e.target as Node);
+        const root = e.target as Node;
         if (
           menuRef.current?.contains(root) ||
           triggerRef.current?.contains(root)
@@ -222,10 +222,7 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(
     };
 
     return (
-      <div
-        ref={ref}
-        className={cn('emenu-dropdown', className)}
-      >
+      <div ref={ref} className={cn('emenu-dropdown', className)}>
         {renderTrigger ? (
           renderTrigger(triggerProps)
         ) : (
@@ -249,7 +246,7 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(
             className={cn(
               'emenu-dropdown__menu',
               `emenu-dropdown__menu--${placement}`,
-              flip && 'emenu-dropdown__menu--flip'
+              flip && 'emenu-dropdown__menu--flip',
             )}
             onKeyDown={onMenuKeyDown}
           >
@@ -266,17 +263,13 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(
                   'emenu-dropdown__item',
                   item.selected && 'emenu-dropdown__item--selected',
                   item.disabled && 'emenu-dropdown__item--disabled',
-                  item.destructive && 'emenu-dropdown__item--destructive'
+                  item.destructive && 'emenu-dropdown__item--destructive',
                 )}
                 onClick={() => activate(i)}
                 onMouseEnter={() => !item.disabled && setActiveIndex(i)}
               >
                 <span className="emenu-dropdown__item-check" aria-hidden="true">
-                  {item.selected ? (
-                    <Check size={16} />
-                  ) : (
-                    item.icon ?? null
-                  )}
+                  {item.selected ? <Check size={16} /> : (item.icon ?? null)}
                 </span>
                 <span className="emenu-dropdown__item-label">{item.label}</span>
               </li>
@@ -285,7 +278,7 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 Dropdown.displayName = 'Dropdown';
@@ -304,11 +297,10 @@ export interface SelectOption {
   disabled?: boolean;
 }
 
-export interface SelectProps
-  extends Omit<
-    ButtonHTMLAttributes<HTMLButtonElement>,
-    'onChange' | 'value' | 'defaultValue'
-  > {
+export interface SelectProps extends Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  'onChange' | 'value' | 'defaultValue'
+> {
   /** Options to choose from. */
   options: SelectOption[];
   /** Controlled selected value. */
@@ -344,7 +336,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
       className,
       ...rest
     },
-    ref
+    ref,
   ) => {
     const baseId = useId();
     const listId = `${baseId}-list`;
@@ -371,7 +363,8 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
       .filter((i) => i >= 0);
 
     const selectedIndex = options.findIndex((o) => o.value === selected);
-    const selectedOption = selectedIndex >= 0 ? options[selectedIndex] : undefined;
+    const selectedOption =
+      selectedIndex >= 0 ? options[selectedIndex] : undefined;
 
     const close = useCallback((returnFocus = true) => {
       setOpen(false);
@@ -383,7 +376,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
       setActiveIndex(
         selectedIndex >= 0 && !options[selectedIndex]?.disabled
           ? selectedIndex
-          : enabledIndices[0] ?? -1
+          : (enabledIndices[0] ?? -1),
       );
     }, [selectedIndex, enabledIndices, options]);
 
@@ -405,7 +398,10 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
       if (!open) return;
       const onDocPointer = (e: PointerEvent) => {
         const node = e.target as Node;
-        if (listRef.current?.contains(node) || triggerRef.current?.contains(node))
+        if (
+          listRef.current?.contains(node) ||
+          triggerRef.current?.contains(node)
+        )
           return;
         close(false);
       };
@@ -499,9 +495,11 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
           disabled={disabled}
           className={cn(
             'emenu-select__trigger',
-            !selectedOption && 'emenu-select__trigger--placeholder'
+            !selectedOption && 'emenu-select__trigger--placeholder',
           )}
-          onClick={() => (disabled ? undefined : open ? close(true) : openList())}
+          onClick={() =>
+            disabled ? undefined : open ? close(true) : openList()
+          }
           onKeyDown={onTriggerKeyDown}
         >
           <span className="emenu-select__value">
@@ -524,7 +522,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
             aria-activedescendant={activeOptionId}
             className={cn(
               'emenu-select__list',
-              flip && 'emenu-select__list--flip'
+              flip && 'emenu-select__list--flip',
             )}
           >
             {options.map((opt, i) => {
@@ -543,15 +541,20 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
                     'emenu-select__option',
                     i === activeIndex && 'emenu-select__option--active',
                     isSelected && 'emenu-select__option--selected',
-                    opt.disabled && 'emenu-select__option--disabled'
+                    opt.disabled && 'emenu-select__option--disabled',
                   )}
                   onClick={() => choose(i)}
                   onMouseEnter={() => !opt.disabled && setActiveIndex(i)}
                 >
-                  <span className="emenu-select__option-check" aria-hidden="true">
+                  <span
+                    className="emenu-select__option-check"
+                    aria-hidden="true"
+                  >
                     {isSelected ? <Check size={16} /> : null}
                   </span>
-                  <span className="emenu-select__option-label">{opt.label}</span>
+                  <span className="emenu-select__option-label">
+                    {opt.label}
+                  </span>
                 </li>
               );
             })}
@@ -559,7 +562,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 Select.displayName = 'Select';

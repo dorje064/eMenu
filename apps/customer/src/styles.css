@@ -1,0 +1,11 @@
+/* Global app styles. Design tokens + base come from @org/ui's global.css,
+   imported as a side effect of importing any @org/ui component. */
+
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  margin: 0;
+}

@@ -8,7 +8,7 @@ import type {
 export const categoryApi = {
   list: (activeOnly?: boolean) =>
     apiRequest<Category[]>(
-      `/categories${activeOnly ? '?activeOnly=true' : ''}`
+      `/categories${activeOnly ? '?activeOnly=true' : ''}`,
     ),
 
   get: (id: string) => apiRequest<Category>(`/categories/${id}`),

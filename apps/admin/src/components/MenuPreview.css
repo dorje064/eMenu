@@ -28,7 +28,9 @@
   border-radius: var(--radius-md);
   background: var(--surface-canvas);
   cursor: pointer;
-  transition: border-color 0.12s ease, background 0.12s ease;
+  transition:
+    border-color 0.12s ease,
+    background 0.12s ease;
 }
 .tpl-option:hover {
   border-color: var(--color-primary-300);

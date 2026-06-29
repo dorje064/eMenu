@@ -27,7 +27,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() =>
-    localStorage.getItem(TOKEN_KEY)
+    localStorage.getItem(TOKEN_KEY),
   );
   const [customer, setCustomer] = useState<Customer | null>(() => {
     const raw = localStorage.getItem(CUSTOMER_KEY);
@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signup,
       logout,
     }),
-    [token, customer]
+    [token, customer],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -9,8 +9,16 @@ export const MENU_TEMPLATES: {
   label: string;
   description: string;
 }[] = [
-  { id: 'classic', label: 'Classic', description: 'Thumbnail list — easy to scan' },
-  { id: 'showcase', label: 'Showcase', description: 'Large photos, image-forward' },
+  {
+    id: 'classic',
+    label: 'Classic',
+    description: 'Thumbnail list — easy to scan',
+  },
+  {
+    id: 'showcase',
+    label: 'Showcase',
+    description: 'Large photos, image-forward',
+  },
   { id: 'grid', label: 'Grid', description: 'Compact two-column tiles' },
 ];
 
@@ -54,7 +62,9 @@ export function MenuPreview({
     const seen = new Set<string>();
 
     // Known categories first, in their configured sort order.
-    for (const cat of [...categories].sort((a, b) => a.sortOrder - b.sortOrder)) {
+    for (const cat of [...categories].sort(
+      (a, b) => a.sortOrder - b.sortOrder,
+    )) {
       const groupItems = byName.get(cat.name);
       if (groupItems?.length) {
         ordered.push({
@@ -85,7 +95,9 @@ export function MenuPreview({
       <div className="menu-preview__device">
         <header className="menu-preview__header">
           <h2 className="menu-preview__brand">Our Menu</h2>
-          <p className="menu-preview__tagline">Freshly prepared, made to order</p>
+          <p className="menu-preview__tagline">
+            Freshly prepared, made to order
+          </p>
         </header>
 
         {groups.length === 0 ? (

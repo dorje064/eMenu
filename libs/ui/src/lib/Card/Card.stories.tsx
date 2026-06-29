@@ -42,7 +42,9 @@ export const Default: Story = {
     children: (
       <>
         <CardHeader>
-          <h3 style={{ font: 'var(--font-family-base)', margin: 0, fontSize: 18 }}>
+          <h3
+            style={{ font: 'var(--font-family-base)', margin: 0, fontSize: 18 }}
+          >
             Table 12 — Window seat
           </h3>
         </CardHeader>
@@ -143,7 +145,12 @@ export const WithMediaAndFooter: Story = {
         <img
           src="https://picsum.photos/seed/pasta/400/240"
           alt="Creamy mushroom pasta"
-          style={{ display: 'block', width: '100%', height: 200, objectFit: 'cover' }}
+          style={{
+            display: 'block',
+            width: '100%',
+            height: 200,
+            objectFit: 'cover',
+          }}
         />
       </CardMedia>
       <CardHeader>

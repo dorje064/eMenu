@@ -135,7 +135,8 @@ export function DataTable<T>({
     });
   }, [rows, activeSort]);
 
-  const allSelected = pageIds.length > 0 && pageIds.every((id) => selected.includes(id));
+  const allSelected =
+    pageIds.length > 0 && pageIds.every((id) => selected.includes(id));
   const someSelected = selected.length > 0 && !allSelected;
 
   const commitSelection = (ids: string[]) => {
@@ -178,7 +179,7 @@ export function DataTable<T>({
         'emenu-table',
         `emenu-table--${density}`,
         stickyHeader && 'emenu-table--sticky',
-        className
+        className,
       )}
     >
       {selectable && (
@@ -187,12 +188,21 @@ export function DataTable<T>({
         </div>
       )}
       <div className="emenu-table__scroll">
-        <table className="emenu-table__table" aria-label={ariaLabel} aria-busy={loading || undefined}>
-          {caption && <caption className="emenu-table__caption">{caption}</caption>}
+        <table
+          className="emenu-table__table"
+          aria-label={ariaLabel}
+          aria-busy={loading || undefined}
+        >
+          {caption && (
+            <caption className="emenu-table__caption">{caption}</caption>
+          )}
           <thead className="emenu-table__head">
             <tr>
               {selectable && (
-                <th scope="col" className="emenu-table__th emenu-table__th--checkbox">
+                <th
+                  scope="col"
+                  className="emenu-table__th emenu-table__th--checkbox"
+                >
                   <input
                     type="checkbox"
                     className="emenu-table__checkbox"
@@ -224,7 +234,7 @@ export function DataTable<T>({
                     style={col.width ? { width: col.width } : undefined}
                     className={cn(
                       'emenu-table__th',
-                      `emenu-table__th--${align}`
+                      `emenu-table__th--${align}`,
                     )}
                   >
                     {col.sortable ? (
@@ -234,7 +244,10 @@ export function DataTable<T>({
                         onClick={() => requestSort(col)}
                       >
                         <span>{col.header}</span>
-                        <span className="emenu-table__sort-icon" aria-hidden="true">
+                        <span
+                          className="emenu-table__sort-icon"
+                          aria-hidden="true"
+                        >
                           {isSorted ? (
                             activeSort?.direction === 'asc' ? (
                               <ArrowUp size={14} />
@@ -247,7 +260,9 @@ export function DataTable<T>({
                         </span>
                       </button>
                     ) : (
-                      <span className="emenu-table__th-label">{col.header}</span>
+                      <span className="emenu-table__th-label">
+                        {col.header}
+                      </span>
                     )}
                   </th>
                 );
@@ -268,7 +283,7 @@ export function DataTable<T>({
                       key={String(col.key)}
                       className={cn(
                         'emenu-table__td',
-                        `emenu-table__td--${resolveAlign(col)}`
+                        `emenu-table__td--${resolveAlign(col)}`,
                       )}
                     >
                       <span className="emenu-table__skeleton" />
@@ -294,7 +309,7 @@ export function DataTable<T>({
                     key={id}
                     className={cn(
                       'emenu-table__row',
-                      isSelected && 'emenu-table__row--selected'
+                      isSelected && 'emenu-table__row--selected',
                     )}
                     aria-selected={selectable ? isSelected : undefined}
                   >
@@ -320,7 +335,7 @@ export function DataTable<T>({
                           className={cn(
                             'emenu-table__td',
                             `emenu-table__td--${align}`,
-                            col.numeric && 'tnum'
+                            col.numeric && 'tnum',
                           )}
                         >
                           {content}

@@ -43,7 +43,7 @@ export function CategoriesPage() {
       setCategories(await categoryApi.list());
     } catch (err) {
       setLoadError(
-        err instanceof ApiError ? err.message : 'Failed to load categories'
+        err instanceof ApiError ? err.message : 'Failed to load categories',
       );
     } finally {
       setLoading(false);
@@ -75,7 +75,7 @@ export function CategoriesPage() {
 
   const update = <K extends keyof CreateCategoryInput>(
     key: K,
-    value: CreateCategoryInput[K]
+    value: CreateCategoryInput[K],
   ) => setForm((f) => ({ ...f, [key]: value }));
 
   const handleSubmit = async () => {
@@ -95,18 +95,21 @@ export function CategoriesPage() {
       if (editingId) {
         const updated = await categoryApi.update(editingId, payload);
         setCategories((prev) =>
-          prev.map((c) => (c.id === editingId ? updated : c))
+          prev.map((c) => (c.id === editingId ? updated : c)),
         );
         show({ semantic: 'success', message: `Updated “${updated.name}”` });
       } else {
         const created = await categoryApi.create(payload);
         setCategories((prev) => [...prev, created]);
-        show({ semantic: 'success', message: `Added category “${created.name}”` });
+        show({
+          semantic: 'success',
+          message: `Added category “${created.name}”`,
+        });
       }
       setModalOpen(false);
     } catch (err) {
       setFieldErrors(
-        err instanceof ApiError ? err.message : 'Could not save the category.'
+        err instanceof ApiError ? err.message : 'Could not save the category.',
       );
     } finally {
       setSaving(false);
@@ -135,7 +138,11 @@ export function CategoriesPage() {
   };
 
   const columns: DataTableColumn<Category>[] = [
-    { key: 'name', header: 'Category', render: (r) => <strong>{r.name}</strong> },
+    {
+      key: 'name',
+      header: 'Category',
+      render: (r) => <strong>{r.name}</strong>,
+    },
     {
       key: 'description',
       header: 'Description',

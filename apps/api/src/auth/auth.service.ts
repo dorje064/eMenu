@@ -17,7 +17,7 @@ export class AuthService {
   constructor(
     @InjectRepository(Customer)
     private readonly customers: Repository<Customer>,
-    private readonly jwt: JwtService
+    private readonly jwt: JwtService,
   ) {}
 
   async signup(dto: SignupDto): Promise<AuthResponseDto> {

@@ -38,7 +38,9 @@ export function LoginPage() {
       navigate(from, { replace: true });
     } catch (err) {
       setError(
-        err instanceof ApiError ? err.message : 'Something went wrong. Try again.'
+        err instanceof ApiError
+          ? err.message
+          : 'Something went wrong. Try again.',
       );
     } finally {
       setSubmitting(false);
@@ -56,7 +58,9 @@ export function LoginPage() {
         </div>
 
         <h1 className="login-title">
-          {mode === 'login' ? 'Sign in to your dashboard' : 'Create your account'}
+          {mode === 'login'
+            ? 'Sign in to your dashboard'
+            : 'Create your account'}
         </h1>
         <p className="login-subtitle">
           {mode === 'login'
@@ -102,7 +106,9 @@ export function LoginPage() {
         </Button>
 
         <p className="login-switch">
-          {mode === 'login' ? "Don't have an account?" : 'Already have an account?'}{' '}
+          {mode === 'login'
+            ? "Don't have an account?"
+            : 'Already have an account?'}{' '}
           <Button
             type="button"
             variant="link"

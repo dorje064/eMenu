@@ -41,7 +41,7 @@ import { imageMulterOptions, UPLOAD_ROUTE_PREFIX } from './upload.constants';
 export class MenuController {
   constructor(
     private readonly menuService: MenuService,
-    private readonly imageService: ImageService
+    private readonly imageService: ImageService,
   ) {}
 
   @Post('items')
@@ -110,7 +110,7 @@ export class MenuController {
   @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
   update(
     @Param('id') id: string,
-    @Body() dto: UpdateFoodItemDto
+    @Body() dto: UpdateFoodItemDto,
   ): Promise<FoodItemDto> {
     return this.menuService.update(id, dto);
   }

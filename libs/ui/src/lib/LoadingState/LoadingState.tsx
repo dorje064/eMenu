@@ -30,7 +30,10 @@ const toCss = (v: number | string | undefined): string | undefined =>
  * Decorative: marked aria-hidden; announce loading on the parent region.
  */
 export const Skeleton = forwardRef<HTMLSpanElement, SkeletonProps>(
-  ({ shape = 'text', width, height, radius, className, style, ...rest }, ref) => {
+  (
+    { shape = 'text', width, height, radius, className, style, ...rest },
+    ref,
+  ) => {
     const computed: CSSProperties = {
       width: toCss(width),
       height: toCss(height),
@@ -46,7 +49,7 @@ export const Skeleton = forwardRef<HTMLSpanElement, SkeletonProps>(
         {...rest}
       />
     );
-  }
+  },
 );
 Skeleton.displayName = 'Skeleton';
 
@@ -72,19 +75,28 @@ const SPINNER_PX: Record<SpinnerSize, number> = { sm: 16, md: 24, lg: 40 };
  * Used inside buttons and small inline waits. Respects reduced motion.
  */
 export const Spinner = forwardRef<HTMLSpanElement, SpinnerProps>(
-  ({ size = 'md', label = 'Loading', hideLabel = true, className, ...rest }, ref) => (
+  (
+    { size = 'md', label = 'Loading', hideLabel = true, className, ...rest },
+    ref,
+  ) => (
     <span
       ref={ref}
       role="status"
       className={cn('emenu-spinner', `emenu-spinner--${size}`, className)}
       {...rest}
     >
-      <Loader2 className="emenu-spinner__icon" size={SPINNER_PX[size]} aria-hidden="true" />
-      <span className={hideLabel ? 'emenu-visually-hidden' : 'emenu-spinner__label'}>
+      <Loader2
+        className="emenu-spinner__icon"
+        size={SPINNER_PX[size]}
+        aria-hidden="true"
+      />
+      <span
+        className={hideLabel ? 'emenu-visually-hidden' : 'emenu-spinner__label'}
+      >
         {label}
       </span>
     </span>
-  )
+  ),
 );
 Spinner.displayName = 'Spinner';
 
@@ -92,8 +104,10 @@ Spinner.displayName = 'Spinner';
 /* ProgressBar                                                         */
 /* ------------------------------------------------------------------ */
 
-export interface ProgressBarProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'role'> {
+export interface ProgressBarProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'role'
+> {
   /** Current value. Omit (or set null) for an indeterminate bar. */
   value?: number | null;
   /** Minimum value. @default 0 */
@@ -113,7 +127,7 @@ export interface ProgressBarProps
 export const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
   (
     { value, min = 0, max = 100, label, showValue = false, className, ...rest },
-    ref
+    ref,
   ) => {
     const indeterminate = value == null;
     const clamped = indeterminate
@@ -123,15 +137,11 @@ export const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
       clamped == null ? 0 : ((clamped - min) / (max - min || 1)) * 100;
 
     return (
-      <div
-        ref={ref}
-        className={cn('emenu-progress', className)}
-        {...rest}
-      >
+      <div ref={ref} className={cn('emenu-progress', className)} {...rest}>
         <div
           className={cn(
             'emenu-progress__track',
-            indeterminate && 'emenu-progress__track--indeterminate'
+            indeterminate && 'emenu-progress__track--indeterminate',
           )}
           role="progressbar"
           aria-label={label}
@@ -149,7 +159,7 @@ export const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
         )}
       </div>
     );
-  }
+  },
 );
 ProgressBar.displayName = 'ProgressBar';
 

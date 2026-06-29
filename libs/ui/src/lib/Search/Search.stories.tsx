@@ -41,9 +41,9 @@ export const Default: Story = {
     const matches = useMemo(
       () =>
         MENU_ITEMS.filter((item) =>
-          item.toLowerCase().includes(value.trim().toLowerCase())
+          item.toLowerCase().includes(value.trim().toLowerCase()),
         ),
-      [value]
+      [value],
     );
     return (
       <div>
@@ -75,7 +75,13 @@ export const Loading: Story = {
 export const NoResults: Story = {
   render: (args) => (
     <div>
-      <Search {...args} value="sushi" resultsCount={0} onChange={() => undefined} onClear={() => undefined} />
+      <Search
+        {...args}
+        value="sushi"
+        resultsCount={0}
+        onChange={() => undefined}
+        onClear={() => undefined}
+      />
       <p style={{ marginTop: 12, color: 'var(--color-neutral-500)' }}>
         No menu items match “sushi”.
       </p>
@@ -88,5 +94,9 @@ export const Disabled: Story = {
 };
 
 export const CustomerSize: Story = {
-  args: { size: 'lg', label: 'Search the menu', placeholder: 'What are you craving?' },
+  args: {
+    size: 'lg',
+    label: 'Search the menu',
+    placeholder: 'What are you craving?',
+  },
 };

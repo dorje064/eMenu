@@ -23,10 +23,30 @@ const panel = (text: string) => (
 );
 
 const ORDER_TABS: TabItem[] = [
-  { id: 'all', label: 'All', count: 27, content: panel('All 27 orders across every state.') },
-  { id: 'active', label: 'Active', count: 12, content: panel('12 orders being accepted or prepared right now.') },
-  { id: 'ready', label: 'Ready', count: 4, content: panel('4 orders ready for pickup or service.') },
-  { id: 'completed', label: 'Completed', count: 11, content: panel('11 orders served and closed today.') },
+  {
+    id: 'all',
+    label: 'All',
+    count: 27,
+    content: panel('All 27 orders across every state.'),
+  },
+  {
+    id: 'active',
+    label: 'Active',
+    count: 12,
+    content: panel('12 orders being accepted or prepared right now.'),
+  },
+  {
+    id: 'ready',
+    label: 'Ready',
+    count: 4,
+    content: panel('4 orders ready for pickup or service.'),
+  },
+  {
+    id: 'completed',
+    label: 'Completed',
+    count: 11,
+    content: panel('11 orders served and closed today.'),
+  },
 ];
 
 export const OrderStates: Story = {
@@ -92,13 +112,43 @@ export const WithIcons: Story = {
   render: () => {
     const [value, setValue] = useState('preparing');
     const tabs: TabItem[] = [
-      { id: 'all', label: 'All', icon: <ListChecks size={16} />, count: 27, content: panel('Every order.') },
-      { id: 'preparing', label: 'Preparing', icon: <Flame size={16} />, count: 8, content: panel('Kitchen is cooking 8 orders.') },
-      { id: 'ready', label: 'Ready', icon: <BellRing size={16} />, count: 4, content: panel('4 orders ready.') },
-      { id: 'completed', label: 'Completed', icon: <CircleCheck size={16} />, count: 11, content: panel('11 orders done.') },
+      {
+        id: 'all',
+        label: 'All',
+        icon: <ListChecks size={16} />,
+        count: 27,
+        content: panel('Every order.'),
+      },
+      {
+        id: 'preparing',
+        label: 'Preparing',
+        icon: <Flame size={16} />,
+        count: 8,
+        content: panel('Kitchen is cooking 8 orders.'),
+      },
+      {
+        id: 'ready',
+        label: 'Ready',
+        icon: <BellRing size={16} />,
+        count: 4,
+        content: panel('4 orders ready.'),
+      },
+      {
+        id: 'completed',
+        label: 'Completed',
+        icon: <CircleCheck size={16} />,
+        count: 11,
+        content: panel('11 orders done.'),
+      },
     ];
     return (
-      <Tabs items={tabs} value={value} onChange={setValue} variant="pill" ariaLabel="Kitchen queue" />
+      <Tabs
+        items={tabs}
+        value={value}
+        onChange={setValue}
+        variant="pill"
+        ariaLabel="Kitchen queue"
+      />
     );
   },
 };
@@ -108,15 +158,41 @@ export const Scrollable: Story = {
     const [value, setValue] = useState('daily');
     const tabs: TabItem[] = [
       { id: 'daily', label: 'Daily', content: panel('Today’s sales report.') },
-      { id: 'weekly', label: 'Weekly', content: panel('This week’s sales report.') },
-      { id: 'monthly', label: 'Monthly', content: panel('This month’s sales report.') },
-      { id: 'quarterly', label: 'Quarterly', content: panel('This quarter’s sales report.') },
-      { id: 'yearly', label: 'Yearly', content: panel('This year’s sales report.') },
-      { id: 'custom', label: 'Custom range', content: panel('Pick a custom date range.') },
+      {
+        id: 'weekly',
+        label: 'Weekly',
+        content: panel('This week’s sales report.'),
+      },
+      {
+        id: 'monthly',
+        label: 'Monthly',
+        content: panel('This month’s sales report.'),
+      },
+      {
+        id: 'quarterly',
+        label: 'Quarterly',
+        content: panel('This quarter’s sales report.'),
+      },
+      {
+        id: 'yearly',
+        label: 'Yearly',
+        content: panel('This year’s sales report.'),
+      },
+      {
+        id: 'custom',
+        label: 'Custom range',
+        content: panel('Pick a custom date range.'),
+      },
     ];
     return (
       <div style={{ maxWidth: 360 }}>
-        <Tabs items={tabs} value={value} onChange={setValue} align="scrollable" ariaLabel="Report period" />
+        <Tabs
+          items={tabs}
+          value={value}
+          onChange={setValue}
+          align="scrollable"
+          ariaLabel="Report period"
+        />
       </div>
     );
   },

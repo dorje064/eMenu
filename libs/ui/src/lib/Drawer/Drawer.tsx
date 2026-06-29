@@ -89,8 +89,10 @@ export function Drawer({
       const panel = panelRef.current;
       if (!panel) return;
       const focusables = Array.from(
-        panel.querySelectorAll<HTMLElement>(FOCUSABLE)
-      ).filter((el) => el.offsetParent !== null || el === document.activeElement);
+        panel.querySelectorAll<HTMLElement>(FOCUSABLE),
+      ).filter(
+        (el) => el.offsetParent !== null || el === document.activeElement,
+      );
       if (focusables.length === 0) {
         e.preventDefault();
         return;
@@ -106,7 +108,7 @@ export function Drawer({
         first.focus();
       }
     },
-    [modal, onClose]
+    [modal, onClose],
   );
 
   if (!open) return null;
@@ -116,7 +118,7 @@ export function Drawer({
       className={cn(
         'emenu-drawer',
         `emenu-drawer--${edge}`,
-        !modal && 'emenu-drawer--non-modal'
+        !modal && 'emenu-drawer--non-modal',
       )}
       onKeyDown={onKeyDown}
     >
@@ -132,7 +134,7 @@ export function Drawer({
         className={cn(
           'emenu-drawer__panel',
           `emenu-drawer__panel--${edge}`,
-          `emenu-drawer__panel--${size}`
+          `emenu-drawer__panel--${size}`,
         )}
         role="dialog"
         aria-modal={modal || undefined}
@@ -156,7 +158,7 @@ export function Drawer({
         {footer && <footer className="emenu-drawer__footer">{footer}</footer>}
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }
 

@@ -312,7 +312,9 @@
 
 /* ---- In-cart ring (primary.100) ---- */
 .emenu-mic--incart {
-  box-shadow: 0 0 0 3px var(--color-primary-100), var(--elevation-1);
+  box-shadow:
+    0 0 0 3px var(--color-primary-100),
+    var(--elevation-1);
   border-color: var(--color-primary-300);
 }
 

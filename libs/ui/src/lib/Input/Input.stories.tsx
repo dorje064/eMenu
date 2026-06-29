@@ -34,7 +34,11 @@ type Story = StoryObj<typeof Input>;
 export const Default: Story = {};
 
 export const Required: Story = {
-  args: { label: 'Dish name', required: true, helperText: 'Shown to customers on the menu.' },
+  args: {
+    label: 'Dish name',
+    required: true,
+    helperText: 'Shown to customers on the menu.',
+  },
 };
 
 export const WithHelperText: Story = {
@@ -125,8 +129,18 @@ export const ReadOnly: Story = {
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <Input size="md" label="Dashboard density (md / 40px)" placeholder="Search orders" defaultValue="Pad Thai" />
-      <Input size="lg" label="Customer density (lg / 48px)" placeholder="Your name" defaultValue="Aanya" />
+      <Input
+        size="md"
+        label="Dashboard density (md / 40px)"
+        placeholder="Search orders"
+        defaultValue="Pad Thai"
+      />
+      <Input
+        size="lg"
+        label="Customer density (lg / 48px)"
+        placeholder="Your name"
+        defaultValue="Aanya"
+      />
     </div>
   ),
 };

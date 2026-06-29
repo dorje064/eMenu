@@ -10,7 +10,7 @@ import type {
 export const menuApi = {
   list: (category?: string) =>
     apiRequest<FoodItem[]>(
-      `/menu/items${category ? `?category=${encodeURIComponent(category)}` : ''}`
+      `/menu/items${category ? `?category=${encodeURIComponent(category)}` : ''}`,
     ),
 
   get: (id: string) => apiRequest<FoodItem>(`/menu/items/${id}`),
@@ -35,7 +35,7 @@ export const menuApi = {
   /** Search stock images (proxied to Unsplash via the API). */
   searchImages: (query: string) =>
     apiRequest<ImageSearchResult[]>(
-      `/menu/image-search?q=${encodeURIComponent(query)}`
+      `/menu/image-search?q=${encodeURIComponent(query)}`,
     ),
 
   /** Upload a local image file; returns the stored image URL. */

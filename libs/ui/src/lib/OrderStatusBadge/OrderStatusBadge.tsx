@@ -1,24 +1,13 @@
 import { forwardRef } from 'react';
 import type { HTMLAttributes } from 'react';
-import {
-  Receipt,
-  CircleCheck,
-  Flame,
-  BellRing,
-  XCircle,
-} from 'lucide-react';
+import { Receipt, CircleCheck, Flame, BellRing, XCircle } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '../utils/cn';
 import './OrderStatusBadge.css';
 
 /** Canonical, locked order-lifecycle vocabulary (spec §2.5 / §10.7). */
 export type OrderStatus =
-  | 'placed'
-  | 'accepted'
-  | 'preparing'
-  | 'ready'
-  | 'completed'
-  | 'cancelled';
+  'placed' | 'accepted' | 'preparing' | 'ready' | 'completed' | 'cancelled';
 
 export type OrderStatusBadgeStyle = 'solid' | 'soft' | 'dot';
 export type OrderStatusBadgeSize = 'sm' | 'md';
@@ -39,8 +28,10 @@ const STATUS_META: Record<OrderStatus, StatusMeta> = {
   cancelled: { label: 'Cancelled', icon: XCircle },
 };
 
-export interface OrderStatusBadgeProps
-  extends Omit<HTMLAttributes<HTMLSpanElement>, 'children'> {
+export interface OrderStatusBadgeProps extends Omit<
+  HTMLAttributes<HTMLSpanElement>,
+  'children'
+> {
   /** Lifecycle state — drives icon, label and color. */
   status: OrderStatus;
   /** Visual treatment. `soft` = tint bg + colored text. @default 'soft' */
@@ -78,7 +69,7 @@ export const OrderStatusBadge = forwardRef<
       className,
       ...rest
     },
-    ref
+    ref,
   ) => {
     const meta = STATUS_META[status];
     const Icon = meta.icon;
@@ -93,7 +84,7 @@ export const OrderStatusBadge = forwardRef<
           `emenu-status--${styleVariant}`,
           `emenu-status--${size}`,
           `emenu-status--${status}`,
-          className
+          className,
         )}
         aria-live={live ? 'polite' : undefined}
         {...rest}
@@ -101,13 +92,17 @@ export const OrderStatusBadge = forwardRef<
         {styleVariant === 'dot' ? (
           <span className="emenu-status__dot" aria-hidden="true" />
         ) : (
-          <Icon className="emenu-status__icon" size={iconSize} aria-hidden="true" />
+          <Icon
+            className="emenu-status__icon"
+            size={iconSize}
+            aria-hidden="true"
+          />
         )}
         <span className="emenu-status__label">{text}</span>
         {timer && <span className="emenu-status__timer">{timer}</span>}
       </span>
     );
-  }
+  },
 );
 
 OrderStatusBadge.displayName = 'OrderStatusBadge';

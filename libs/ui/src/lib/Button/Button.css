@@ -10,8 +10,12 @@
   cursor: pointer;
   white-space: nowrap;
   text-decoration: none;
-  transition: background-color 120ms ease, border-color 120ms ease,
-    color 120ms ease, transform 80ms ease, box-shadow 120ms ease;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease,
+    transform 80ms ease,
+    box-shadow 120ms ease;
 }
 
 .emenu-btn:focus-visible {

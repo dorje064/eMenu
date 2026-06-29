@@ -29,6 +29,7 @@
 **Annotation format:** `«A» [§10.5 Menu Item Card · list variant]` — the circled letter maps a region in the wireframe to a component + variant + relevant tokens.
 
 **Two platforms per screen**
+
 - **Mobile** — Customer App baseline 360–480px (single column, sticky thumb-zone CTA). Staff roles render on tablet using the mobile-plus layout.
 - **Desktop** — Admin Dashboard 1280px (256px left nav + fluid content). Customer App on desktop stays a centered ≤480px phone column (Design System §7).
 
@@ -39,20 +40,16 @@
 ## Table of Contents
 
 **Customer App**
+
 1. [Menu Screen](#c1-menu-screen)
 2. [Item Details](#c2-item-details)
 3. [Cart](#c3-cart)
 4. [Order Tracking](#c4-order-tracking)
 
-**Admin Dashboard**
-5. [Login](#a1-login)
-6. [Dashboard](#a2-dashboard)
-7. [Menu Management](#a3-menu-management)
-8. [Order Management](#a4-order-management)
-9. [Sales Reports](#a5-sales-reports)
-10. [Settings](#a6-settings)
+**Admin Dashboard** 5. [Login](#a1-login) 6. [Dashboard](#a2-dashboard) 7. [Menu Management](#a3-menu-management) 8. [Order Management](#a4-order-management) 9. [Sales Reports](#a5-sales-reports) 10. [Settings](#a6-settings)
 
 ---
+
 ---
 
 # Customer App
@@ -342,6 +339,7 @@ The primary return screen after placing — real-time status. The product's core
 ```
 
 ---
+
 ---
 
 # Admin Dashboard
@@ -761,27 +759,27 @@ Restaurant/business configuration. Sections gated by role; **Subscription & bill
 
 Quick check that every Design System component (§10) appears in the screen set and where to find it.
 
-| Component (§10) | Appears in |
-| --- | --- |
-| 10.1 Buttons | All screens |
-| 10.2 Inputs | Login, Item Details, Menu Mgmt, Settings, Cart notes |
-| 10.3 Search | Menu, Dashboard (⌘K), Menu Mgmt, Orders |
-| 10.4 Cards (base) | Order Tracking summary, Login card |
-| 10.5 Menu Item Card | Menu, Item Details, Menu Mgmt |
-| 10.6 Category Navigation | Menu, Menu Mgmt |
-| 10.7 Order Status Badge | Tracking, Dashboard, Orders |
-| 10.8 Table QR Card | (Tables & QR — see User Flows §2; not in this set) |
-| 10.9 Modal | Item Details (desktop), Menu editor, destructive confirms |
-| 10.10 Drawer / Sheet | Cart, Item Details (mobile), Order detail, mobile nav |
-| 10.11 Toast | Cart errors, new-order alerts, save confirmations |
-| 10.12 Data Table | Dashboard, Orders, Menu Mgmt, Reports, Settings invoices |
-| 10.13 Dashboard Cards | Dashboard, Reports |
-| 10.14 Tabs | Dashboard, Orders, Reports, Settings |
-| 10.15 Dropdown | Branch switch, row kebabs, selects (category/currency/tax) |
-| 10.16 Avatar | Login brand, top bar, Settings logo |
-| 10.17 Pagination | Orders, Reports, Menu Mgmt |
-| 10.18 Empty State | Cart, Reports, Menu Mgmt, permission-denied |
-| 10.19 Loading State | All (skeletons, button spinners, connection banner) |
+| Component (§10)          | Appears in                                                 |
+| ------------------------ | ---------------------------------------------------------- |
+| 10.1 Buttons             | All screens                                                |
+| 10.2 Inputs              | Login, Item Details, Menu Mgmt, Settings, Cart notes       |
+| 10.3 Search              | Menu, Dashboard (⌘K), Menu Mgmt, Orders                    |
+| 10.4 Cards (base)        | Order Tracking summary, Login card                         |
+| 10.5 Menu Item Card      | Menu, Item Details, Menu Mgmt                              |
+| 10.6 Category Navigation | Menu, Menu Mgmt                                            |
+| 10.7 Order Status Badge  | Tracking, Dashboard, Orders                                |
+| 10.8 Table QR Card       | (Tables & QR — see User Flows §2; not in this set)         |
+| 10.9 Modal               | Item Details (desktop), Menu editor, destructive confirms  |
+| 10.10 Drawer / Sheet     | Cart, Item Details (mobile), Order detail, mobile nav      |
+| 10.11 Toast              | Cart errors, new-order alerts, save confirmations          |
+| 10.12 Data Table         | Dashboard, Orders, Menu Mgmt, Reports, Settings invoices   |
+| 10.13 Dashboard Cards    | Dashboard, Reports                                         |
+| 10.14 Tabs               | Dashboard, Orders, Reports, Settings                       |
+| 10.15 Dropdown           | Branch switch, row kebabs, selects (category/currency/tax) |
+| 10.16 Avatar             | Login brand, top bar, Settings logo                        |
+| 10.17 Pagination         | Orders, Reports, Menu Mgmt                                 |
+| 10.18 Empty State        | Cart, Reports, Menu Mgmt, permission-denied                |
+| 10.19 Loading State      | All (skeletons, button spinners, connection banner)        |
 
 ---
 

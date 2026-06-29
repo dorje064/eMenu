@@ -30,7 +30,7 @@ export class ImageService {
     const key = this.config.get<string>('UNSPLASH_ACCESS_KEY');
     if (!key) {
       throw new ServiceUnavailableException(
-        'Image search is not configured. Set UNSPLASH_ACCESS_KEY in the API environment.'
+        'Image search is not configured. Set UNSPLASH_ACCESS_KEY in the API environment.',
       );
     }
 
@@ -41,7 +41,7 @@ export class ImageService {
           params: { query, per_page: 24, content_filter: 'high' },
           headers: { Authorization: `Client-ID ${key}` },
           timeout: 8000,
-        }
+        },
       );
 
       return (data.results ?? []).map((p): ImageResultDto => ({
@@ -55,14 +55,14 @@ export class ImageService {
     } catch (err) {
       if (axios.isAxiosError(err) && err.response?.status === 401) {
         throw new ServiceUnavailableException(
-          'Image search key was rejected by Unsplash (401). Check UNSPLASH_ACCESS_KEY.'
+          'Image search key was rejected by Unsplash (401). Check UNSPLASH_ACCESS_KEY.',
         );
       }
       this.logger.error(
-        `Unsplash search failed: ${err instanceof Error ? err.message : String(err)}`
+        `Unsplash search failed: ${err instanceof Error ? err.message : String(err)}`,
       );
       throw new ServiceUnavailableException(
-        'Image search is temporarily unavailable. Please try again.'
+        'Image search is temporarily unavailable. Please try again.',
       );
     }
   }

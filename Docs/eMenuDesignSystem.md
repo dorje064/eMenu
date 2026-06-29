@@ -347,14 +347,15 @@ Global interaction-state model (applies to all interactive components unless ove
 - _Affix:_ leading icon / trailing icon / both / none.
 
 **States**
-| State | Spec |
-|-------|------|
-| Default | `primary.600` fill, `elevation.0`, white text |
-| Hover | `primary.700` fill |
-| Focus-visible | `focus.ring` |
-| Pressed | `primary.800`, scale 0.98 |
-| Disabled | `neutral.200` fill, `neutral.400` text, no shadow, `cursor: not-allowed` |
-| Loading | Spinner replaces leading icon; label dims to 70%; width locked; non-interactive |
+
+| State         | Spec                                                                            |
+| ------------- | ------------------------------------------------------------------------------- |
+| Default       | `primary.600` fill, `elevation.0`, white text                                   |
+| Hover         | `primary.700` fill                                                              |
+| Focus-visible | `focus.ring`                                                                    |
+| Pressed       | `primary.800`, scale 0.98                                                       |
+| Disabled      | `neutral.200` fill, `neutral.400` text, no shadow, `cursor: not-allowed`        |
+| Loading       | Spinner replaces leading icon; label dims to 70%; width locked; non-interactive |
 
 **Accessibility**
 
@@ -378,16 +379,17 @@ Global interaction-state model (applies to all interactive components unless ove
 - _Label position:_ top-aligned label (default) — never placeholder-as-label.
 
 **States**
-| State | Border | Notes |
-|-------|--------|-------|
-| Default | `neutral.300` | Label `neutral.700`, placeholder `neutral.400` |
-| Hover | `neutral.400` | — |
-| Focus | `primary.600` + `focus.ring` | — |
-| Filled | `neutral.300` | Value `neutral.900` |
-| Disabled | `neutral.200`, bg `neutral.50` | `neutral.400` text |
-| Read-only | no border, bg transparent | — |
-| Error | `error` border, `error` helper text + `alert-circle` icon | — |
-| Success | `success` border + `check` icon | For validated fields (e.g., unique slug) |
+
+| State     | Border                                                    | Notes                                          |
+| --------- | --------------------------------------------------------- | ---------------------------------------------- |
+| Default   | `neutral.300`                                             | Label `neutral.700`, placeholder `neutral.400` |
+| Hover     | `neutral.400`                                             | —                                              |
+| Focus     | `primary.600` + `focus.ring`                              | —                                              |
+| Filled    | `neutral.300`                                             | Value `neutral.900`                            |
+| Disabled  | `neutral.200`, bg `neutral.50`                            | `neutral.400` text                             |
+| Read-only | no border, bg transparent                                 | —                                              |
+| Error     | `error` border, `error` helper text + `alert-circle` icon | —                                              |
+| Success   | `success` border + `check` icon                           | For validated fields (e.g., unique slug)       |
 
 **Anatomy:** Label · (optional) required `*` · Input · Helper/error text (16px reserved height to prevent layout shift) · char counter (optional).
 
@@ -458,13 +460,14 @@ Default · Focused (ring + expanded suggestions) · Typing (inline spinner) · R
 - _Tags:_ Veg / Non-veg / Vegan / Spicy / Bestseller / New / Discounted (`secondary` price strikethrough).
 
 **States**
-| State | Spec |
-|-------|------|
-| Available | Full color, Add enabled |
+
+| State                  | Spec                                                                 |
+| ---------------------- | -------------------------------------------------------------------- |
+| Available              | Full color, Add enabled                                              |
 | Unavailable / Sold out | Image desaturated 60%, "Sold out" badge (`error` tint), Add disabled |
-| In cart | Stepper shows quantity, card shows `primary.100` ring |
-| Adding | Add button → spinner → check micro-animation |
-| Loading | Skeleton (image block + 2 text bars + price bar) |
+| In cart                | Stepper shows quantity, card shows `primary.100` ring                |
+| Adding                 | Add button → spinner → check micro-animation                         |
+| Loading                | Skeleton (image block + 2 text bars + price bar)                     |
 
 **Accessibility**
 

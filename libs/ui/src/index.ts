@@ -70,7 +70,12 @@ export type {
 
 // Tabs
 export { Tabs } from './lib/Tabs/Tabs';
-export type { TabsProps, TabItem, TabsVariant, TabsAlign } from './lib/Tabs/Tabs';
+export type {
+  TabsProps,
+  TabItem,
+  TabsVariant,
+  TabsAlign,
+} from './lib/Tabs/Tabs';
 
 // Modal
 export { Modal } from './lib/Modal/Modal';
@@ -104,7 +109,10 @@ export type {
 
 // Pagination
 export { Pagination } from './lib/Pagination/Pagination';
-export type { PaginationProps, PageSizeOption } from './lib/Pagination/Pagination';
+export type {
+  PaginationProps,
+  PageSizeOption,
+} from './lib/Pagination/Pagination';
 
 // DashboardCard
 export { DashboardCard } from './lib/DashboardCard/DashboardCard';
@@ -135,7 +143,11 @@ export type {
 } from './lib/EmptyState/EmptyState';
 
 // LoadingState
-export { Skeleton, Spinner, ProgressBar } from './lib/LoadingState/LoadingState';
+export {
+  Skeleton,
+  Spinner,
+  ProgressBar,
+} from './lib/LoadingState/LoadingState';
 export type {
   SkeletonProps,
   SpinnerProps,

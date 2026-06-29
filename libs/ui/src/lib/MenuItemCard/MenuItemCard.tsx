@@ -6,13 +6,7 @@ import { cn } from '../utils/cn';
 import './MenuItemCard.css';
 
 export type MenuItemTagKind =
-  | 'veg'
-  | 'non-veg'
-  | 'vegan'
-  | 'spicy'
-  | 'bestseller'
-  | 'new'
-  | 'discounted';
+  'veg' | 'non-veg' | 'vegan' | 'spicy' | 'bestseller' | 'new' | 'discounted';
 
 export interface MenuItemTag {
   /** Canonical tag kind — drives icon + default label. */
@@ -23,8 +17,10 @@ export interface MenuItemTag {
 
 export type MenuItemCardLayout = 'vertical' | 'horizontal';
 
-export interface MenuItemCardProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
+export interface MenuItemCardProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'onChange'
+> {
   /** Dish name — rendered as `text-h5` and used as the accessible label. */
   name: string;
   /** Formatted price string, e.g. "$12.50". Rendered with tabular numerals. */
@@ -134,7 +130,7 @@ export const MenuItemCard = forwardRef<HTMLDivElement, MenuItemCardProps>(
       className,
       ...rest
     },
-    ref
+    ref,
   ) => {
     const headingId = useId();
     const inCart = quantity > 0 && !soldOut;
@@ -147,7 +143,7 @@ export const MenuItemCard = forwardRef<HTMLDivElement, MenuItemCardProps>(
           `emenu-mic--${layout}`,
           soldOut && 'emenu-mic--soldout',
           inCart && 'emenu-mic--incart',
-          className
+          className,
         )}
         role="group"
         aria-labelledby={headingId}
@@ -177,7 +173,7 @@ export const MenuItemCard = forwardRef<HTMLDivElement, MenuItemCardProps>(
                     key={tag.kind}
                     className={cn(
                       'emenu-mic__tag',
-                      `emenu-mic__tag--${tag.kind}`
+                      `emenu-mic__tag--${tag.kind}`,
                     )}
                   >
                     <TagGlyph kind={tag.kind} />
@@ -209,9 +205,7 @@ export const MenuItemCard = forwardRef<HTMLDivElement, MenuItemCardProps>(
             )}
           </div>
 
-          {description && (
-            <p className="emenu-mic__desc">{description}</p>
-          )}
+          {description && <p className="emenu-mic__desc">{description}</p>}
 
           <div className="emenu-mic__footer">
             <div className="emenu-mic__price">
@@ -251,7 +245,7 @@ export const MenuItemCard = forwardRef<HTMLDivElement, MenuItemCardProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
 MenuItemCard.displayName = 'MenuItemCard';
@@ -268,7 +262,11 @@ function QuantityStepper({
   onDecrease?: () => void;
 }) {
   return (
-    <div className="emenu-mic__stepper" role="group" aria-label={`Quantity for ${name}`}>
+    <div
+      className="emenu-mic__stepper"
+      role="group"
+      aria-label={`Quantity for ${name}`}
+    >
       <button
         type="button"
         className="emenu-mic__step-btn"
@@ -277,7 +275,11 @@ function QuantityStepper({
       >
         <Minus size={16} aria-hidden="true" />
       </button>
-      <span className="emenu-mic__qty tnum" aria-live="polite" aria-atomic="true">
+      <span
+        className="emenu-mic__qty tnum"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         {quantity}
       </span>
       <button

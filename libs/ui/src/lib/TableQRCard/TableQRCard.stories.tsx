@@ -19,7 +19,10 @@ const meta: Meta<typeof TableQRCard> = {
     onReactivate: () => console.log('reactivate'),
   },
   argTypes: {
-    status: { control: 'select', options: ['active', 'inactive', 'regenerating'] },
+    status: {
+      control: 'select',
+      options: ['active', 'inactive', 'regenerating'],
+    },
     variant: { control: 'select', options: ['screen', 'print'] },
   },
 };

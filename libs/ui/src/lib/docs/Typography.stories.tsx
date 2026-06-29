@@ -19,9 +19,24 @@ const scale: {
   { token: 'h3', size: '24/32', weight: 600, sample: 'Menu category' },
   { token: 'h4', size: '20/28', weight: 600, sample: 'Card / modal title' },
   { token: 'h5', size: '18/26', weight: 600, sample: 'Margherita Pizza' },
-  { token: 'body-lg', size: '16/24', weight: 400, sample: 'Customer app body text.' },
-  { token: 'body', size: '14/20', weight: 400, sample: 'Dashboard body & table cells.' },
-  { token: 'caption', size: '12/16', weight: 400, sample: 'Helper text · 2 min ago' },
+  {
+    token: 'body-lg',
+    size: '16/24',
+    weight: 400,
+    sample: 'Customer app body text.',
+  },
+  {
+    token: 'body',
+    size: '14/20',
+    weight: 400,
+    sample: 'Dashboard body & table cells.',
+  },
+  {
+    token: 'caption',
+    size: '12/16',
+    weight: 400,
+    sample: 'Helper text · 2 min ago',
+  },
   { token: 'overline', size: '11/16', weight: 600, sample: "TODAY'S REVENUE" },
   { token: 'price', size: '18/24', weight: 700, sample: '$12.50' },
 ];
@@ -35,7 +50,14 @@ export const Scale: Story = {
       <p style={{ color: 'var(--color-neutral-600)' }}>
         Inter · 1.25 (major third) ratio on a 16px base.
       </p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 24, marginTop: 24 }}>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 24,
+          marginTop: 24,
+        }}
+      >
         {scale.map((t) => (
           <div
             key={t.token}

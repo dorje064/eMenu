@@ -38,9 +38,9 @@ export const imageMulterOptions = {
     else
       cb(
         new BadRequestException(
-          'Only JPEG, PNG, WebP, GIF or AVIF images are allowed.'
+          'Only JPEG, PNG, WebP, GIF or AVIF images are allowed.',
         ),
-        false
+        false,
       );
   },
 };

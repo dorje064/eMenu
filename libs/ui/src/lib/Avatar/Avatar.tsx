@@ -77,7 +77,7 @@ export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(
       className,
       ...rest
     },
-    ref
+    ref,
   ) => {
     const [imgFailed, setImgFailed] = useState(false);
     const showImage = !!src && !imgFailed;
@@ -88,8 +88,8 @@ export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(
     const a11y = decorative
       ? { 'aria-hidden': true as const }
       : showImage
-      ? {}
-      : { role: 'img', 'aria-label': name };
+        ? {}
+        : { role: 'img', 'aria-label': name };
 
     return (
       <span
@@ -99,7 +99,7 @@ export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(
           `emenu-avatar--${size}`,
           `emenu-avatar--${shape}`,
           colorClass,
-          className
+          className,
         )}
         {...a11y}
         {...rest}
@@ -125,7 +125,7 @@ export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(
           <span
             className={cn(
               'emenu-avatar__status',
-              `emenu-avatar__status--${status}`
+              `emenu-avatar__status--${status}`,
             )}
             role="img"
             aria-label={STATUS_LABELS[status]}
@@ -133,7 +133,7 @@ export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(
         )}
       </span>
     );
-  }
+  },
 );
 
 Avatar.displayName = 'Avatar';
@@ -179,7 +179,7 @@ export const AvatarGroup = forwardRef<HTMLDivElement, AvatarGroupProps>(
               `emenu-avatar--${size}`,
               'emenu-avatar--circle',
               'emenu-avatar-group__item',
-              'emenu-avatar-group__overflow'
+              'emenu-avatar-group__overflow',
             )}
             role="img"
             aria-label={`${overflow} more`}
@@ -191,7 +191,7 @@ export const AvatarGroup = forwardRef<HTMLDivElement, AvatarGroupProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 AvatarGroup.displayName = 'AvatarGroup';

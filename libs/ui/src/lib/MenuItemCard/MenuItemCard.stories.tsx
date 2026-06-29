@@ -19,10 +19,7 @@ export default meta;
 
 type Story = StoryObj<typeof MenuItemCard>;
 
-const pizzaTags: MenuItemTag[] = [
-  { kind: 'veg' },
-  { kind: 'bestseller' },
-];
+const pizzaTags: MenuItemTag[] = [{ kind: 'veg' }, { kind: 'bestseller' }];
 
 const baseArgs = {
   name: 'Margherita Pizza',
@@ -57,7 +54,8 @@ export const Spicy: Story = {
   args: {
     name: 'Spicy Chicken Tikka',
     price: '$14.00',
-    description: 'Char-grilled chicken in a fiery house masala, served with mint chutney.',
+    description:
+      'Char-grilled chicken in a fiery house masala, served with mint chutney.',
     imageUrl: 'https://picsum.photos/seed/tikka/400/300',
     prepTime: '20 min',
     tags: [{ kind: 'non-veg' }, { kind: 'spicy' }],
@@ -117,7 +115,8 @@ export const ImageLessFallback: Story = {
   args: {
     name: 'Chef’s Daily Special',
     price: '$18.00',
-    description: 'Ask your server — a rotating plate built from today’s market produce.',
+    description:
+      'Ask your server — a rotating plate built from today’s market produce.',
     prepTime: '25 min',
     tags: [{ kind: 'new' }],
     imageUrl: undefined,

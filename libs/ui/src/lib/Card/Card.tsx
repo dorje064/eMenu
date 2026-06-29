@@ -14,12 +14,7 @@ export type CardElevation = 'flat' | 'raised' | 'interactive';
 export type CardPadding = 'compact' | 'default';
 /** Optional status accent rendered as a left border on the card. */
 export type CardAccent =
-  | 'success'
-  | 'warning'
-  | 'error'
-  | 'info'
-  | 'neutral'
-  | 'primary';
+  'success' | 'warning' | 'error' | 'info' | 'neutral' | 'primary';
 
 interface CardOwnProps {
   /**
@@ -113,7 +108,7 @@ export const Card = forwardRef<HTMLElement, CardProps>(
       children,
       ...rest
     },
-    ref
+    ref,
   ) => {
     const clickable = as === 'button' || as === 'link';
     const classes = cn(
@@ -124,7 +119,7 @@ export const Card = forwardRef<HTMLElement, CardProps>(
       selected && 'emenu-card--selected',
       disabled && 'emenu-card--disabled',
       clickable && 'emenu-card--clickable',
-      className
+      className,
     );
 
     if (as === 'button') {
@@ -170,7 +165,7 @@ export const Card = forwardRef<HTMLElement, CardProps>(
         {children}
       </Tag>
     );
-  }
+  },
 );
 
 Card.displayName = 'Card';

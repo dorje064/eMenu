@@ -67,7 +67,7 @@ export class CategoryController {
   @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
   update(
     @Param('id') id: string,
-    @Body() dto: UpdateCategoryDto
+    @Body() dto: UpdateCategoryDto,
   ): Promise<CategoryDto> {
     return this.categoryService.update(id, dto);
   }

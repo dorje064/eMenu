@@ -19,8 +19,10 @@ export type TableQRStatus = 'active' | 'inactive' | 'regenerating';
 /** Layout mode — an on-screen management tile or a print-ready card. */
 export type TableQRVariant = 'screen' | 'print';
 
-export interface TableQRCardProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
+export interface TableQRCardProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'title'
+> {
   /** Physical table label, e.g. "Table 12". */
   tableLabel: string;
   /** Branch / restaurant name shown under the table label. */
@@ -75,7 +77,7 @@ export const TableQRCard = forwardRef<HTMLDivElement, TableQRCardProps>(
       className,
       ...rest
     },
-    ref
+    ref,
   ) => {
     const isInactive = status === 'inactive';
     const isRegenerating = status === 'regenerating';
@@ -84,8 +86,8 @@ export const TableQRCard = forwardRef<HTMLDivElement, TableQRCardProps>(
       status === 'active'
         ? 'Active'
         : status === 'inactive'
-        ? 'Inactive'
-        : 'Regenerating…';
+          ? 'Inactive'
+          : 'Regenerating…';
 
     return (
       <div
@@ -94,7 +96,7 @@ export const TableQRCard = forwardRef<HTMLDivElement, TableQRCardProps>(
           'emenu-qrcard',
           `emenu-qrcard--${variant}`,
           `emenu-qrcard--${status}`,
-          className
+          className,
         )}
         {...rest}
       >
@@ -112,11 +114,7 @@ export const TableQRCard = forwardRef<HTMLDivElement, TableQRCardProps>(
 
         {/* QR + live state */}
         <div className="emenu-qrcard__qr-wrap">
-          <div
-            className="emenu-qrcard__qr"
-            role="img"
-            aria-label={qrLabel}
-          >
+          <div className="emenu-qrcard__qr" role="img" aria-label={qrLabel}>
             <QRCodeSVG
               value={url}
               size={qrSize}
@@ -218,7 +216,7 @@ export const TableQRCard = forwardRef<HTMLDivElement, TableQRCardProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 TableQRCard.displayName = 'TableQRCard';

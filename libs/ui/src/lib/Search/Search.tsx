@@ -6,11 +6,10 @@ import './Search.css';
 
 export type SearchSize = 'md' | 'lg';
 
-export interface SearchProps
-  extends Omit<
-    InputHTMLAttributes<HTMLInputElement>,
-    'size' | 'type' | 'onChange' | 'value'
-  > {
+export interface SearchProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  'size' | 'type' | 'onChange' | 'value'
+> {
   /** Current query (controlled). @default '' */
   value?: string;
   /** Fired on every keystroke; receives the next string value. */
@@ -53,7 +52,7 @@ export const Search = forwardRef<HTMLInputElement, SearchProps>(
       onKeyDown,
       ...rest
     },
-    ref
+    ref,
   ) => {
     const generatedId = useId();
     const id = idProp ?? generatedId;
@@ -77,11 +76,15 @@ export const Search = forwardRef<HTMLInputElement, SearchProps>(
           'emenu-search',
           `emenu-search--${size}`,
           disabled && 'emenu-search--disabled',
-          className
+          className,
         )}
       >
         <div className="emenu-search__control">
-          <SearchIcon className="emenu-search__icon" aria-hidden="true" size={18} />
+          <SearchIcon
+            className="emenu-search__icon"
+            aria-hidden="true"
+            size={18}
+          />
 
           <input
             ref={ref}
@@ -100,7 +103,11 @@ export const Search = forwardRef<HTMLInputElement, SearchProps>(
           />
 
           {loading && (
-            <Loader2 className="emenu-search__spinner" aria-hidden="true" size={18} />
+            <Loader2
+              className="emenu-search__spinner"
+              aria-hidden="true"
+              size={18}
+            />
           )}
 
           {hasValue && !loading && (
@@ -124,7 +131,7 @@ export const Search = forwardRef<HTMLInputElement, SearchProps>(
         </span>
       </div>
     );
-  }
+  },
 );
 
 Search.displayName = 'Search';

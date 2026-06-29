@@ -157,7 +157,9 @@
   overflow: hidden;
   cursor: pointer;
   background: var(--surface-canvas);
-  transition: border-color 0.12s ease, transform 0.12s ease;
+  transition:
+    border-color 0.12s ease,
+    transform 0.12s ease;
 }
 .image-picker__thumb:hover {
   transform: translateY(-1px);

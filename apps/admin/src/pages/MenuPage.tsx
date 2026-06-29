@@ -26,7 +26,9 @@ import type {
 import './MenuPage.css';
 
 const currency = (n: number) =>
-  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n);
+  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
+    n,
+  );
 
 const EMPTY_FORM: CreateFoodItemInput = {
   name: '',
@@ -74,7 +76,9 @@ export function MenuPage() {
       setSavedTemplate(settings.menuTemplate);
       setSelectedTemplate(settings.menuTemplate);
     } catch (err) {
-      setLoadError(err instanceof ApiError ? err.message : 'Failed to load menu');
+      setLoadError(
+        err instanceof ApiError ? err.message : 'Failed to load menu',
+      );
     } finally {
       setLoading(false);
     }
@@ -113,7 +117,7 @@ export function MenuPage() {
 
   const update = <K extends keyof CreateFoodItemInput>(
     key: K,
-    value: CreateFoodItemInput[K]
+    value: CreateFoodItemInput[K],
   ) => setForm((f) => ({ ...f, [key]: value }));
 
   const handleSubmit = async () => {
@@ -135,9 +139,7 @@ export function MenuPage() {
       };
       if (editingId) {
         const updated = await menuApi.update(editingId, payload);
-        setItems((prev) =>
-          prev.map((i) => (i.id === editingId ? updated : i))
-        );
+        setItems((prev) => prev.map((i) => (i.id === editingId ? updated : i)));
         show({ semantic: 'success', message: `Updated “${updated.name}”` });
       } else {
         const created = await menuApi.create(payload);
@@ -150,7 +152,7 @@ export function MenuPage() {
       setModalOpen(false);
     } catch (err) {
       setFieldErrors(
-        err instanceof ApiError ? err.message : 'Could not save the item.'
+        err instanceof ApiError ? err.message : 'Could not save the item.',
       );
     } finally {
       setSaving(false);
@@ -199,7 +201,9 @@ export function MenuPage() {
       show({
         semantic: 'error',
         message:
-          err instanceof ApiError ? err.message : 'Could not save the template.',
+          err instanceof ApiError
+            ? err.message
+            : 'Could not save the template.',
       });
     } finally {
       setSavingTemplate(false);
@@ -345,7 +349,9 @@ export function MenuPage() {
               value={form.category || undefined}
               onChange={(value) => update('category', value)}
               placeholder={
-                categoryOptions.length ? 'Select a category' : 'No categories yet'
+                categoryOptions.length
+                  ? 'Select a category'
+                  : 'No categories yet'
               }
               disabled={categoryOptions.length === 0}
               label="Category"

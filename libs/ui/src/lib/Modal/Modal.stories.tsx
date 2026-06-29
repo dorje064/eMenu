@@ -142,8 +142,9 @@ export const Destructive: Story = {
             </>
           }
         >
-          This permanently cancels Table 7’s order. The kitchen will be notified.
-          This action cannot be undone. (Esc and scrim-click are disabled here.)
+          This permanently cancels Table 7’s order. The kitchen will be
+          notified. This action cannot be undone. (Esc and scrim-click are
+          disabled here.)
         </Modal>
       </>
     );

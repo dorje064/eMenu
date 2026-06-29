@@ -43,8 +43,11 @@
   font-weight: var(--font-weight-medium);
   white-space: nowrap;
   cursor: pointer;
-  transition: color 120ms ease, background-color 120ms ease,
-    border-color 120ms ease, box-shadow 120ms ease;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease,
+    border-color 120ms ease,
+    box-shadow 120ms ease;
 }
 
 .emenu-tabs__tab:hover:not(:disabled):not(.emenu-tabs__tab--active) {

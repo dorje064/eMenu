@@ -21,7 +21,12 @@ type Story = StoryObj<typeof Dropdown>;
 const rowActions: DropdownItem[] = [
   { id: 'edit', label: 'Edit', icon: <Pencil size={16} /> },
   { id: 'duplicate', label: 'Duplicate', icon: <Copy size={16} /> },
-  { id: 'delete', label: 'Delete', icon: <Trash2 size={16} />, destructive: true },
+  {
+    id: 'delete',
+    label: 'Delete',
+    icon: <Trash2 size={16} />,
+    destructive: true,
+  },
 ];
 
 /** Row kebab on a table-management row: Edit / Duplicate / Delete. */
@@ -40,7 +45,9 @@ export const RowKebabMenu: Story = {
         background: 'var(--surface-card)',
       }}
     >
-      <span style={{ fontFamily: 'var(--font-family-base)' }}>Table 12 — Patio</span>
+      <span style={{ fontFamily: 'var(--font-family-base)' }}>
+        Table 12 — Patio
+      </span>
       <Dropdown
         items={rowActions}
         triggerLabel="Actions for Table 12"
@@ -119,6 +126,11 @@ export const SelectBranch: StoryObj<typeof Select> = {
 /** Disabled select control. */
 export const SelectDisabled: StoryObj<typeof Select> = {
   render: () => (
-    <Select label="Currency" options={categories} defaultValue="mains" disabled />
+    <Select
+      label="Currency"
+      options={categories}
+      defaultValue="mains"
+      disabled
+    />
   ),
 };

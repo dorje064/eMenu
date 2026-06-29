@@ -16,7 +16,13 @@ const meta: Meta<typeof EmptyState> = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['first-use', 'no-results', 'cleared', 'error-empty', 'permission'],
+      options: [
+        'first-use',
+        'no-results',
+        'cleared',
+        'error-empty',
+        'permission',
+      ],
     },
     size: { control: 'select', options: ['inline', 'full-page'] },
   },
@@ -52,7 +58,8 @@ export const ClearedDone: Story = {
     variant: 'cleared',
     icon: <PartyPopper />,
     title: 'No pending orders 🎉',
-    description: "You're all caught up. New orders will appear here in real time.",
+    description:
+      "You're all caught up. New orders will appear here in real time.",
   },
 };
 
@@ -61,7 +68,8 @@ export const ErrorEmpty: Story = {
     variant: 'error-empty',
     icon: <AlertTriangle />,
     title: "Couldn't load orders",
-    description: 'Something went wrong fetching this list. Check your connection and retry.',
+    description:
+      'Something went wrong fetching this list. Check your connection and retry.',
     action: { label: 'Retry' },
   },
 };
@@ -71,7 +79,8 @@ export const Permission: Story = {
     variant: 'permission',
     icon: <Lock />,
     title: "You don't have access",
-    description: 'Ask a manager to grant you the Reports permission to view this page.',
+    description:
+      'Ask a manager to grant you the Reports permission to view this page.',
     secondaryAction: { label: 'Back to dashboard' },
   },
 };

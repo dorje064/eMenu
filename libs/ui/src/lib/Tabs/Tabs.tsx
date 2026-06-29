@@ -21,8 +21,10 @@ export interface TabItem {
   disabled?: boolean;
 }
 
-export interface TabsProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> {
+export interface TabsProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'onChange'
+> {
   /** Tabs and their panels. */
   items: TabItem[];
   /** Selected tab id (controlled). */
@@ -55,7 +57,7 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(
       className,
       ...rest
     },
-    ref
+    ref,
   ) => {
     const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
@@ -104,10 +106,7 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(
           role="tablist"
           aria-label={ariaLabel}
           aria-orientation="horizontal"
-          className={cn(
-            'emenu-tabs__list',
-            `emenu-tabs__list--${variant}`
-          )}
+          className={cn('emenu-tabs__list', `emenu-tabs__list--${variant}`)}
         >
           {items.map((item, i) => {
             const selected = item.id === value;
@@ -126,7 +125,7 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(
                 disabled={item.disabled}
                 className={cn(
                   'emenu-tabs__tab',
-                  selected && 'emenu-tabs__tab--active'
+                  selected && 'emenu-tabs__tab--active',
                 )}
                 onClick={() => !item.disabled && onChange(item.id)}
                 onKeyDown={(e) => handleKeyDown(e, i)}
@@ -160,7 +159,7 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 Tabs.displayName = 'Tabs';
