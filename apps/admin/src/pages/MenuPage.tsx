@@ -182,6 +182,7 @@ export function MenuPage() {
         onClose={() => setModalOpen(false)}
         title="Add food item"
         variant="form"
+        size="lg"
         footer={
           <>
             <Button variant="secondary" onClick={() => setModalOpen(false)}>

@@ -1,6 +1,6 @@
 import { useRef, useState, type KeyboardEvent } from 'react';
 import { ImageOff, Loader2, Search, Upload, X } from 'lucide-react';
-import { Button, Input } from '@org/ui';
+import { Button } from '@org/ui';
 import { menuApi } from '../api/menu.api';
 import { ApiError } from '../api/client';
 import type { ImageSearchResult } from '../api/types';
@@ -9,19 +9,17 @@ import './ImagePicker.css';
 interface ImagePickerProps {
   /** Current image URL (absolute Unsplash URL or app-relative upload path). */
   value: string;
-  /** Called with the chosen/uploaded/typed URL. */
+  /** Called with the chosen/uploaded URL. */
   onChange: (url: string) => void;
-  /** External error to surface (e.g. server validation). */
-  error?: string;
 }
 
 const MAX_UPLOAD_MB = 5;
 
 /**
- * ImagePicker — lets an admin set a food photo three ways:
- * search stock images and click one, upload a file, or paste a URL.
+ * ImagePicker — lets an admin set a food photo two ways:
+ * search stock images and click one, or upload a file.
  */
-export function ImagePicker({ value, onChange, error }: ImagePickerProps) {
+export function ImagePicker({ value, onChange }: ImagePickerProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<ImageSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
@@ -37,10 +35,13 @@ export function ImagePicker({ value, onChange, error }: ImagePickerProps) {
     try {
       const res = await menuApi.searchImages(q);
       setResults(res);
-      if (res.length === 0) setMessage('No images found — try a different search.');
+      if (res.length === 0)
+        setMessage('No images found — try a different search.');
     } catch (err) {
       setMessage(
-        err instanceof ApiError ? err.message : 'Image search failed. Try again.'
+        err instanceof ApiError
+          ? err.message
+          : 'Image search failed. Try again.',
       );
     } finally {
       setSearching(false);
@@ -66,7 +67,9 @@ export function ImagePicker({ value, onChange, error }: ImagePickerProps) {
       onChange(imageUrl);
       setResults([]);
     } catch (err) {
-      setMessage(err instanceof ApiError ? err.message : 'Upload failed. Try again.');
+      setMessage(
+        err instanceof ApiError ? err.message : 'Upload failed. Try again.',
+      );
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = '';
@@ -82,76 +85,89 @@ export function ImagePicker({ value, onChange, error }: ImagePickerProps) {
     <div className="image-picker">
       <span className="image-picker__label">Image</span>
 
-      {/* Selected preview + current URL (editable / pasteable). */}
-      <div className="image-picker__current">
-        <div className="image-picker__preview">
-          {value ? (
+      {/* Full-width selected preview. */}
+      <div className="image-picker__preview">
+        {value ? (
+          <>
             <img src={value} alt="Selected food" />
-          ) : (
-            <ImageOff size={20} aria-hidden="true" />
-          )}
-        </div>
-        <div className="image-picker__url">
-          <Input
-            label="Image URL"
-            value={value}
-            onChange={(e) => onChange(e.currentTarget.value)}
-            placeholder="https://… or pick / upload below"
-            error={error}
-          />
-        </div>
-        {value && (
-          <Button
-            type="button"
-            variant="tertiary"
-            shape="icon"
-            aria-label="Clear image"
-            onClick={() => onChange('')}
-            leadingIcon={<X size={16} />}
-          />
+            <Button
+              type="button"
+              variant="tertiary"
+              shape="icon"
+              aria-label="Clear image"
+              className="image-picker__clear"
+              onClick={() => onChange('')}
+              leadingIcon={<X size={16} />}
+            />
+          </>
+        ) : (
+          <div className="image-picker__placeholder">
+            <ImageOff size={28} aria-hidden="true" />
+            <span>No image selected</span>
+          </div>
         )}
       </div>
 
-      {/* Search row. */}
-      <div className="image-picker__search">
-        <Input
-          label="Search stock photos"
+      {/* Input group: search field with appended Search + Upload buttons. */}
+      <div className="image-picker__input-group">
+        <Search
+          className="image-picker__group-icon"
+          size={16}
+          aria-hidden="true"
+        />
+        <input
+          type="text"
+          className="image-picker__group-field"
           value={query}
           onChange={(e) => setQuery(e.currentTarget.value)}
           onKeyDown={onSearchKeyDown}
-          placeholder="e.g. margherita pizza"
-          leadingIcon={<Search size={16} />}
+          placeholder="Search for an image, e.g. margherita pizza"
+          aria-label="Search stock photos"
         />
-        <Button
+        <button
           type="button"
-          variant="secondary"
+          className="image-picker__group-btn"
           onClick={runSearch}
-          loading={searching}
-          disabled={!query.trim()}
+          disabled={!query.trim() || searching}
         >
+          {searching ? (
+            <Loader2
+              className="image-picker__spinner"
+              size={16}
+              aria-hidden="true"
+            />
+          ) : (
+            <Search size={16} aria-hidden="true" />
+          )}
           Search
-        </Button>
-        <div className="image-picker__upload">
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
-            hidden
-            onChange={(e) => {
-              const file = e.currentTarget.files?.[0];
-              if (file) handleFile(file);
-            }}
-          />
-          <Button
-            type="button"
-            variant="tertiary"
-            onClick={() => fileRef.current?.click()}
-            loading={uploading}
-            leadingIcon={<Upload size={16} />}
-          >
-            Upload
-          </Button>
-        </div>
+        </button>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+          hidden
+          onChange={(e) => {
+            const file = e.currentTarget.files?.[0];
+            if (file) handleFile(file);
+          }}
+        />
+        <button
+          type="button"
+          className="image-picker__group-btn"
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading}
+        >
+          {uploading ? (
+            <Loader2
+              className="image-picker__spinner"
+              size={16}
+              aria-hidden="true"
+            />
+          ) : (
+            <Upload size={16} aria-hidden="true" />
+          )}
+          Upload
+        </button>
       </div>
 
       {message && <p className="image-picker__message">{message}</p>}
@@ -159,7 +175,11 @@ export function ImagePicker({ value, onChange, error }: ImagePickerProps) {
       {/* Results grid. */}
       {searching ? (
         <div className="image-picker__loading">
-          <Loader2 className="image-picker__spinner" size={20} aria-hidden="true" />
+          <Loader2
+            className="image-picker__spinner"
+            size={20}
+            aria-hidden="true"
+          />
           Searching images…
         </div>
       ) : results.length > 0 ? (
