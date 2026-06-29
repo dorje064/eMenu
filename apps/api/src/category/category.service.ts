@@ -7,6 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { QueryFailedError, Repository } from 'typeorm';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Category } from './entities/category.entity';
 
 /** Default categories seeded when the table is empty, so the menu form
@@ -65,5 +66,29 @@ export class CategoryService implements OnModuleInit {
       throw new NotFoundException(`Category ${id} not found`);
     }
     return category;
+  }
+
+  async update(id: string, dto: UpdateCategoryDto): Promise<Category> {
+    const category = await this.findOne(id);
+    if (dto.name !== undefined) category.name = dto.name;
+    if (dto.description !== undefined)
+      category.description = dto.description ?? null;
+    if (dto.sortOrder !== undefined) category.sortOrder = dto.sortOrder;
+    if (dto.active !== undefined) category.active = dto.active;
+    try {
+      return await this.categories.save(category);
+    } catch (err) {
+      if (err instanceof QueryFailedError) {
+        throw new ConflictException(`Category "${dto.name}" already exists`);
+      }
+      throw err;
+    }
+  }
+
+  async remove(id: string): Promise<void> {
+    const result = await this.categories.delete(id);
+    if (!result.affected) {
+      throw new NotFoundException(`Category ${id} not found`);
+    }
   }
 }

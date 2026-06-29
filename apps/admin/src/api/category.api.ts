@@ -1,5 +1,9 @@
 import { apiRequest } from './client';
-import type { Category, CreateCategoryInput } from './types';
+import type {
+  Category,
+  CreateCategoryInput,
+  UpdateCategoryInput,
+} from './types';
 
 export const categoryApi = {
   list: (activeOnly?: boolean) =>
@@ -15,4 +19,14 @@ export const categoryApi = {
       body: input,
       auth: true,
     }),
+
+  update: (id: string, input: UpdateCategoryInput) =>
+    apiRequest<Category>(`/categories/${id}`, {
+      method: 'PATCH',
+      body: input,
+      auth: true,
+    }),
+
+  remove: (id: string) =>
+    apiRequest<void>(`/categories/${id}`, { method: 'DELETE', auth: true }),
 };

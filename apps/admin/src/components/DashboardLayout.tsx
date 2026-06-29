@@ -1,4 +1,4 @@
-import { LayoutDashboard, LogOut, UtensilsCrossed } from 'lucide-react';
+import { LayoutDashboard, LogOut, Tags, UtensilsCrossed } from 'lucide-react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { Avatar, Button } from '@org/ui';
 import { useAuth } from '../auth/AuthContext';
@@ -7,6 +7,7 @@ import './DashboardLayout.css';
 const NAV = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/menu', label: 'Menu', icon: UtensilsCrossed, end: false },
+  { to: '/categories', label: 'Categories', icon: Tags, end: false },
 ];
 
 export function DashboardLayout() {

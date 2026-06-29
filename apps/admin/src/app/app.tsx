@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { RequireAuth } from '../auth/RequireAuth';
 import { DashboardLayout } from '../components/DashboardLayout';
+import { CategoriesPage } from '../pages/CategoriesPage';
 import { DashboardHome } from '../pages/DashboardHome';
 import { LoginPage } from '../pages/LoginPage';
 import { MenuPage } from '../pages/MenuPage';
@@ -13,6 +14,7 @@ export function App() {
         <Route element={<DashboardLayout />}>
           <Route path="/" element={<DashboardHome />} />
           <Route path="/menu" element={<MenuPage />} />
+          <Route path="/categories" element={<CategoriesPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

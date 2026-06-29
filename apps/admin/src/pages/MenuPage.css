@@ -84,3 +84,10 @@
   font-size: var(--text-body-size);
   color: var(--text-primary);
 }
+
+.menu-row-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  justify-content: flex-end;
+}

@@ -31,6 +31,8 @@ export interface CreateCategoryInput {
   active?: boolean;
 }
 
+export type UpdateCategoryInput = Partial<CreateCategoryInput>;
+
 export interface FoodItem {
   id: string;
   name: string;
@@ -53,6 +55,8 @@ export interface CreateFoodItemInput {
   imageUrl?: string;
   available?: boolean;
 }
+
+export type UpdateFoodItemInput = Partial<CreateFoodItemInput>;
 
 /** One image-search hit shown in the picker grid. */
 export interface ImageSearchResult {

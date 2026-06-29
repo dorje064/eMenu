@@ -3,6 +3,7 @@ import type {
   CreateFoodItemInput,
   FoodItem,
   ImageSearchResult,
+  UpdateFoodItemInput,
   UploadResult,
 } from './types';
 
@@ -20,6 +21,16 @@ export const menuApi = {
       body: input,
       auth: true,
     }),
+
+  update: (id: string, input: UpdateFoodItemInput) =>
+    apiRequest<FoodItem>(`/menu/items/${id}`, {
+      method: 'PATCH',
+      body: input,
+      auth: true,
+    }),
+
+  remove: (id: string) =>
+    apiRequest<void>(`/menu/items/${id}`, { method: 'DELETE', auth: true }),
 
   /** Search stock images (proxied to Unsplash via the API). */
   searchImages: (query: string) =>

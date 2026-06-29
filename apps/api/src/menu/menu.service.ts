@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateFoodItemDto } from './dto/create-food-item.dto';
+import { UpdateFoodItemDto } from './dto/update-food-item.dto';
 import { FoodItem } from './entities/food-item.entity';
 
 @Injectable()
@@ -37,5 +38,25 @@ export class MenuService {
       throw new NotFoundException(`Food item ${id} not found`);
     }
     return item;
+  }
+
+  async update(id: string, dto: UpdateFoodItemDto): Promise<FoodItem> {
+    const item = await this.findOne(id);
+    if (dto.name !== undefined) item.name = dto.name;
+    if (dto.description !== undefined) item.description = dto.description ?? null;
+    if (dto.category !== undefined) item.category = dto.category;
+    if (dto.price !== undefined) item.price = dto.price;
+    if (dto.prepTimeMinutes !== undefined)
+      item.prepTimeMinutes = dto.prepTimeMinutes;
+    if (dto.imageUrl !== undefined) item.imageUrl = dto.imageUrl ?? null;
+    if (dto.available !== undefined) item.available = dto.available;
+    return this.foodItems.save(item);
+  }
+
+  async remove(id: string): Promise<void> {
+    const result = await this.foodItems.delete(id);
+    if (!result.affected) {
+      throw new NotFoundException(`Food item ${id} not found`);
+    }
   }
 }

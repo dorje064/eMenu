@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Plus, UtensilsCrossed } from 'lucide-react';
+import { Pencil, Plus, Trash2, UtensilsCrossed } from 'lucide-react';
 import {
   Button,
   DataTable,
@@ -39,9 +39,13 @@ export function MenuPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const [modalOpen, setModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<CreateFoodItemInput>(EMPTY_FORM);
   const [fieldErrors, setFieldErrors] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  const [deleteTarget, setDeleteTarget] = useState<FoodItem | null>(null);
+  const [removing, setRemoving] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -69,8 +73,24 @@ export function MenuPage() {
     load();
   }, [load]);
 
-  const openModal = () => {
+  const openCreate = () => {
+    setEditingId(null);
     setForm(EMPTY_FORM);
+    setFieldErrors(null);
+    setModalOpen(true);
+  };
+
+  const openEdit = (item: FoodItem) => {
+    setEditingId(item.id);
+    setForm({
+      name: item.name,
+      category: item.category,
+      price: item.price,
+      prepTimeMinutes: item.prepTimeMinutes,
+      description: item.description ?? '',
+      imageUrl: item.imageUrl ?? '',
+      available: item.available,
+    });
     setFieldErrors(null);
     setModalOpen(true);
   };
@@ -80,7 +100,7 @@ export function MenuPage() {
     value: CreateFoodItemInput[K]
   ) => setForm((f) => ({ ...f, [key]: value }));
 
-  const handleCreate = async () => {
+  const handleSubmit = async () => {
     setFieldErrors(null);
     if (!form.name.trim() || !form.category.trim()) {
       setFieldErrors('Name and category are required.');
@@ -97,16 +117,46 @@ export function MenuPage() {
         imageUrl: form.imageUrl?.trim() || undefined,
         available: form.available,
       };
-      const created = await menuApi.create(payload);
-      setItems((prev) => [...prev, created]);
+      if (editingId) {
+        const updated = await menuApi.update(editingId, payload);
+        setItems((prev) =>
+          prev.map((i) => (i.id === editingId ? updated : i))
+        );
+        show({ semantic: 'success', message: `Updated “${updated.name}”` });
+      } else {
+        const created = await menuApi.create(payload);
+        setItems((prev) => [...prev, created]);
+        show({
+          semantic: 'success',
+          message: `Added “${created.name}” to the menu`,
+        });
+      }
       setModalOpen(false);
-      show({ semantic: 'success', message: `Added “${created.name}” to the menu` });
     } catch (err) {
       setFieldErrors(
-        err instanceof ApiError ? err.message : 'Could not create the item.'
+        err instanceof ApiError ? err.message : 'Could not save the item.'
       );
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setRemoving(true);
+    try {
+      await menuApi.remove(deleteTarget.id);
+      setItems((prev) => prev.filter((i) => i.id !== deleteTarget.id));
+      show({ semantic: 'success', message: `Deleted “${deleteTarget.name}”` });
+      setDeleteTarget(null);
+    } catch (err) {
+      show({
+        semantic: 'error',
+        message:
+          err instanceof ApiError ? err.message : 'Could not delete the item.',
+      });
+    } finally {
+      setRemoving(false);
     }
   };
 
@@ -136,6 +186,29 @@ export function MenuPage() {
         </span>
       ),
     },
+    {
+      key: 'actions',
+      header: '',
+      align: 'end',
+      render: (r) => (
+        <div className="menu-row-actions">
+          <Button
+            variant="tertiary"
+            shape="icon"
+            aria-label={`Edit ${r.name}`}
+            onClick={() => openEdit(r)}
+            leadingIcon={<Pencil size={16} />}
+          />
+          <Button
+            variant="tertiary"
+            shape="icon"
+            aria-label={`Delete ${r.name}`}
+            onClick={() => setDeleteTarget(r)}
+            leadingIcon={<Trash2 size={16} />}
+          />
+        </div>
+      ),
+    },
   ];
 
   return (
@@ -147,7 +220,7 @@ export function MenuPage() {
             {items.length} item{items.length === 1 ? '' : 's'} on the menu
           </p>
         </div>
-        <Button leadingIcon={<Plus size={18} />} onClick={openModal}>
+        <Button leadingIcon={<Plus size={18} />} onClick={openCreate}>
           Add item
         </Button>
       </div>
@@ -165,7 +238,7 @@ export function MenuPage() {
           icon={<UtensilsCrossed />}
           title="No menu items yet"
           description="Add your first dish to start building the menu."
-          action={{ label: 'Add item', onClick: openModal }}
+          action={{ label: 'Add item', onClick: openCreate }}
         />
       ) : (
         <DataTable
@@ -180,7 +253,7 @@ export function MenuPage() {
       <Modal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        title="Add food item"
+        title={editingId ? 'Edit food item' : 'Add food item'}
         variant="form"
         size="lg"
         footer={
@@ -188,8 +261,8 @@ export function MenuPage() {
             <Button variant="secondary" onClick={() => setModalOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleCreate} loading={saving}>
-              Add item
+            <Button onClick={handleSubmit} loading={saving}>
+              {editingId ? 'Save changes' : 'Add item'}
             </Button>
           </>
         }
@@ -262,6 +335,31 @@ export function MenuPage() {
             Available for ordering
           </label>
         </div>
+      </Modal>
+
+      <Modal
+        open={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        title="Delete food item"
+        variant="destructive"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              loading={removing}
+            >
+              Delete
+            </Button>
+          </>
+        }
+      >
+        <p>
+          Delete “{deleteTarget?.name}” from the menu? This can’t be undone.
+        </p>
       </Modal>
     </div>
   );
