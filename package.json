@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "start": "node apps/api/dist/main.js",
     "api": "nx serve api",
     "api:build": "nx build api",
     "admin": "nx dev admin",
