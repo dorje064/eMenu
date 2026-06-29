@@ -60,3 +60,6 @@ storybook-static
 
 
 
+
+# Uploaded food images (local disk storage)
+apps/api/uploads/

@@ -14,6 +14,7 @@ import {
 import { menuApi } from '../api/menu.api';
 import { categoryApi } from '../api/category.api';
 import { ApiError } from '../api/client';
+import { ImagePicker } from '../components/ImagePicker';
 import type { Category, CreateFoodItemInput, FoodItem } from '../api/types';
 import './MenuPage.css';
 
@@ -193,6 +194,11 @@ export function MenuPage() {
         }
       >
         <div className="menu-form">
+          {fieldErrors && (
+            <p className="menu-form__error" role="alert">
+              {fieldErrors}
+            </p>
+          )}
           <Input
             label="Name"
             required
@@ -242,12 +248,9 @@ export function MenuPage() {
             onChange={(e) => update('description', e.currentTarget.value)}
             placeholder="Wood-fired, San Marzano tomato, fresh mozzarella, basil."
           />
-          <Input
-            label="Image URL"
-            value={form.imageUrl}
-            onChange={(e) => update('imageUrl', e.currentTarget.value)}
-            placeholder="https://…"
-            error={fieldErrors ?? undefined}
+          <ImagePicker
+            value={form.imageUrl ?? ''}
+            onChange={(url) => update('imageUrl', url)}
           />
           <label className="menu-form__check">
             <input

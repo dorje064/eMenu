@@ -1,14 +1,20 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app/app.module';
+import { UPLOAD_DIR, UPLOAD_ROUTE_PREFIX } from './menu/upload.constants';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
   app.enableCors();
+
+  // Serve uploaded food images. Kept under /api/uploads so the admin app's
+  // Vite proxy forwards them and they share the API origin.
+  app.useStaticAssets(UPLOAD_DIR, { prefix: UPLOAD_ROUTE_PREFIX });
 
   app.useGlobalPipes(
     new ValidationPipe({

@@ -54,6 +54,21 @@ export interface CreateFoodItemInput {
   available?: boolean;
 }
 
+/** One image-search hit shown in the picker grid. */
+export interface ImageSearchResult {
+  id: string;
+  thumbUrl: string;
+  fullUrl: string;
+  alt: string | null;
+  credit: string;
+  sourceUrl: string;
+}
+
+/** Result of uploading an image to the API. */
+export interface UploadResult {
+  imageUrl: string;
+}
+
 export interface LoginInput {
   email: string;
   password: string;

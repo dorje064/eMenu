@@ -1,14 +1,20 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   Param,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -20,12 +26,18 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateFoodItemDto } from './dto/create-food-item.dto';
 import { FoodItemDto } from './dto/food-item.dto';
+import { ImageResultDto, UploadResultDto } from './dto/image-result.dto';
+import { ImageService } from './image.service';
 import { MenuService } from './menu.service';
+import { imageMulterOptions, UPLOAD_ROUTE_PREFIX } from './upload.constants';
 
 @ApiTags('menu')
 @Controller('menu')
 export class MenuController {
-  constructor(private readonly menuService: MenuService) {}
+  constructor(
+    private readonly menuService: MenuService,
+    private readonly imageService: ImageService
+  ) {}
 
   @Post('items')
   @UseGuards(JwtAuthGuard)
@@ -43,6 +55,37 @@ export class MenuController {
   @ApiOkResponse({ type: [FoodItemDto] })
   findAll(@Query('category') category?: string): Promise<FoodItemDto[]> {
     return this.menuService.findAll(category);
+  }
+
+  @Get('image-search')
+  @ApiOperation({
+    summary: 'Search stock images (Unsplash) to use as a food photo',
+  })
+  @ApiQuery({ name: 'q', required: true, example: 'margherita pizza' })
+  @ApiOkResponse({ type: [ImageResultDto] })
+  imageSearch(@Query('q') q?: string): Promise<ImageResultDto[]> {
+    return this.imageService.search((q ?? '').trim());
+  }
+
+  @Post('upload')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
+  @ApiOperation({ summary: 'Upload a food image (requires auth)' })
+  @ApiCreatedResponse({ type: UploadResultDto })
+  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
+  @UseInterceptors(FileInterceptor('file', imageMulterOptions))
+  upload(@UploadedFile() file?: { filename: string }): UploadResultDto {
+    if (!file) {
+      throw new BadRequestException('No file uploaded under field "file".');
+    }
+    return { imageUrl: `${UPLOAD_ROUTE_PREFIX}/${file.filename}` };
   }
 
   @Get('items/:id')

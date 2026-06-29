@@ -5,7 +5,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  IsUrl,
+  Matches,
   MaxLength,
   Min,
   MinLength,
@@ -43,9 +43,18 @@ export class CreateFoodItemDto {
   @Min(0)
   prepTimeMinutes?: number;
 
-  @ApiProperty({ example: 'https://cdn.emenu.app/items/margherita.jpg', required: false })
+  @ApiProperty({
+    example: 'https://cdn.emenu.app/items/margherita.jpg',
+    required: false,
+    description:
+      'Absolute http(s) URL (e.g. an Unsplash photo) or an app-relative upload path like /api/uploads/<file>.',
+  })
   @IsOptional()
-  @IsUrl()
+  @IsString()
+  @MaxLength(2048)
+  @Matches(/^(https?:\/\/|\/)/, {
+    message: 'imageUrl must be an absolute http(s) URL or an app-relative path',
+  })
   imageUrl?: string;
 
   @ApiProperty({ example: true, default: true })
