@@ -14,23 +14,24 @@ import { Category } from './entities/category.entity';
 const DEFAULT_CATEGORIES: ReadonlyArray<Pick<Category, 'name' | 'sortOrder'>> =
   [
     { name: 'Breakfast', sortOrder: 0 },
-    { name: 'Lunch', sortOrder: 1 },
-    { name: 'Dinner', sortOrder: 2 },
-    { name: 'Drinks', sortOrder: 3 },
-    { name: 'Desserts', sortOrder: 4 },
+    { name: 'Snacks', sortOrder: 1 },
+    { name: 'Lunch', sortOrder: 2 },
+    { name: 'Dinner', sortOrder: 3 },
+    { name: 'Drinks', sortOrder: 4 },
+    { name: 'Desserts', sortOrder: 5 },
   ];
 
 @Injectable()
 export class CategoryService {
   constructor(
     @InjectRepository(Category)
-    private readonly categories: Repository<Category>
+    private readonly categories: Repository<Category>,
   ) {}
 
   /** Seed the default categories for a newly-created café owner. */
   async seedDefaults(ownerId: string): Promise<void> {
     await this.categories.save(
-      DEFAULT_CATEGORIES.map((c) => this.categories.create({ ...c, ownerId }))
+      DEFAULT_CATEGORIES.map((c) => this.categories.create({ ...c, ownerId })),
     );
   }
 
@@ -70,7 +71,7 @@ export class CategoryService {
   async update(
     ownerId: string,
     id: string,
-    dto: UpdateCategoryDto
+    dto: UpdateCategoryDto,
   ): Promise<Category> {
     const category = await this.findOne(ownerId, id);
     if (dto.name !== undefined) category.name = dto.name;

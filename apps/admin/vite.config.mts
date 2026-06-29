@@ -1,12 +1,17 @@
 /// <reference types='vitest' />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { resolve } from 'node:path';
 
 export default defineConfig(() => ({
   root: import.meta.dirname,
   cacheDir: '../../node_modules/.vite/apps/admin',
-  // Resolve workspace libs (@org/ui) to their TS source for HMR, no prebuild.
+  // Resolve the @org/ui workspace lib straight to its TS source (matches the
+  // `@org/source` export condition) so it works without a node_modules link.
   resolve: {
+    alias: {
+      '@org/ui': resolve(import.meta.dirname, '../../libs/ui/src/index.ts'),
+    },
     conditions: ['@org/source', 'module', 'browser', 'development', 'default'],
   },
   server: {
