@@ -1,0 +1,25 @@
+# Dependencies & build artifacts (reinstalled/rebuilt inside the image)
+node_modules
+**/node_modules
+dist
+**/dist
+.nx
+tmp
+
+# VCS / editor / CI
+.git
+.github
+.vscode
+.idea
+
+# Local env & secrets (pass real values at runtime, not baked into the image)
+.env
+**/.env
+!.env.example
+
+# Uploaded user content (mount a volume at runtime instead)
+apps/api/uploads
+
+# Docs & misc
+Docs
+*.log

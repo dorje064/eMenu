@@ -57,6 +57,14 @@ async function main(): Promise<void> {
       throw new Error('No customer_id provided.');
     }
 
+    const UUID_RE =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!UUID_RE.test(customerId)) {
+      throw new Error(
+        `"${customerId}" is not a valid customer_id (expected a UUID).`
+      );
+    }
+
     const owner = await AppDataSource.getRepository(Customer).findOne({
       where: { id: customerId },
     });
