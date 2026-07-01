@@ -1,0 +1,8 @@
+[
+  { "name": "Breakfast", "sortOrder": 0 },
+  { "name": "Lunch", "sortOrder": 1 },
+  { "name": "Dinner", "sortOrder": 2 },
+  { "name": "Snacks", "sortOrder": 3 },
+  { "name": "Drinks", "sortOrder": 4 },
+  { "name": "Desserts", "sortOrder": 5 }
+]
