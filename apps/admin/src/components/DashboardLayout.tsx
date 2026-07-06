@@ -1,4 +1,5 @@
 import {
+  ClipboardList,
   LayoutDashboard,
   LogOut,
   QrCode,
@@ -13,6 +14,7 @@ import './DashboardLayout.css';
 const NAV = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/menu', label: 'Menu', icon: UtensilsCrossed, end: false },
+  { to: '/orders', label: 'Orders', icon: ClipboardList, end: false },
   { to: '/categories', label: 'Categories', icon: Tags, end: false },
   { to: '/tables', label: 'Tables', icon: QrCode, end: false },
 ];

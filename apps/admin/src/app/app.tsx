@@ -5,6 +5,7 @@ import { CategoriesPage } from '../pages/CategoriesPage';
 import { DashboardHome } from '../pages/DashboardHome';
 import { LoginPage } from '../pages/LoginPage';
 import { MenuPage } from '../pages/MenuPage';
+import { OrdersPage } from '../pages/OrdersPage';
 import { TablesPage } from '../pages/TablesPage';
 
 export function App() {
@@ -15,6 +16,7 @@ export function App() {
         <Route element={<DashboardLayout />}>
           <Route path="/" element={<DashboardHome />} />
           <Route path="/menu" element={<MenuPage />} />
+          <Route path="/orders" element={<OrdersPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/tables" element={<TablesPage />} />
         </Route>

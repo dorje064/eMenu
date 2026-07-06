@@ -101,6 +101,29 @@ export interface UploadResult {
   imageUrl: string;
 }
 
+/** Order lifecycle states, mirrored from the API's ORDER_STATUSES. */
+export type OrderStatus = 'pending' | 'preparing' | 'served' | 'cancelled';
+
+/** One line on an order — name/price are snapshotted at order time. */
+export interface OrderItemLine {
+  id: string;
+  foodItemId: string;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+export interface Order {
+  id: string;
+  tableNumber: string;
+  status: OrderStatus;
+  note: string | null;
+  total: number;
+  items: OrderItemLine[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface LoginInput {
   email: string;
   password: string;
