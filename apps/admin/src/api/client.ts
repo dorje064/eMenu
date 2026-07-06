@@ -81,7 +81,6 @@ function toApiError(err: unknown): ApiError {
         extractMessage(response.data) ?? `Request failed (${response.status})`;
       return new ApiError(response.status, message);
     }
-    debugger;
     // No response → connection refused, DNS failure, CORS, etc.
     return new ApiError(0, 'Network error — is the API running on :3000?');
   }

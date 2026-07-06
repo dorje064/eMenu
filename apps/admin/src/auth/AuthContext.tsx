@@ -1,7 +1,6 @@
 import {
   createContext,
   useContext,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -37,9 +36,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Keep the latest token in a ref so the API client always reads fresh value.
   const tokenRef = useRef(token);
   tokenRef.current = token;
-  useEffect(() => {
-    setTokenProvider(() => tokenRef.current);
-  }, []);
+  // Register synchronously during render — not in an effect. Child components'
+  // mount effects (e.g. a page's data load) run BEFORE this provider's effects,
+  // so on reload the first API calls would otherwise fire before the token
+  // provider is wired up and get a 401. Render runs parent-before-child, so
+  // this guarantees the provider is set before any child requests.
+  setTokenProvider(() => tokenRef.current);
 
   const persist = (nextToken: string, nextCustomer: Customer) => {
     localStorage.setItem(TOKEN_KEY, nextToken);
