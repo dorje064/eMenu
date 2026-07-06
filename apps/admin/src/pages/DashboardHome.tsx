@@ -57,7 +57,7 @@ export function DashboardHome() {
         />
         <DashboardCard
           label="Avg. price"
-          value={`$${stats.avgPrice.toFixed(2)}`}
+          value={`NRs ${stats.avgPrice.toFixed(2)}`}
           context="Across all items"
           icon={<CircleDollarSign size={18} />}
           state={state}

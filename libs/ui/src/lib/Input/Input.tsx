@@ -105,8 +105,8 @@ export const Input = forwardRef<
       inputMode ??
       (isCurrency ? 'decimal' : type === 'number' ? 'numeric' : undefined);
 
-    // Currency provides a `$` prefix unless the consumer set their own.
-    const resolvedPrefix = isCurrency && prefix == null ? '$' : prefix;
+    // Currency provides a `NRs` prefix unless the consumer set their own.
+    const resolvedPrefix = isCurrency && prefix == null ? 'NRs' : prefix;
 
     // Trailing slot priority: password reveal > success/error status icon > custom icon.
     const statusIcon = isInvalid ? (

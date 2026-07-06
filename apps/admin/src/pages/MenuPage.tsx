@@ -26,9 +26,10 @@ import type {
 import './MenuPage.css';
 
 const currency = (n: number) =>
-  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
-    n,
-  );
+  `NRs ${new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(n)}`;
 
 const EMPTY_FORM: CreateFoodItemInput = {
   name: '',

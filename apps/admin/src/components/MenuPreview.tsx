@@ -30,10 +30,10 @@ interface MenuPreviewProps {
 }
 
 const currency = (n: number) =>
-  new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(n);
+  `NRs ${new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(n)}`;
 
 interface Group {
   name: string;
