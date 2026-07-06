@@ -1,13 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Download, Plus, QrCode, Trash2 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
-import {
-  Button,
-  EmptyState,
-  Input,
-  Modal,
-  useToast,
-} from '@org/ui';
+import { Button, EmptyState, Input, Modal, useToast } from '@org/ui';
 import { tablesApi } from '../api/tables.api';
 import { ApiError } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
@@ -22,7 +16,7 @@ const CUSTOMER_URL = (
 
 const menuUrlFor = (cafeId: string, tableName: string) =>
   `${CUSTOMER_URL}/?cafe=${encodeURIComponent(cafeId)}&table=${encodeURIComponent(
-    tableName
+    tableName,
   )}`;
 
 /** One table's card: shows its auto-generated QR and a PNG download. */
@@ -115,7 +109,9 @@ export function TablesPage() {
   const [fieldErrors, setFieldErrors] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  const [deleteTarget, setDeleteTarget] = useState<RestaurantTable | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<RestaurantTable | null>(
+    null,
+  );
   const [removing, setRemoving] = useState(false);
 
   const load = useCallback(async () => {
@@ -125,7 +121,7 @@ export function TablesPage() {
       setTables(await tablesApi.list());
     } catch (err) {
       setLoadError(
-        err instanceof ApiError ? err.message : 'Failed to load tables'
+        err instanceof ApiError ? err.message : 'Failed to load tables',
       );
     } finally {
       setLoading(false);
@@ -159,7 +155,7 @@ export function TablesPage() {
       show({ semantic: 'success', message: `Added table ${created.name}` });
     } catch (err) {
       setFieldErrors(
-        err instanceof ApiError ? err.message : 'Could not add the table.'
+        err instanceof ApiError ? err.message : 'Could not add the table.',
       );
     } finally {
       setSaving(false);
@@ -172,7 +168,10 @@ export function TablesPage() {
     try {
       await tablesApi.remove(deleteTarget.id);
       setTables((prev) => prev.filter((t) => t.id !== deleteTarget.id));
-      show({ semantic: 'success', message: `Deleted table ${deleteTarget.name}` });
+      show({
+        semantic: 'success',
+        message: `Deleted table ${deleteTarget.name}`,
+      });
       setDeleteTarget(null);
     } catch (err) {
       show({
@@ -254,9 +253,10 @@ export function TablesPage() {
             label="Table name"
             required
             value={form.name}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, name: e.currentTarget.value }))
-            }
+            onChange={(e: any) => {
+              const { value } = e.currentTarget;
+              setForm((f) => ({ ...f, name: value }));
+            }}
             placeholder="e.g. 1 or t1"
             helperText="Any text — shown to customers and embedded in the QR code."
           />
@@ -264,9 +264,10 @@ export function TablesPage() {
             <input
               type="checkbox"
               checked={form.active}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, active: e.currentTarget.checked }))
-              }
+              onChange={(e) => {
+                const { checked } = e.currentTarget;
+                setForm((f) => ({ ...f, active: checked }));
+              }}
             />
             Active
           </label>
@@ -293,9 +294,7 @@ export function TablesPage() {
           </>
         }
       >
-        <p>
-          Delete table {deleteTarget?.name}? Its QR code will stop working.
-        </p>
+        <p>Delete table {deleteTarget?.name}? Its QR code will stop working.</p>
       </Modal>
     </div>
   );
