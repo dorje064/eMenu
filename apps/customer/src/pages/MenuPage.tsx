@@ -214,7 +214,7 @@ export function MenuPage() {
               Keep browsing
             </Button>
             <Button onClick={placeOrder} loading={placing} disabled={totalQty === 0}>
-              Place order · {currency(totalPrice)}
+              Place order
             </Button>
           </>
         }
