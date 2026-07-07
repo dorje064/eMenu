@@ -28,7 +28,7 @@ const ACCESS: Record<UserRole, Set<Feature>> = {
     'staff',
   ]),
   kitchen: new Set(['orders']),
-  waiter: new Set(['orders', 'markPaid', 'tables']),
+  waiter: new Set(['orders', 'markPaid']),
 };
 
 export function can(role: UserRole | undefined, feature: Feature): boolean {

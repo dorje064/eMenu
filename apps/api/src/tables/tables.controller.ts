@@ -31,7 +31,7 @@ import { TablesService } from './tables.service';
 @ApiTags('tables')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('owner', 'waiter')
+@Roles('owner')
 @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
 @Controller('tables')
 export class TablesController {
