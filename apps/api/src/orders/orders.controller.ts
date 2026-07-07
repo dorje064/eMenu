@@ -20,6 +20,8 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { OwnerId } from '../auth/owner-id.decorator';
+import { CurrentCustomer } from '../auth/current-customer.decorator';
+import { Customer } from '../auth/entities/customer.entity';
 import { MergeOrdersDto } from './dto/merge-orders.dto';
 import { OrderDto } from './dto/order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
@@ -77,9 +79,10 @@ export class OrdersController {
   @ApiNotFoundResponse({ description: 'Order not found' })
   updateStatus(
     @OwnerId() ownerId: string,
+    @CurrentCustomer() user: Customer,
     @Param('id') id: string,
     @Body() dto: UpdateOrderStatusDto
   ): Promise<OrderDto> {
-    return this.ordersService.updateStatus(ownerId, id, dto);
+    return this.ordersService.updateStatus(ownerId, id, dto, user.role);
   }
 }

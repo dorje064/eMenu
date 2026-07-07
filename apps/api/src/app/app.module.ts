@@ -9,6 +9,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { OrdersModule } from '../orders/orders.module';
 import { PublicModule } from '../public/public.module';
 import { SettingsModule } from '../settings/settings.module';
+import { StaffModule } from '../staff/staff.module';
 import { TablesModule } from '../tables/tables.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -35,6 +36,7 @@ import { AppService } from './app.service';
     OrdersModule,
     PublicModule,
     SettingsModule,
+    StaffModule,
     TablesModule,
   ],
   controllers: [AppController],

@@ -8,26 +8,37 @@ import {
   Menu,
   QrCode,
   Tags,
+  UsersRound,
   UtensilsCrossed,
   X,
 } from 'lucide-react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Avatar, Button } from '@org/ui';
 import { useAuth } from '../auth/AuthContext';
+import type { Feature } from '../auth/permissions';
 import { isMuted, setMuted, unlockAudio } from '../notifications/chime';
 import { useUnseenOrders } from '../notifications/UnseenOrdersContext';
 import './DashboardLayout.css';
 
-const NAV = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
-  { to: '/menu', label: 'Menu', icon: UtensilsCrossed, end: false },
-  { to: '/orders', label: 'Orders', icon: ClipboardList, end: false },
-  { to: '/categories', label: 'Categories', icon: Tags, end: false },
-  { to: '/tables', label: 'Tables', icon: QrCode, end: false },
+/** Each nav item is gated by the feature the target route requires. */
+const NAV: {
+  to: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  end: boolean;
+  feature: Feature;
+}[] = [
+  { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true, feature: 'dashboard' },
+  { to: '/menu', label: 'Menu', icon: UtensilsCrossed, end: false, feature: 'menu' },
+  { to: '/orders', label: 'Orders', icon: ClipboardList, end: false, feature: 'orders' },
+  { to: '/categories', label: 'Categories', icon: Tags, end: false, feature: 'categories' },
+  { to: '/tables', label: 'Tables', icon: QrCode, end: false, feature: 'tables' },
+  { to: '/staff', label: 'Staff', icon: UsersRound, end: false, feature: 'staff' },
 ];
 
 export function DashboardLayout() {
-  const { customer, logout } = useAuth();
+  const { customer, can, logout } = useAuth();
+  const navItems = NAV.filter((item) => can(item.feature));
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -99,7 +110,7 @@ export function DashboardLayout() {
           </button>
         </div>
         <nav className="admin-nav" aria-label="Primary">
-          {NAV.map(({ to, label, icon: Icon, end }) => {
+          {navItems.map(({ to, label, icon: Icon, end }) => {
             const showBadge = to === '/orders' && unseenOrders > 0;
             return (
               <NavLink

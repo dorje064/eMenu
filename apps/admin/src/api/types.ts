@@ -1,11 +1,42 @@
 /** Shapes mirrored from the eMenu NestJS API DTOs. */
 
+/** Account access level. Owners have full access; staff are limited by role. */
+export type UserRole = 'owner' | 'kitchen' | 'waiter';
+
+/** Roles an owner can assign to staff. */
+export type StaffRole = Exclude<UserRole, 'owner'>;
+
 export interface Customer {
   id: string;
   email: string;
   fullName: string;
   phone: string | null;
+  role: UserRole;
+  /** Employing owner's id for staff; null for owners. */
+  ownerId: string | null;
   createdAt: string;
+}
+
+/** A staff member managed by an owner. */
+export interface Staff {
+  id: string;
+  email: string;
+  fullName: string;
+  role: StaffRole;
+  active: boolean;
+  createdAt: string;
+}
+
+export interface CreateStaffInput {
+  email: string;
+  fullName: string;
+  role: StaffRole;
+  password: string;
+}
+
+export interface UpdateStaffInput {
+  role?: StaffRole;
+  active?: boolean;
 }
 
 export interface AuthResponse {

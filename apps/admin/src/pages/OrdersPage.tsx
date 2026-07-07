@@ -19,6 +19,7 @@ import {
 import { ordersApi } from '../api/orders.api';
 import { tablesApi } from '../api/tables.api';
 import { ApiError } from '../api/client';
+import { useAuth } from '../auth/AuthContext';
 import { useUnseenOrders } from '../notifications/UnseenOrdersContext';
 import type { Order, OrderStatus, RestaurantTable } from '../api/types';
 import './MenuPage.css';
@@ -67,12 +68,14 @@ function OrderCard({
   order,
   updating,
   selected,
+  canMarkPaid,
   onToggleSelect,
   onChangeStatus,
 }: {
   order: Order;
   updating: boolean;
   selected: boolean;
+  canMarkPaid: boolean;
   onToggleSelect: () => void;
   onChangeStatus: (status: OrderStatus) => void;
 }) {
@@ -133,13 +136,15 @@ function OrderCard({
           onChange={(value) => onChangeStatus(value as OrderStatus)}
           aria-label={`Update status for Table ${order.tableNumber}`}
         />
-        <Button
-          variant="secondary"
-          disabled={updating}
-          onClick={() => onChangeStatus('paid')}
-        >
-          Mark paid
-        </Button>
+        {canMarkPaid && (
+          <Button
+            variant="secondary"
+            disabled={updating}
+            onClick={() => onChangeStatus('paid')}
+          >
+            Mark paid
+          </Button>
+        )}
       </div>
     </div>
   );
@@ -164,6 +169,8 @@ function ItemsCell({ order }: { order: Order }) {
 
 export function OrdersPage() {
   const { show } = useToast();
+  const { can } = useAuth();
+  const canMarkPaid = can('markPaid');
   const { clear: clearUnseen } = useUnseenOrders();
   const [orders, setOrders] = useState<Order[]>([]);
   const [tables, setTables] = useState<RestaurantTable[]>([]);
@@ -415,6 +422,7 @@ export function OrdersPage() {
               order={order}
               updating={updatingId === order.id}
               selected={selectedIds.has(order.id)}
+              canMarkPaid={canMarkPaid}
               onToggleSelect={() => toggleSelect(order.id)}
               onChangeStatus={(status) => changeStatus(order, status)}
             />

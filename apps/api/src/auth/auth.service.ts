@@ -30,11 +30,17 @@ export class AuthService {
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 10);
+    // A self-service signup always creates a café owner (staff are added by an
+    // owner). Set the defaults explicitly so the in-memory entity is complete
+    // for the token/response without a reload.
     const customer = this.customers.create({
       email,
       passwordHash,
       fullName: dto.fullName,
       phone: dto.phone ?? null,
+      role: 'owner',
+      ownerId: null,
+      active: true,
     });
     await this.customers.save(customer);
 
@@ -54,6 +60,9 @@ export class AuthService {
     if (!ok) {
       throw new UnauthorizedException('Invalid email or password');
     }
+    if (!customer.active) {
+      throw new UnauthorizedException('Account has been deactivated');
+    }
     return this.buildAuthResponse(customer);
   }
 
@@ -67,6 +76,8 @@ export class AuthService {
       email: customer.email,
       fullName: customer.fullName,
       phone: customer.phone,
+      role: customer.role,
+      ownerId: customer.ownerId,
       createdAt: customer.createdAt,
     };
   }
@@ -75,6 +86,8 @@ export class AuthService {
     const accessToken = this.jwt.sign({
       sub: customer.id,
       email: customer.email,
+      role: customer.role,
+      ownerId: customer.ownerId,
     });
     return {
       accessToken,

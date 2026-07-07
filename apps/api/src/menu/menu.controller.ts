@@ -29,6 +29,8 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { OwnerId } from '../auth/owner-id.decorator';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
 import { CreateFoodItemDto } from './dto/create-food-item.dto';
 import { UpdateFoodItemDto } from './dto/update-food-item.dto';
 import { FoodItemDto } from './dto/food-item.dto';
@@ -46,7 +48,8 @@ export class MenuController {
   ) {}
 
   @Post('items')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('owner')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Add a food item to the menu (requires auth)' })
   @ApiCreatedResponse({ type: FoodItemDto })
@@ -59,7 +62,8 @@ export class MenuController {
   }
 
   @Get('items')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('owner')
   @ApiBearerAuth()
   @ApiOperation({ summary: "List this café's menu items (requires auth)" })
   @ApiQuery({ name: 'category', required: false, example: 'Mains' })
@@ -83,7 +87,8 @@ export class MenuController {
   }
 
   @Post('upload')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('owner')
   @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -104,7 +109,8 @@ export class MenuController {
   }
 
   @Get('items/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('owner')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a single menu item by id (requires auth)' })
   @ApiOkResponse({ type: FoodItemDto })
@@ -118,7 +124,8 @@ export class MenuController {
   }
 
   @Patch('items/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('owner')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update a menu item (requires auth)' })
   @ApiOkResponse({ type: FoodItemDto })
@@ -133,7 +140,8 @@ export class MenuController {
   }
 
   @Delete('items/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('owner')
   @HttpCode(204)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a menu item (requires auth)' })

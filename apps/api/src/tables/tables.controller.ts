@@ -21,6 +21,8 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { OwnerId } from '../auth/owner-id.decorator';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
 import { CreateTableDto } from './dto/create-table.dto';
 import { TableDto } from './dto/table.dto';
 import { UpdateTableDto } from './dto/update-table.dto';
@@ -28,7 +30,8 @@ import { TablesService } from './tables.service';
 
 @ApiTags('tables')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('owner', 'waiter')
 @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
 @Controller('tables')
 export class TablesController {

@@ -8,7 +8,8 @@ import {
 } from 'react';
 import { authApi } from '../api/auth.api';
 import { setTokenProvider } from '../api/client';
-import type { Customer, LoginInput, SignupInput } from '../api/types';
+import type { Customer, LoginInput, SignupInput, UserRole } from '../api/types';
+import { can as canFeature, type Feature } from './permissions';
 
 const TOKEN_KEY = 'emenu.admin.token';
 const CUSTOMER_KEY = 'emenu.admin.customer';
@@ -17,6 +18,10 @@ interface AuthContextValue {
   token: string | null;
   customer: Customer | null;
   isAuthenticated: boolean;
+  /** The signed-in account's role (undefined when logged out). */
+  role: UserRole | undefined;
+  /** True when the current role may access `feature`. */
+  can: (feature: Feature) => boolean;
   login: (input: LoginInput) => Promise<void>;
   signup: (input: SignupInput) => Promise<void>;
   logout: () => void;
@@ -72,6 +77,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       token,
       customer,
       isAuthenticated: Boolean(token),
+      role: customer?.role,
+      can: (feature: Feature) => canFeature(customer?.role, feature),
       login,
       signup,
       logout,

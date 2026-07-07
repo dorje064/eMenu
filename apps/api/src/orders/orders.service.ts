@@ -1,10 +1,12 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
+import type { UserRole } from '../auth/roles';
 import { FoodItem } from '../menu/entities/food-item.entity';
 import { NotificationsService } from '../notifications/notifications.service';
 import { ORDER_STATUS_RANK, type OrderStatus } from './order-status';
@@ -111,8 +113,16 @@ export class OrdersService {
   async updateStatus(
     ownerId: string,
     id: string,
-    dto: UpdateOrderStatusDto
+    dto: UpdateOrderStatusDto,
+    role: UserRole = 'owner'
   ): Promise<Order> {
+    // Kitchen staff advance prep status but cannot settle payment — only the
+    // owner or a waiter may mark an order paid.
+    if (role === 'kitchen' && dto.status === 'paid') {
+      throw new ForbiddenException(
+        'Kitchen staff cannot mark orders as paid',
+      );
+    }
     const order = await this.findOne(ownerId, id);
     order.status = dto.status;
     return this.orders.save(order);

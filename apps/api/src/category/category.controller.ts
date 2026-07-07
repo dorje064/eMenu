@@ -23,6 +23,8 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { OwnerId } from '../auth/owner-id.decorator';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
 import { CategoryService } from './category.service';
 import { CategoryDto } from './dto/category.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -30,7 +32,8 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @ApiTags('categories')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('owner')
 @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
 @Controller('categories')
 export class CategoryController {

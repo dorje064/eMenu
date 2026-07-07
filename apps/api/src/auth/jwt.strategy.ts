@@ -4,10 +4,15 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AuthService } from './auth.service';
 
+import type { UserRole } from './roles';
+
 export interface JwtPayload {
   /** customer id */
   sub: string;
   email: string;
+  role: UserRole;
+  /** employing owner's id (null for owners) */
+  ownerId: string | null;
 }
 
 @Injectable()
@@ -28,6 +33,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const customer = await this.authService.findById(payload.sub);
     if (!customer) {
       throw new UnauthorizedException('Account no longer exists');
+    }
+    if (!customer.active) {
+      throw new UnauthorizedException('Account has been deactivated');
     }
     return customer;
   }
