@@ -8,6 +8,7 @@ export type Feature =
   | 'tables'
   | 'menu'
   | 'categories'
+  | 'expenses'
   | 'settings'
   | 'staff';
 
@@ -24,6 +25,7 @@ const ACCESS: Record<UserRole, Set<Feature>> = {
     'tables',
     'menu',
     'categories',
+    'expenses',
     'settings',
     'staff',
   ]),

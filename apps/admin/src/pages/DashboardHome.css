@@ -1,5 +1,149 @@
+.dash-home {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
 .dash-home__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
   gap: var(--space-6);
+}
+
+/* Row 2: top items (narrower) + sales chart (wider). Collapses to one
+   column on narrow screens. */
+.dash-home__row2 {
+  display: grid;
+  grid-template-columns: minmax(280px, 2fr) minmax(320px, 3fr);
+  gap: var(--space-6);
+}
+
+@media (max-width: 900px) {
+  .dash-home__row2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dash-panel {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+
+.dash-panel__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-4);
+}
+
+.dash-panel__title {
+  font-size: var(--text-h5-size);
+  line-height: var(--text-h5-line);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.dash-panel__sub {
+  margin-left: auto;
+  font-size: var(--text-caption-size);
+  color: var(--text-secondary);
+}
+
+/* Top selling items list */
+.dash-toplist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.dash-toplist__row {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.dash-toplist__row:last-child {
+  border-bottom: none;
+}
+
+.dash-toplist__rank {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-100);
+  color: var(--color-primary-700);
+  font-size: var(--text-caption-size);
+  font-weight: var(--font-weight-semibold);
+}
+
+.dash-toplist__name {
+  font-size: var(--text-body-size);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-toplist__qty {
+  font-size: var(--text-caption-size);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.dash-toplist__revenue {
+  font-size: var(--text-body-size);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+/* Skeletons */
+.dash-toplist__row--skeleton {
+  grid-template-columns: 1fr auto;
+}
+
+.dash-skel {
+  display: block;
+  height: 14px;
+  border-radius: var(--radius-sm);
+  background: var(--color-neutral-100);
+  animation: dash-skel-pulse 1.4s ease-in-out infinite;
+}
+
+.dash-skel--name {
+  width: 60%;
+}
+
+.dash-skel--val {
+  width: 72px;
+}
+
+.dash-chart-skeleton {
+  height: 260px;
+  border-radius: var(--radius-md);
+  background: var(--color-neutral-100);
+  animation: dash-skel-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes dash-skel-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
 }

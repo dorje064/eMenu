@@ -12,8 +12,10 @@ import { Order } from '../orders/entities/order.entity';
 import { OrderItem } from '../orders/entities/order-item.entity';
 import { RestaurantTable } from '../tables/entities/table.entity';
 import { Settings } from '../settings/entities/settings.entity';
+import { Expense } from '../expenses/entities/expense.entity';
 import { InitialSchema1719700000000 } from './migrations/1719700000000-InitialSchema';
 import { StaffRoles1751800000000 } from './migrations/1751800000000-StaffRoles';
+import { Expenses1751900000000 } from './migrations/1751900000000-Expenses';
 
 /** All persisted entities. Listed explicitly so the webpack-bundled API and
  *  the TypeORM CLI resolve the same set (globs don't survive bundling). */
@@ -25,10 +27,15 @@ const entities = [
   Order,
   OrderItem,
   Settings,
+  Expense,
 ];
 
 /** Migrations, in order. Add new generated migration classes here. */
-const migrations = [InitialSchema1719700000000, StaffRoles1751800000000];
+const migrations = [
+  InitialSchema1719700000000,
+  StaffRoles1751800000000,
+  Expenses1751900000000,
+];
 
 /**
  * Build TypeORM options from the environment.

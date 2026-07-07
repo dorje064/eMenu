@@ -11,6 +11,7 @@ import {
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -22,8 +23,11 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { OwnerId } from '../auth/owner-id.decorator';
 import { CurrentCustomer } from '../auth/current-customer.decorator';
 import { Customer } from '../auth/entities/customer.entity';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
 import { MergeOrdersDto } from './dto/merge-orders.dto';
 import { OrderDto } from './dto/order.dto';
+import { OrderStatsDto } from './dto/stats.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { OrdersService } from './orders.service';
 
@@ -60,6 +64,18 @@ export class OrdersController {
     @Body() dto: MergeOrdersDto
   ): Promise<OrderDto> {
     return this.ordersService.mergeOrders(ownerId, dto);
+  }
+
+  @Get('stats')
+  @UseGuards(RolesGuard)
+  @Roles('owner')
+  @ApiOperation({
+    summary: 'Dashboard sales stats (today, 30-day series, top items)',
+  })
+  @ApiForbiddenResponse({ description: 'Only café owners can view stats' })
+  @ApiOkResponse({ type: OrderStatsDto })
+  getStats(@OwnerId() ownerId: string): Promise<OrderStatsDto> {
+    return this.ordersService.getStats(ownerId);
   }
 
   @Get(':id')

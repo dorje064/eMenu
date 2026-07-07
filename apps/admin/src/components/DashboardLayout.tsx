@@ -10,6 +10,7 @@ import {
   Tags,
   UsersRound,
   UtensilsCrossed,
+  Wallet,
   X,
 } from 'lucide-react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
@@ -32,6 +33,7 @@ const NAV: {
   { to: '/menu', label: 'Menu', icon: UtensilsCrossed, end: false, feature: 'menu' },
   { to: '/orders', label: 'Orders', icon: ClipboardList, end: false, feature: 'orders' },
   { to: '/categories', label: 'Categories', icon: Tags, end: false, feature: 'categories' },
+  { to: '/expenses', label: 'Expenses', icon: Wallet, end: false, feature: 'expenses' },
   { to: '/tables', label: 'Tables', icon: QrCode, end: false, feature: 'tables' },
   { to: '/staff', label: 'Staff', icon: UsersRound, end: false, feature: 'staff' },
 ];

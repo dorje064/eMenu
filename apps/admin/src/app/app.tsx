@@ -4,6 +4,7 @@ import { RequireRole } from '../auth/RequireRole';
 import { DashboardLayout } from '../components/DashboardLayout';
 import { CategoriesPage } from '../pages/CategoriesPage';
 import { DashboardHome } from '../pages/DashboardHome';
+import { ExpensesPage } from '../pages/ExpensesPage';
 import { LoginPage } from '../pages/LoginPage';
 import { MenuPage } from '../pages/MenuPage';
 import { OrdersPage } from '../pages/OrdersPage';
@@ -36,6 +37,9 @@ export function App() {
           </Route>
           <Route element={<RequireRole feature="categories" />}>
             <Route path="/categories" element={<CategoriesPage />} />
+          </Route>
+          <Route element={<RequireRole feature="expenses" />}>
+            <Route path="/expenses" element={<ExpensesPage />} />
           </Route>
           <Route element={<RequireRole feature="tables" />}>
             <Route path="/tables" element={<TablesPage />} />

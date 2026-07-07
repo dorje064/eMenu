@@ -5,16 +5,20 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, MoreThanOrEqual, Repository } from 'typeorm';
 import type { UserRole } from '../auth/roles';
 import { FoodItem } from '../menu/entities/food-item.entity';
 import { NotificationsService } from '../notifications/notifications.service';
 import { ORDER_STATUS_RANK, type OrderStatus } from './order-status';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { MergeOrdersDto } from './dto/merge-orders.dto';
+import { OrderStatsDto } from './dto/stats.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { OrderItem } from './entities/order-item.entity';
 import { Order } from './entities/order.entity';
+
+/** How many days the dashboard sales graph spans, including today. */
+const STATS_WINDOW_DAYS = 30;
 
 @Injectable()
 export class OrdersService {
@@ -110,6 +114,57 @@ export class OrdersService {
     return order;
   }
 
+  /** Aggregated figures for the owner dashboard: today's paid sales, a
+   *  zero-filled 30-day daily series, and the 5 best-selling items. Only
+   *  `paid` orders count as realized sales. Grouping is done in JS (local
+   *  time) so day boundaries match the zero-filled window exactly. */
+  async getStats(ownerId: string): Promise<OrderStatsDto> {
+    const startOfToday = startOfLocalDay(new Date());
+    const windowStart = new Date(startOfToday);
+    windowStart.setDate(windowStart.getDate() - (STATS_WINDOW_DAYS - 1));
+
+    const paid = await this.orders.find({
+      where: {
+        ownerId,
+        status: 'paid',
+        createdAt: MoreThanOrEqual(windowStart),
+      },
+    });
+
+    let salesToday = 0;
+    const byDay = new Map<string, number>();
+    const items = new Map<string, { name: string; quantity: number; revenue: number }>();
+
+    for (const order of paid) {
+      const key = localDateKey(order.createdAt);
+      byDay.set(key, (byDay.get(key) ?? 0) + order.total);
+      if (order.createdAt >= startOfToday) salesToday += order.total;
+
+      for (const line of order.items) {
+        const entry =
+          items.get(line.name) ??
+          { name: line.name, quantity: 0, revenue: 0 };
+        entry.quantity += line.quantity;
+        entry.revenue += line.price * line.quantity;
+        items.set(line.name, entry);
+      }
+    }
+
+    const salesByDay = Array.from({ length: STATS_WINDOW_DAYS }, (_, i) => {
+      const day = new Date(windowStart);
+      day.setDate(day.getDate() + i);
+      const key = localDateKey(day);
+      return { date: key, total: round2(byDay.get(key) ?? 0) };
+    });
+
+    const topItems = [...items.values()]
+      .sort((a, b) => b.quantity - a.quantity)
+      .slice(0, 5)
+      .map((i) => ({ name: i.name, quantity: i.quantity, revenue: round2(i.revenue) }));
+
+    return { salesToday: round2(salesToday), salesByDay, topItems };
+  }
+
   async updateStatus(
     ownerId: string,
     id: string,
@@ -198,6 +253,27 @@ export class OrdersService {
     }
     return this.orders.save(primary);
   }
+}
+
+/** Midnight (local time) of the given date. */
+function startOfLocalDay(date: Date): Date {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+/** Local-time YYYY-MM-DD key for grouping orders by day. */
+function localDateKey(date: Date): string {
+  const d = new Date(date);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+/** Round to 2 decimal places (currency). */
+function round2(n: number): number {
+  return Math.round(n * 100) / 100;
 }
 
 /** Shape the order for the notification payload — mirrors OrderDto (no ownerId),

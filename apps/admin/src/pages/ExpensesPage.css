@@ -1,0 +1,23 @@
+/* Native date input styled to match the @org/ui Input control. */
+.expense-date-input {
+  height: 40px;
+  width: 100%;
+  padding: 0 var(--space-3);
+  background: var(--color-neutral-0);
+  border: 1px solid var(--color-neutral-300);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-family-base);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  transition: border-color 120ms ease;
+}
+
+.expense-date-input:hover {
+  border-color: var(--color-neutral-400);
+}
+
+.expense-date-input:focus {
+  outline: none;
+  border-color: var(--color-primary-600);
+}

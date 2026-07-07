@@ -160,6 +160,47 @@ export interface Order {
   updatedAt: string;
 }
 
+/** A business expense recorded by the café owner. */
+export interface Expense {
+  id: string;
+  amount: number;
+  category: string;
+  note: string | null;
+  /** Day incurred (ISO date, YYYY-MM-DD). */
+  spentAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateExpenseInput {
+  amount: number;
+  category: string;
+  note?: string;
+  spentAt?: string;
+}
+
+export type UpdateExpenseInput = Partial<CreateExpenseInput>;
+
+/** One day's total paid sales in the dashboard's 30-day series. */
+export interface SalesByDay {
+  date: string;
+  total: number;
+}
+
+/** A best-selling item across paid orders. */
+export interface TopItem {
+  name: string;
+  quantity: number;
+  revenue: number;
+}
+
+/** Aggregated figures backing the owner dashboard (paid orders only). */
+export interface DashboardStats {
+  salesToday: number;
+  salesByDay: SalesByDay[];
+  topItems: TopItem[];
+}
+
 export interface LoginInput {
   email: string;
   password: string;

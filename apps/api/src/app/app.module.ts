@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSourceOptions } from '../database/data-source';
 import { AuthModule } from '../auth/auth.module';
 import { CategoryModule } from '../category/category.module';
+import { ExpensesModule } from '../expenses/expenses.module';
 import { MenuModule } from '../menu/menu.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { OrdersModule } from '../orders/orders.module';
@@ -31,6 +32,7 @@ import { AppService } from './app.service';
     }),
     AuthModule,
     CategoryModule,
+    ExpensesModule,
     MenuModule,
     NotificationsModule,
     OrdersModule,

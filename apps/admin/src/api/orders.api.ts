@@ -1,7 +1,10 @@
 import { apiRequest } from './client';
-import type { Order, OrderStatus } from './types';
+import type { DashboardStats, Order, OrderStatus } from './types';
 
 export const ordersApi = {
+  /** Aggregated dashboard stats: today's sales, 30-day series, top items. */
+  stats: () => apiRequest<DashboardStats>('/orders/stats', { auth: true }),
+
   /** List the café's orders, newest first. Optionally filter by status and/or
    *  the table the order was placed from. */
   list: (filters?: { status?: OrderStatus; table?: string }) => {
