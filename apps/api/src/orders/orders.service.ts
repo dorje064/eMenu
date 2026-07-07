@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { FoodItem } from '../menu/entities/food-item.entity';
+import { NotificationsService } from '../notifications/notifications.service';
 import { type OrderStatus } from './order-status';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
@@ -18,7 +19,8 @@ export class OrdersService {
     @InjectRepository(Order)
     private readonly orders: Repository<Order>,
     @InjectRepository(FoodItem)
-    private readonly foodItems: Repository<FoodItem>
+    private readonly foodItems: Repository<FoodItem>,
+    private readonly notifications: NotificationsService
   ) {}
 
   async create(ownerId: string, dto: CreateOrderDto): Promise<Order> {
@@ -63,7 +65,13 @@ export class OrdersService {
       total: Math.round(total * 100) / 100,
       items: lines,
     });
-    return this.orders.save(order);
+    const saved = await this.orders.save(order);
+
+    // Push a real-time notification to the café's admin dashboard(s). Fire and
+    // forget — a missing subscriber is a no-op and never affects the response.
+    this.notifications.emitToOwner(saved.ownerId, 'order.created', toOrderPayload(saved));
+
+    return saved;
   }
 
   findAll(ownerId: string, status?: string): Promise<Order[]> {
@@ -90,4 +98,25 @@ export class OrdersService {
     order.status = dto.status;
     return this.orders.save(order);
   }
+}
+
+/** Shape the order for the notification payload — mirrors OrderDto (no ownerId),
+ *  so the admin app can consume it with its existing `Order` type. */
+function toOrderPayload(order: Order) {
+  return {
+    id: order.id,
+    tableNumber: order.tableNumber,
+    status: order.status,
+    note: order.note,
+    total: order.total,
+    items: order.items.map((i) => ({
+      id: i.id,
+      foodItemId: i.foodItemId,
+      name: i.name,
+      price: i.price,
+      quantity: i.quantity,
+    })),
+    createdAt: order.createdAt,
+    updatedAt: order.updatedAt,
+  };
 }

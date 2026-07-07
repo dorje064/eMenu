@@ -1,4 +1,7 @@
+import { useEffect, useState } from 'react';
 import {
+  Bell,
+  BellOff,
   ClipboardList,
   LayoutDashboard,
   LogOut,
@@ -9,6 +12,8 @@ import {
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { Avatar, Button } from '@org/ui';
 import { useAuth } from '../auth/AuthContext';
+import { isMuted, setMuted, unlockAudio } from '../notifications/chime';
+import { useOrderNotifications } from '../notifications/useOrderNotifications';
 import './DashboardLayout.css';
 
 const NAV = [
@@ -22,6 +27,29 @@ const NAV = [
 export function DashboardLayout() {
   const { customer, logout } = useAuth();
   const navigate = useNavigate();
+
+  // Live "new order" toast + tone, active on every authenticated page.
+  useOrderNotifications();
+
+  const [muted, setMutedState] = useState(isMuted);
+
+  // Browsers block audio until a user gesture — unlock the tone on first click/key.
+  useEffect(() => {
+    const unlock = () => unlockAudio();
+    window.addEventListener('pointerdown', unlock, { once: true });
+    window.addEventListener('keydown', unlock, { once: true });
+    return () => {
+      window.removeEventListener('pointerdown', unlock);
+      window.removeEventListener('keydown', unlock);
+    };
+  }, []);
+
+  const toggleSound = () => {
+    const next = !muted;
+    setMuted(next);
+    setMutedState(next);
+    if (!next) unlockAudio();
+  };
 
   const handleLogout = () => {
     logout();
@@ -63,6 +91,17 @@ export function DashboardLayout() {
               <span className="admin-topbar__email">{customer?.email}</span>
             </div>
             <Avatar name={customer?.fullName ?? 'User'} size="md" />
+            <Button
+              variant="secondary"
+              size="sm"
+              shape="icon"
+              aria-label={
+                muted ? 'Enable order sound' : 'Mute order sound'
+              }
+              aria-pressed={!muted}
+              onClick={toggleSound}
+              leadingIcon={muted ? <BellOff size={16} /> : <Bell size={16} />}
+            />
             <Button
               variant="secondary"
               size="sm"

@@ -5,6 +5,7 @@ import { dataSourceOptions } from '../database/data-source';
 import { AuthModule } from '../auth/auth.module';
 import { CategoryModule } from '../category/category.module';
 import { MenuModule } from '../menu/menu.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 import { OrdersModule } from '../orders/orders.module';
 import { PublicModule } from '../public/public.module';
 import { SettingsModule } from '../settings/settings.module';
@@ -30,6 +31,7 @@ import { AppService } from './app.service';
     AuthModule,
     CategoryModule,
     MenuModule,
+    NotificationsModule,
     OrdersModule,
     PublicModule,
     SettingsModule,
