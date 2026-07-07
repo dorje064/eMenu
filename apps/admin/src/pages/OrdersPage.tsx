@@ -12,6 +12,7 @@ import {
 
 import { ordersApi } from '../api/orders.api';
 import { ApiError } from '../api/client';
+import { useUnseenOrders } from '../notifications/UnseenOrdersContext';
 import type { Order, OrderStatus } from '../api/types';
 import './MenuPage.css';
 import './OrdersPage.css';
@@ -115,6 +116,7 @@ function OrderCard({
 
 export function OrdersPage() {
   const { show } = useToast();
+  const { clear: clearUnseen } = useUnseenOrders();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -138,6 +140,11 @@ export function OrdersPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Viewing the Orders page marks incoming orders as seen (clears the badge).
+  useEffect(() => {
+    clearUnseen();
+  }, [clearUnseen]);
 
   const changeStatus = async (order: Order, status: OrderStatus) => {
     if (status === order.status) return;

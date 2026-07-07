@@ -7,13 +7,20 @@ import { LoginPage } from '../pages/LoginPage';
 import { MenuPage } from '../pages/MenuPage';
 import { OrdersPage } from '../pages/OrdersPage';
 import { TablesPage } from '../pages/TablesPage';
+import { UnseenOrdersProvider } from '../notifications/UnseenOrdersContext';
 
 export function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route element={<RequireAuth />}>
-        <Route element={<DashboardLayout />}>
+        <Route
+          element={
+            <UnseenOrdersProvider>
+              <DashboardLayout />
+            </UnseenOrdersProvider>
+          }
+        >
           <Route path="/" element={<DashboardHome />} />
           <Route path="/menu" element={<MenuPage />} />
           <Route path="/orders" element={<OrdersPage />} />

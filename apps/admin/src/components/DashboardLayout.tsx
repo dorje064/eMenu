@@ -13,7 +13,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { Avatar, Button } from '@org/ui';
 import { useAuth } from '../auth/AuthContext';
 import { isMuted, setMuted, unlockAudio } from '../notifications/chime';
-import { useOrderNotifications } from '../notifications/useOrderNotifications';
+import { useUnseenOrders } from '../notifications/UnseenOrdersContext';
 import './DashboardLayout.css';
 
 const NAV = [
@@ -28,8 +28,8 @@ export function DashboardLayout() {
   const { customer, logout } = useAuth();
   const navigate = useNavigate();
 
-  // Live "new order" toast + tone, active on every authenticated page.
-  useOrderNotifications();
+  // Unseen-order count fed by the SSE listener in UnseenOrdersProvider.
+  const { count: unseenOrders } = useUnseenOrders();
 
   const [muted, setMutedState] = useState(isMuted);
 
@@ -66,19 +66,32 @@ export function DashboardLayout() {
           <span className="admin-brand__name">eMenu</span>
         </div>
         <nav className="admin-nav" aria-label="Primary">
-          {NAV.map(({ to, label, icon: Icon, end }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={end}
-              className={({ isActive }) =>
-                isActive ? 'admin-nav__link is-active' : 'admin-nav__link'
-              }
-            >
-              <Icon size={18} aria-hidden="true" />
-              <span>{label}</span>
-            </NavLink>
-          ))}
+          {NAV.map(({ to, label, icon: Icon, end }) => {
+            const showBadge = to === '/orders' && unseenOrders > 0;
+            return (
+              <NavLink
+                key={to}
+                to={to}
+                end={end}
+                className={({ isActive }) =>
+                  isActive ? 'admin-nav__link is-active' : 'admin-nav__link'
+                }
+              >
+                <Icon size={18} aria-hidden="true" />
+                <span>{label}</span>
+                {showBadge && (
+                  <span
+                    className="admin-nav__badge"
+                    aria-label={`${unseenOrders} new order${
+                      unseenOrders === 1 ? '' : 's'
+                    }`}
+                  >
+                    {unseenOrders > 99 ? '99+' : unseenOrders}
+                  </span>
+                )}
+              </NavLink>
+            );
+          })}
         </nav>
       </aside>
 

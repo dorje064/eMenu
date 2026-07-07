@@ -74,6 +74,21 @@
   font-weight: var(--font-weight-semibold);
 }
 
+/* Unread-orders badge — red pill pushed to the right edge of the nav row. */
+.admin-nav__badge {
+  margin-left: auto;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--color-danger-600, #dc2626);
+  color: var(--color-neutral-0, #fff);
+  font-size: var(--text-caption-size);
+  font-weight: var(--font-weight-bold);
+  line-height: 20px;
+  text-align: center;
+}
+
 /* ---- Main column ---- */
 .admin-main {
   flex: 1;
