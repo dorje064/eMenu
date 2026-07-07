@@ -3,11 +3,13 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Query,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiQuery,
@@ -51,6 +53,14 @@ export class PublicController {
       this.settingsService.get(ownerId),
     ]);
     return { categories, items, menuTemplate: settings.menuTemplate };
+  }
+
+  @Get('orders/:id')
+  @ApiOperation({ summary: 'Track one order by id (public)' })
+  @ApiOkResponse({ type: OrderDto })
+  @ApiNotFoundResponse({ description: 'Order not found' })
+  getOrder(@Param('id') id: string): Promise<OrderDto> {
+    return this.ordersService.findByIdPublic(id);
   }
 
   @Post('orders')

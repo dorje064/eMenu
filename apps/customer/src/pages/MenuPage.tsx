@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { CheckCircle2, ShoppingBag, Trash2 } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { CheckCircle2, ReceiptText, ShoppingBag, Trash2 } from 'lucide-react';
 import { Button, EmptyState, Modal, Spinner, useToast } from '@org/ui';
 import { menuApi } from '../api/menu.api';
 import { ordersApi } from '../api/orders.api';
 import { ApiError } from '../api/client';
+import { rememberOrder } from '../orders/storage';
 import { MenuView } from '../components/MenuView';
 import type {
   Category,
@@ -109,6 +110,7 @@ export function MenuPage() {
         items: cartLines.map((l) => ({ foodItemId: l.item.id, quantity: l.qty })),
         note: note.trim() || undefined,
       });
+      rememberOrder(order, cafe);
       setConfirmed(order);
       setCart({});
       setNote('');
@@ -148,7 +150,16 @@ export function MenuPage() {
   return (
     <div className="cpage">
       <header className="cpage__header">
-        <h1 className="cpage__brand">Our Menu</h1>
+        <div className="cpage__header-row">
+          <h1 className="cpage__brand">Our Menu</h1>
+          <Link
+            className="cpage__myorders"
+            to={{ pathname: '/orders', search: `?${params.toString()}` }}
+          >
+            <ReceiptText size={16} aria-hidden="true" />
+            My orders
+          </Link>
+        </div>
         {table ? (
           <p className="cpage__table">Table {table}</p>
         ) : (

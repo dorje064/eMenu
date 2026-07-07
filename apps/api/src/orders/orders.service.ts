@@ -89,6 +89,16 @@ export class OrdersService {
     return order;
   }
 
+  /** Look up an order by id alone — used for public order tracking by the
+   *  customer app (the id is an unguessable uuid held on the device). */
+  async findByIdPublic(id: string): Promise<Order> {
+    const order = await this.orders.findOne({ where: { id } });
+    if (!order) {
+      throw new NotFoundException(`Order ${id} not found`);
+    }
+    return order;
+  }
+
   async updateStatus(
     ownerId: string,
     id: string,

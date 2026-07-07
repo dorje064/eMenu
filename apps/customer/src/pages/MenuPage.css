@@ -20,6 +20,34 @@
   border-bottom: 1px solid var(--border-default);
   background: var(--surface-default);
 }
+.cpage__header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+/* Header link/button (My orders · Back to menu · Refresh). */
+.cpage__myorders {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-card, #fff);
+  color: var(--text-primary);
+  font-size: var(--text-caption-size);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+  cursor: pointer;
+}
+.cpage__myorders:hover {
+  background: var(--color-neutral-100, #f1f5f9);
+}
+.cpage__myorders:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
 .cpage__brand {
   margin: 0;
   font-size: var(--text-h3-size);
