@@ -5,11 +5,13 @@ import {
   ClipboardList,
   LayoutDashboard,
   LogOut,
+  Menu,
   QrCode,
   Tags,
   UtensilsCrossed,
+  X,
 } from 'lucide-react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Avatar, Button } from '@org/ui';
 import { useAuth } from '../auth/AuthContext';
 import { isMuted, setMuted, unlockAudio } from '../notifications/chime';
@@ -27,11 +29,27 @@ const NAV = [
 export function DashboardLayout() {
   const { customer, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Unseen-order count fed by the SSE listener in UnseenOrdersProvider.
   const { count: unseenOrders } = useUnseenOrders();
 
   const [muted, setMutedState] = useState(isMuted);
+
+  // Off-canvas sidebar drawer (mobile/tablet). Closes on navigation and Escape.
+  const [navOpen, setNavOpen] = useState(false);
+
+  useEffect(() => {
+    setNavOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setNavOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   // Browsers block audio until a user gesture — unlock the tone on first click/key.
   useEffect(() => {
@@ -58,12 +76,27 @@ export function DashboardLayout() {
 
   return (
     <div className="admin-shell">
-      <aside className="admin-sidebar">
+      {navOpen && (
+        <div
+          className="admin-backdrop"
+          onClick={() => setNavOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+      <aside className={`admin-sidebar${navOpen ? ' is-open' : ''}`}>
         <div className="admin-brand">
           <span className="admin-brand__mark" aria-hidden="true">
             <UtensilsCrossed size={20} />
           </span>
           <span className="admin-brand__name">eMenu</span>
+          <button
+            type="button"
+            className="admin-sidebar__close"
+            aria-label="Close menu"
+            onClick={() => setNavOpen(false)}
+          >
+            <X size={20} />
+          </button>
         </div>
         <nav className="admin-nav" aria-label="Primary">
           {NAV.map(({ to, label, icon: Icon, end }) => {
@@ -97,7 +130,18 @@ export function DashboardLayout() {
 
       <div className="admin-main">
         <header className="admin-topbar">
-          <h1 className="admin-topbar__title">Admin Dashboard</h1>
+          <div className="admin-topbar__lead">
+            <button
+              type="button"
+              className="admin-topbar__nav-toggle"
+              aria-label="Open menu"
+              aria-expanded={navOpen}
+              onClick={() => setNavOpen(true)}
+            >
+              <Menu size={22} />
+            </button>
+            <h1 className="admin-topbar__title">Admin Dashboard</h1>
+          </div>
           <div className="admin-topbar__user">
             <div className="admin-topbar__id">
               <span className="admin-topbar__name">{customer?.fullName}</span>

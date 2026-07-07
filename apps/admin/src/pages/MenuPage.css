@@ -9,11 +9,13 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: var(--space-4);
+  flex-wrap: wrap;
 }
 .menu-page__actions {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  flex-wrap: wrap;
 }
 .menu-page__title {
   font-size: var(--text-h3-size);
@@ -95,4 +97,17 @@
   align-items: center;
   gap: var(--space-1);
   justify-content: flex-end;
+}
+
+@media (max-width: 640px) {
+  .menu-page__head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .menu-page__actions {
+    width: 100%;
+  }
+  .menu-form__row {
+    grid-template-columns: 1fr;
+  }
 }
