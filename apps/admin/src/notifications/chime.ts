@@ -1,6 +1,7 @@
 /**
  * Notification tone, synthesized with the Web Audio API — no audio asset to
- * ship. A short two-note "ding-dong" via an oscillator + gain envelope.
+ * ship. A two-note "ding-dong" via an oscillator + gain envelope, repeated
+ * three times for a louder, longer, hard-to-miss alert.
  *
  * Browsers block audio until the user has interacted with the page, so
  * `unlockAudio()` must run once from a real user gesture (see DashboardLayout).
@@ -52,9 +53,15 @@ export function playChime(): void {
   if (audio.state === 'suspended') void audio.resume();
 
   const now = audio.currentTime;
-  // Two descending notes for a recognisable "new order" cue.
-  playNote(audio, 880, now, 0.18); // A5
-  playNote(audio, 660, now + 0.16, 0.28); // E5
+  // One cue is two descending notes ("ding-dong"). Repeat it three times so the
+  // alert plays ~3× as long as a single cue and is hard to miss.
+  const CYCLES = 3;
+  const CYCLE = 0.44; // length of one ding-dong (0.16 + 0.28)
+  for (let i = 0; i < CYCLES; i += 1) {
+    const base = now + i * CYCLE;
+    playNote(audio, 880, base, 0.18); // A5
+    playNote(audio, 660, base + 0.16, 0.28); // E5
+  }
 }
 
 function playNote(
@@ -68,9 +75,10 @@ function playNote(
   osc.type = 'sine';
   osc.frequency.value = frequency;
 
-  // Quick attack, smooth exponential decay — avoids clicks.
+  // Quick attack, smooth exponential decay — avoids clicks. Peak raised for a
+  // louder, more noticeable alert.
   gain.gain.setValueAtTime(0.0001, start);
-  gain.gain.exponentialRampToValueAtTime(0.25, start + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.6, start + 0.02);
   gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
 
   osc.connect(gain).connect(audio.destination);
