@@ -2,13 +2,17 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ClipboardList, GitMerge, RefreshCw, X } from 'lucide-react';
 import {
   Button,
+  DataTable,
   EmptyState,
   Modal,
   OrderStatusBadge,
   Select,
   Spinner,
+  Tabs,
   useToast,
+  type DataTableColumn,
   type SelectOption,
+  type TabItem,
 } from '@org/ui';
 
 import { ordersApi } from '../api/orders.api';
@@ -34,18 +38,21 @@ const STATUS_BADGE = {
   cancelled: { badge: 'cancelled', label: 'Cancelled' },
 } as const;
 
-const STATUS_OPTIONS: SelectOption[] = [
+/** Statuses selectable per active order (Paid is reached via "Mark paid"). */
+const ROW_STATUS_OPTIONS: SelectOption[] = [
   { value: 'pending', label: 'Pending' },
   { value: 'preparing', label: 'Preparing' },
   { value: 'served', label: 'Served' },
-  { value: 'paid', label: 'Paid' },
   { value: 'cancelled', label: 'Cancelled' },
 ];
 
+/** Active-tab status filter — never includes Paid (Paid has its own tab). */
 const FILTER_OPTIONS: SelectOption[] = [
-  { value: 'all', label: 'All orders' },
-  ...STATUS_OPTIONS,
+  { value: 'all', label: 'All statuses' },
+  ...ROW_STATUS_OPTIONS,
 ];
+
+type ActiveFilter = 'all' | Exclude<OrderStatus, 'paid'>;
 
 const timeFmt = new Intl.DateTimeFormat('en-GB', {
   day: '2-digit',
@@ -54,7 +61,7 @@ const timeFmt = new Intl.DateTimeFormat('en-GB', {
   minute: '2-digit',
 });
 
-/** A single order rendered as a card. */
+/** A single active order rendered as a selectable card. */
 function OrderCard({
   order,
   updating,
@@ -119,23 +126,37 @@ function OrderCard({
 
       <div className="order-card__actions">
         <Select
-          options={STATUS_OPTIONS}
+          options={ROW_STATUS_OPTIONS}
           value={order.status}
           disabled={updating}
           onChange={(value) => onChangeStatus(value as OrderStatus)}
           aria-label={`Update status for Table ${order.tableNumber}`}
         />
-        {order.status !== 'paid' && order.status !== 'cancelled' && (
-          <Button
-            variant="secondary"
-            size="sm"
-            disabled={updating}
-            onClick={() => onChangeStatus('paid')}
-          >
-            Mark paid
-          </Button>
-        )}
+        <Button
+          variant="secondary"
+          disabled={updating}
+          onClick={() => onChangeStatus('paid')}
+        >
+          Mark paid
+        </Button>
       </div>
+    </div>
+  );
+}
+
+/** Compact per-order dish list rendered inside a DataTable cell. */
+function ItemsCell({ order }: { order: Order }) {
+  return (
+    <div className="order-items-cell">
+      <ul className="order-items-cell__list">
+        {order.items.map((line) => (
+          <li key={line.id}>
+            <span className="order-items-cell__qty">{line.quantity}×</span>
+            {line.name}
+          </li>
+        ))}
+      </ul>
+      {order.note && <p className="order-items-cell__note">“{order.note}”</p>}
     </div>
   );
 }
@@ -146,11 +167,12 @@ export function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [tables, setTables] = useState<RestaurantTable[]>([]);
   // Table numbers seen across loads — accumulated so the filter keeps offering
-  // a table even after narrowing to it (or to a status) drops others.
+  // a table even when none are defined on the Tables page.
   const [seenTables, setSeenTables] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<'all' | OrderStatus>('all');
+  const [tab, setTab] = useState<'active' | 'paid'>('active');
+  const [statusFilter, setStatusFilter] = useState<ActiveFilter>('all');
   const [tableFilter, setTableFilter] = useState<string>('all');
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -161,9 +183,10 @@ export function OrdersPage() {
     setLoading(true);
     setLoadError(null);
     try {
+      // Fetch every status for the chosen table; the Active/Paid split and the
+      // status sub-filter are applied client-side below.
       setOrders(
         await ordersApi.list({
-          status: filter === 'all' ? undefined : filter,
           table: tableFilter === 'all' ? undefined : tableFilter,
         }),
       );
@@ -174,7 +197,7 @@ export function OrdersPage() {
     } finally {
       setLoading(false);
     }
-  }, [filter, tableFilter]);
+  }, [tableFilter]);
 
   useEffect(() => {
     load();
@@ -193,15 +216,6 @@ export function OrdersPage() {
     clearUnseen();
   }, [clearUnseen]);
 
-  // Drop selections that are no longer visible after a filter/refresh change.
-  useEffect(() => {
-    setSelectedIds((prev) => {
-      const visible = new Set(orders.map((o) => o.id));
-      const next = new Set([...prev].filter((id) => visible.has(id)));
-      return next.size === prev.size ? prev : next;
-    });
-  }, [orders]);
-
   // Remember every table number that has appeared in an order so the filter
   // lists real tables even when none are defined on the Tables page.
   useEffect(() => {
@@ -211,6 +225,31 @@ export function OrdersPage() {
       return next.size === prev.size ? prev : next;
     });
   }, [orders]);
+
+  const paidOrders = useMemo(
+    () => orders.filter((o) => o.status === 'paid'),
+    [orders],
+  );
+  const nonPaidOrders = useMemo(
+    () => orders.filter((o) => o.status !== 'paid'),
+    [orders],
+  );
+  const activeOrders = useMemo(
+    () =>
+      statusFilter === 'all'
+        ? nonPaidOrders
+        : nonPaidOrders.filter((o) => o.status === statusFilter),
+    [nonPaidOrders, statusFilter],
+  );
+
+  // Selections only apply to the Active tab; drop any that are no longer shown.
+  useEffect(() => {
+    setSelectedIds((prev) => {
+      const visible = new Set(activeOrders.map((o) => o.id));
+      const next = new Set([...prev].filter((id) => visible.has(id)));
+      return next.size === prev.size ? prev : next;
+    });
+  }, [activeOrders]);
 
   const tableOptions = useMemo<SelectOption[]>(() => {
     const names = new Set<string>(tables.map((t) => t.name));
@@ -249,11 +288,10 @@ export function OrdersPage() {
     setUpdatingId(order.id);
     try {
       const updated = await ordersApi.updateStatus(order.id, status);
-      // If a status filter is active and the order no longer matches, drop it.
+      // Update in place — the Active/Paid split re-derives, so an order marked
+      // paid moves to the Paid tab automatically.
       setOrders((prev) =>
-        filter !== 'all' && updated.status !== filter
-          ? prev.filter((o) => o.id !== updated.id)
-          : prev.map((o) => (o.id === updated.id ? updated : o)),
+        prev.map((o) => (o.id === updated.id ? updated : o)),
       );
       show({ semantic: 'success', message: `Order marked ${status}` });
     } catch (err) {
@@ -293,42 +331,33 @@ export function OrdersPage() {
     }
   };
 
-  return (
-    <div className="menu-page">
-      <div className="menu-page__head">
-        <div>
-          <h2 className="menu-page__title">Orders</h2>
-          <p className="menu-page__subtitle">
-            {orders.length} order{orders.length === 1 ? '' : 's'}
-            {filter !== 'all' ? ` · ${STATUS_BADGE[filter].label}` : ''}
-            {tableFilter !== 'all' ? ` · Table ${tableFilter}` : ''}
-          </p>
-        </div>
-        <div className="menu-page__actions">
-          <div className="orders-filter">
-            <Select
-              options={tableOptions}
-              value={tableFilter}
-              onChange={setTableFilter}
-              aria-label="Filter orders by table"
-            />
-          </div>
-          <div className="orders-filter">
-            <Select
-              options={FILTER_OPTIONS}
-              value={filter}
-              onChange={(value) => setFilter(value as 'all' | OrderStatus)}
-              aria-label="Filter orders by status"
-            />
-          </div>
-          <Button
-            variant="secondary"
-            leadingIcon={<RefreshCw size={18} />}
-            onClick={load}
-            loading={loading}
-          >
-            Refresh
-          </Button>
+  const switchTab = (next: string) => {
+    setTab(next as 'active' | 'paid');
+    clearSelection();
+  };
+
+  const tableFilterControl = (
+    <div className="orders-filter">
+      <Select
+        options={tableOptions}
+        value={tableFilter}
+        onChange={setTableFilter}
+        aria-label="Filter orders by table"
+      />
+    </div>
+  );
+
+  const activePanel = (
+    <div className="orders-panel">
+      <div className="orders-toolbar">
+        {tableFilterControl}
+        <div className="orders-filter">
+          <Select
+            options={FILTER_OPTIONS}
+            value={statusFilter}
+            onChange={(value) => setStatusFilter(value as ActiveFilter)}
+            aria-label="Filter orders by status"
+          />
         </div>
       </div>
 
@@ -366,27 +395,20 @@ export function OrdersPage() {
         </div>
       )}
 
-      {loadError ? (
-        <EmptyState
-          variant="error-empty"
-          title="Couldn’t load orders"
-          description={loadError}
-          action={{ label: 'Retry', onClick: load }}
-        />
-      ) : loading ? (
+      {loading ? (
         <div className="orders-loading">
           <Spinner />
         </div>
-      ) : orders.length === 0 ? (
+      ) : activeOrders.length === 0 ? (
         <EmptyState
           variant="first-use"
           icon={<ClipboardList />}
-          title="No orders yet"
+          title="No active orders"
           description="Orders placed by customers from their table QR codes will appear here."
         />
       ) : (
         <div className="order-grid">
-          {orders.map((order) => (
+          {activeOrders.map((order) => (
             <OrderCard
               key={order.id}
               order={order}
@@ -397,6 +419,118 @@ export function OrdersPage() {
             />
           ))}
         </div>
+      )}
+    </div>
+  );
+
+  const paidColumns: DataTableColumn<Order>[] = [
+    {
+      key: 'tableNumber',
+      header: 'Table',
+      sortable: true,
+      width: '90px',
+      render: (o) => <strong>Table {o.tableNumber}</strong>,
+    },
+    {
+      key: 'createdAt',
+      header: 'Placed',
+      sortable: true,
+      width: '130px',
+      render: (o) => timeFmt.format(new Date(o.createdAt)),
+    },
+    {
+      key: 'items',
+      header: 'Items',
+      render: (o) => <ItemsCell order={o} />,
+    },
+    {
+      key: 'total',
+      header: 'Total',
+      numeric: true,
+      sortable: true,
+      width: '110px',
+      render: (o) => currency(o.total),
+    },
+    {
+      key: 'updatedAt',
+      header: 'Paid at',
+      sortable: true,
+      width: '130px',
+      render: (o) => timeFmt.format(new Date(o.updatedAt)),
+    },
+  ];
+
+  const paidPanel = (
+    <div className="orders-panel">
+      <div className="orders-toolbar">{tableFilterControl}</div>
+      <DataTable
+        columns={paidColumns}
+        rows={paidOrders}
+        getRowId={(o) => o.id}
+        ariaLabel="Paid orders"
+        loading={loading}
+        emptyMessage="No paid orders yet."
+      />
+    </div>
+  );
+
+  const tabItems: TabItem[] = [
+    {
+      id: 'active',
+      label: 'Active orders',
+      count: nonPaidOrders.length,
+      content: activePanel,
+    },
+    {
+      id: 'paid',
+      label: 'Paid orders',
+      count: paidOrders.length,
+      content: paidPanel,
+    },
+  ];
+
+  return (
+    <div className="menu-page">
+      <div className="menu-page__head">
+        <div>
+          <h2 className="menu-page__title">Orders</h2>
+          <p className="menu-page__subtitle">
+            {tab === 'paid'
+              ? `${paidOrders.length} paid order${
+                  paidOrders.length === 1 ? '' : 's'
+                }`
+              : `${activeOrders.length} active order${
+                  activeOrders.length === 1 ? '' : 's'
+                }`}
+            {tableFilter !== 'all' ? ` · Table ${tableFilter}` : ''}
+          </p>
+        </div>
+        <div className="menu-page__actions">
+          <Button
+            variant="secondary"
+            leadingIcon={<RefreshCw size={18} />}
+            onClick={load}
+            loading={loading}
+          >
+            Refresh
+          </Button>
+        </div>
+      </div>
+
+      {loadError ? (
+        <EmptyState
+          variant="error-empty"
+          title="Couldn’t load orders"
+          description={loadError}
+          action={{ label: 'Retry', onClick: load }}
+        />
+      ) : (
+        <Tabs
+          items={tabItems}
+          value={tab}
+          onChange={switchTab}
+          ariaLabel="Order views"
+        />
       )}
 
       <Modal
