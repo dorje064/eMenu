@@ -7,8 +7,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { FoodItem } from '../menu/entities/food-item.entity';
 import { NotificationsService } from '../notifications/notifications.service';
-import { type OrderStatus } from './order-status';
+import { ORDER_STATUS_RANK, type OrderStatus } from './order-status';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { MergeOrdersDto } from './dto/merge-orders.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { OrderItem } from './entities/order-item.entity';
 import { Order } from './entities/order.entity';
@@ -74,9 +75,17 @@ export class OrdersService {
     return saved;
   }
 
-  findAll(ownerId: string, status?: string): Promise<Order[]> {
+  findAll(
+    ownerId: string,
+    status?: string,
+    tableNumber?: string
+  ): Promise<Order[]> {
     return this.orders.find({
-      where: status ? { ownerId, status: status as OrderStatus } : { ownerId },
+      where: {
+        ownerId,
+        ...(status ? { status: status as OrderStatus } : {}),
+        ...(tableNumber ? { tableNumber } : {}),
+      },
       order: { createdAt: 'DESC' },
     });
   }
@@ -107,6 +116,77 @@ export class OrdersService {
     const order = await this.findOne(ownerId, id);
     order.status = dto.status;
     return this.orders.save(order);
+  }
+
+  /** Combine several orders from the same table into a single order. The
+   *  earliest order is kept (preserving its id/createdAt for tracking); its
+   *  siblings' line items are folded in — duplicate dishes collapse into a
+   *  summed quantity — and the sources are then deleted. */
+  async mergeOrders(ownerId: string, dto: MergeOrdersDto): Promise<Order> {
+    const ids = [...new Set(dto.orderIds)];
+    if (ids.length < 2) {
+      throw new BadRequestException('Select at least two orders to merge.');
+    }
+
+    const found = await this.orders.find({
+      where: { id: In(ids), ownerId },
+      order: { createdAt: 'ASC' },
+    });
+    if (found.length !== ids.length) {
+      throw new NotFoundException('One or more orders could not be found.');
+    }
+
+    const tableNumber = found[0].tableNumber;
+    if (found.some((o) => o.tableNumber !== tableNumber)) {
+      throw new BadRequestException(
+        'Only orders from the same table can be merged.'
+      );
+    }
+
+    // Fold every source's items into the primary, collapsing duplicate dishes.
+    const [primary, ...rest] = found;
+    const byFood = new Map<string, OrderItem>();
+    for (const src of found) {
+      for (const line of src.items) {
+        const existing = byFood.get(line.foodItemId);
+        if (existing) {
+          existing.quantity += line.quantity;
+        } else {
+          const merged = new OrderItem();
+          merged.foodItemId = line.foodItemId;
+          merged.name = line.name;
+          merged.price = line.price;
+          merged.quantity = line.quantity;
+          byFood.set(line.foodItemId, merged);
+        }
+      }
+    }
+
+    const items = [...byFood.values()];
+    const total = items.reduce((sum, l) => sum + l.price * l.quantity, 0);
+
+    // Keep the earliest (least advanced) lifecycle stage among the sources.
+    const status = found.reduce<OrderStatus>(
+      (best, o) =>
+        ORDER_STATUS_RANK[o.status] < ORDER_STATUS_RANK[best] ? o.status : best,
+      found[0].status
+    );
+
+    const notes = found
+      .map((o) => o.note?.trim())
+      .filter((n): n is string => !!n);
+
+    primary.items = items;
+    primary.total = Math.round(total * 100) / 100;
+    primary.status = status;
+    primary.note = notes.length ? [...new Set(notes)].join(' • ') : null;
+
+    // Remove the now-merged siblings (their items cascade-delete), then persist
+    // the enriched primary. Deleting first frees any collapsed item rows.
+    if (rest.length) {
+      await this.orders.remove(rest);
+    }
+    return this.orders.save(primary);
   }
 }
 

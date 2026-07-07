@@ -26,6 +26,7 @@ const STATUS_BADGE = {
   pending: { badge: 'placed', label: 'Received' },
   preparing: { badge: 'preparing', label: 'Preparing' },
   served: { badge: 'completed', label: 'Served' },
+  paid: { badge: 'completed', label: 'Paid' },
   cancelled: { badge: 'cancelled', label: 'Cancelled' },
 } as const;
 

@@ -2,17 +2,28 @@ import { apiRequest } from './client';
 import type { Order, OrderStatus } from './types';
 
 export const ordersApi = {
-  /** List the café's orders, newest first. Optionally filter by status. */
-  list: (status?: OrderStatus) =>
-    apiRequest<Order[]>(
-      status ? `/orders?status=${encodeURIComponent(status)}` : '/orders',
-      { auth: true },
-    ),
+  /** List the café's orders, newest first. Optionally filter by status and/or
+   *  the table the order was placed from. */
+  list: (filters?: { status?: OrderStatus; table?: string }) => {
+    const params = new URLSearchParams();
+    if (filters?.status) params.set('status', filters.status);
+    if (filters?.table) params.set('table', filters.table);
+    const qs = params.toString();
+    return apiRequest<Order[]>(`/orders${qs ? `?${qs}` : ''}`, { auth: true });
+  },
 
   updateStatus: (id: string, status: OrderStatus) =>
     apiRequest<Order>(`/orders/${id}/status`, {
       method: 'PATCH',
       body: { status },
+      auth: true,
+    }),
+
+  /** Merge several same-table orders into a single order. */
+  merge: (orderIds: string[]) =>
+    apiRequest<Order>('/orders/merge', {
+      method: 'POST',
+      body: { orderIds },
       auth: true,
     }),
 };

@@ -102,7 +102,12 @@ export interface UploadResult {
 }
 
 /** Order lifecycle states, mirrored from the API's ORDER_STATUSES. */
-export type OrderStatus = 'pending' | 'preparing' | 'served' | 'cancelled';
+export type OrderStatus =
+  | 'pending'
+  | 'preparing'
+  | 'served'
+  | 'paid'
+  | 'cancelled';
 
 /** One line on an order — name/price are snapshotted at order time. */
 export interface OrderItemLine {
