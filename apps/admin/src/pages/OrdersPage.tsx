@@ -6,6 +6,7 @@ import {
   EmptyState,
   Modal,
   OrderStatusBadge,
+  Overlay,
   Select,
   Spinner,
   Tabs,
@@ -441,7 +442,14 @@ export function OrdersPage() {
     {
       key: 'items',
       header: 'Items',
-      render: (o) => <ItemsCell order={o} />,
+      width: '120px',
+      render: (o) => (
+        <Overlay
+          length={o.items.reduce((sum, l) => sum + l.quantity, 0)}
+          title={`Table ${o.tableNumber}`}
+          items={<ItemsCell order={o} />}
+        />
+      ),
     },
     {
       key: 'total',

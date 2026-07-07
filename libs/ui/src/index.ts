@@ -85,6 +85,10 @@ export type { ModalProps, ModalSize, ModalVariant } from './lib/Modal/Modal';
 export { Drawer } from './lib/Drawer/Drawer';
 export type { DrawerProps, DrawerEdge, DrawerSize } from './lib/Drawer/Drawer';
 
+// Overlay
+export { Overlay } from './lib/Overlay/Overlay';
+export type { OverlayProps, OverlayPlacement } from './lib/Overlay/Overlay';
+
 // Toast
 export { Toast, ToastProvider, useToast } from './lib/Toast/Toast';
 export type {
