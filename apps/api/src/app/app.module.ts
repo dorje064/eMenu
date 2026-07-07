@@ -14,7 +14,13 @@ import { AppService } from './app.service';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    // Load the API's env file. Path is relative to the workspace root (the cwd
+    // for `nx serve` and the built app). Without an explicit path, ConfigModule
+    // reads the root .env instead and silently ignores apps/api/.env.
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: 'apps/api/.env',
+    }),
     TypeOrmModule.forRoot({
       ...dataSourceOptions,
       autoLoadEntities: true,

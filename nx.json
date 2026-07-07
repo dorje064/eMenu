@@ -56,11 +56,11 @@
       "plugin": "@nx/webpack/plugin",
       "options": {
         "buildTargetName": "build",
-        "serveTargetName": "serve",
-        "previewTargetName": "preview",
+        "serveTargetName": "webpack-serve",
+        "previewTargetName": "webpack-preview",
         "buildDepsTargetName": "build-deps",
         "watchDepsTargetName": "watch-deps",
-        "serveStaticTargetName": "serve-static"
+        "serveStaticTargetName": "webpack-serve-static"
       }
     }
   ],

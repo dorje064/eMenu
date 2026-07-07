@@ -1,4 +1,5 @@
-import 'dotenv/config';
+import { config } from 'dotenv';
+config({ path: 'apps/api/.env' });
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import * as bcrypt from 'bcryptjs';

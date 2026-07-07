@@ -9,6 +9,7 @@ import {
   useToast,
   type SelectOption,
 } from '@org/ui';
+
 import { ordersApi } from '../api/orders.api';
 import { ApiError } from '../api/client';
 import type { Order, OrderStatus } from '../api/types';
@@ -94,7 +95,9 @@ function OrderCard({
         <span>
           {totalQty} item{totalQty === 1 ? '' : 's'}
         </span>
-        <span className="order-card__total-amount">{currency(order.total)}</span>
+        <span className="order-card__total-amount">
+          {currency(order.total)}
+        </span>
       </div>
 
       <div className="order-card__actions">

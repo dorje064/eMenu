@@ -1,4 +1,9 @@
-import 'dotenv/config';
+import { config } from 'dotenv';
+// The API's env lives in apps/api/.env. Resolved from the workspace root, which
+// is the cwd for `nx serve`, the built app, and the TypeORM/seed CLI scripts.
+// In production (Render) the file is absent and dotenv no-ops — the platform
+// injects the real env vars.
+config({ path: 'apps/api/.env' });
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { Customer } from '../auth/entities/customer.entity';
 import { Category } from '../category/entities/category.entity';
