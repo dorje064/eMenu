@@ -26,6 +26,12 @@ export class OrderStatsDto {
   @ApiProperty({ example: 12400, description: "Total paid sales for today." })
   salesToday!: number;
 
+  @ApiProperty({ example: 3200, description: "Total expenses recorded today." })
+  expensesToday!: number;
+
+  @ApiProperty({ example: 9200, description: 'salesToday − expensesToday.' })
+  netIncome!: number;
+
   @ApiProperty({ type: [SalesByDayDto], description: 'Last 30 days, zero-filled.' })
   salesByDay!: SalesByDayDto[];
 

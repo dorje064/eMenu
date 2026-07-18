@@ -5,8 +5,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, MoreThanOrEqual, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import type { UserRole } from '../auth/roles';
+import { localDateKey, startOfLocalDay } from '../common/date.util';
+import { ExpensesService } from '../expenses/expenses.service';
 import { FoodItem } from '../menu/entities/food-item.entity';
 import { NotificationsService } from '../notifications/notifications.service';
 import { ORDER_STATUS_RANK, type OrderStatus } from './order-status';
@@ -25,9 +27,12 @@ export class OrdersService {
   constructor(
     @InjectRepository(Order)
     private readonly orders: Repository<Order>,
+    @InjectRepository(OrderItem)
+    private readonly orderItems: Repository<OrderItem>,
     @InjectRepository(FoodItem)
     private readonly foodItems: Repository<FoodItem>,
-    private readonly notifications: NotificationsService
+    private readonly notifications: NotificationsService,
+    private readonly expensesService: ExpensesService
   ) {}
 
   async create(ownerId: string, dto: CreateOrderDto): Promise<Order> {
@@ -69,7 +74,7 @@ export class OrdersService {
       tableNumber: dto.tableNumber,
       note: dto.note ?? null,
       status: 'pending',
-      total: Math.round(total * 100) / 100,
+      total: round2(total),
       items: lines,
     });
     const saved = await this.orders.save(order);
@@ -114,40 +119,34 @@ export class OrdersService {
     return order;
   }
 
-  /** Aggregated figures for the owner dashboard: today's paid sales, a
-   *  zero-filled 30-day daily series, and the 5 best-selling items. Only
-   *  `paid` orders count as realized sales. Grouping is done in JS (local
-   *  time) so day boundaries match the zero-filled window exactly. */
+  /** Aggregated figures for the owner dashboard: today's paid sales & expenses,
+   *  net income, a zero-filled 30-day daily series, and the 5 best-selling
+   *  items. Only `paid` orders count as realized sales. Sales and expenses are
+   *  bucketed on the same server-local day so net income compares like with
+   *  like. Aggregation is pushed into SQL — the eager `items` relation is never
+   *  hydrated — so a busy month of orders doesn't stream into memory. */
   async getStats(ownerId: string): Promise<OrderStatsDto> {
     const startOfToday = startOfLocalDay(new Date());
     const windowStart = new Date(startOfToday);
     windowStart.setDate(windowStart.getDate() - (STATS_WINDOW_DAYS - 1));
 
-    const paid = await this.orders.find({
-      where: {
-        ownerId,
-        status: 'paid',
-        createdAt: MoreThanOrEqual(windowStart),
-      },
-    });
+    // Paid orders in the window — just the two scalar columns we aggregate.
+    const orderRows = await this.orders
+      .createQueryBuilder('o')
+      .select('o.createdAt', 'createdAt')
+      .addSelect('o.total', 'total')
+      .where('o.owner_id = :ownerId', { ownerId })
+      .andWhere('o.status = :status', { status: 'paid' })
+      .andWhere('o.created_at >= :windowStart', { windowStart })
+      .getRawMany<{ createdAt: Date; total: number | string }>();
 
     let salesToday = 0;
     const byDay = new Map<string, number>();
-    const items = new Map<string, { name: string; quantity: number; revenue: number }>();
-
-    for (const order of paid) {
-      const key = localDateKey(order.createdAt);
-      byDay.set(key, (byDay.get(key) ?? 0) + order.total);
-      if (order.createdAt >= startOfToday) salesToday += order.total;
-
-      for (const line of order.items) {
-        const entry =
-          items.get(line.name) ??
-          { name: line.name, quantity: 0, revenue: 0 };
-        entry.quantity += line.quantity;
-        entry.revenue += line.price * line.quantity;
-        items.set(line.name, entry);
-      }
+    for (const row of orderRows) {
+      const createdAt = new Date(row.createdAt);
+      const total = Number(row.total) || 0;
+      byDay.set(localDateKey(createdAt), (byDay.get(localDateKey(createdAt)) ?? 0) + total);
+      if (createdAt >= startOfToday) salesToday += total;
     }
 
     const salesByDay = Array.from({ length: STATS_WINDOW_DAYS }, (_, i) => {
@@ -157,12 +156,39 @@ export class OrdersService {
       return { date: key, total: round2(byDay.get(key) ?? 0) };
     });
 
-    const topItems = [...items.values()]
-      .sort((a, b) => b.quantity - a.quantity)
-      .slice(0, 5)
-      .map((i) => ({ name: i.name, quantity: i.quantity, revenue: round2(i.revenue) }));
+    // Top 5 items by units sold across the window — summed in SQL.
+    const topRaw = await this.orderItems
+      .createQueryBuilder('i')
+      .innerJoin('i.order', 'o')
+      .select('i.name', 'name')
+      .addSelect('SUM(i.quantity)', 'quantity')
+      .addSelect('SUM(i.price * i.quantity)', 'revenue')
+      .where('o.owner_id = :ownerId', { ownerId })
+      .andWhere('o.status = :status', { status: 'paid' })
+      .andWhere('o.created_at >= :windowStart', { windowStart })
+      .groupBy('i.name')
+      .orderBy('SUM(i.quantity)', 'DESC')
+      .limit(5)
+      .getRawMany<{ name: string; quantity: string; revenue: string }>();
+    const topItems = topRaw.map((r) => ({
+      name: r.name,
+      quantity: Number(r.quantity) || 0,
+      revenue: round2(Number(r.revenue) || 0),
+    }));
 
-    return { salesToday: round2(salesToday), salesByDay, topItems };
+    // Today's expenses on the same day boundary, so net income is coherent.
+    const todayKey = localDateKey(startOfToday);
+    const expensesToday = round2(
+      await this.expensesService.totalForRange(ownerId, todayKey, todayKey)
+    );
+
+    return {
+      salesToday: round2(salesToday),
+      expensesToday,
+      netIncome: round2(salesToday - expensesToday),
+      salesByDay,
+      topItems,
+    };
   }
 
   async updateStatus(
@@ -242,7 +268,7 @@ export class OrdersService {
       .filter((n): n is string => !!n);
 
     primary.items = items;
-    primary.total = Math.round(total * 100) / 100;
+    primary.total = round2(total);
     primary.status = status;
     primary.note = notes.length ? [...new Set(notes)].join(' • ') : null;
 
@@ -253,22 +279,6 @@ export class OrdersService {
     }
     return this.orders.save(primary);
   }
-}
-
-/** Midnight (local time) of the given date. */
-function startOfLocalDay(date: Date): Date {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
-/** Local-time YYYY-MM-DD key for grouping orders by day. */
-function localDateKey(date: Date): string {
-  const d = new Date(date);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
 }
 
 /** Round to 2 decimal places (currency). */

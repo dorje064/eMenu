@@ -197,6 +197,8 @@ export interface TopItem {
 /** Aggregated figures backing the owner dashboard (paid orders only). */
 export interface DashboardStats {
   salesToday: number;
+  expensesToday: number;
+  netIncome: number;
   salesByDay: SalesByDay[];
   topItems: TopItem[];
 }

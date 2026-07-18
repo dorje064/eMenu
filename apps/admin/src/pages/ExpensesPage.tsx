@@ -14,29 +14,15 @@ import {
 import { expensesApi } from '../api/expenses.api';
 import { ApiError } from '../api/client';
 import type { CreateExpenseInput, Expense } from '../api/types';
+import { formatDay, formatNrs, todayIso } from '../utils/format';
 import './MenuPage.css';
 import './ExpensesPage.css';
 
-/** Today as a local ISO date (YYYY-MM-DD). */
-function todayIso(): string {
-  const d = new Date();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${d.getFullYear()}-${m}-${day}`;
-}
-
-function nrs(n: number): string {
-  return `NRs ${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
-
-function formatDay(iso: string): string {
-  const [y, m, d] = iso.split('-').map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-}
+const DATE_LABEL: Intl.DateTimeFormatOptions = {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+};
 
 interface FormState {
   amount: string;
@@ -120,7 +106,9 @@ export function ExpensesPage() {
     const payload: CreateExpenseInput = {
       amount,
       category: form.category.trim(),
-      note: form.note.trim() || undefined,
+      // Always send the note (even as "") so clearing it on edit persists;
+      // the server normalizes blank to null.
+      note: form.note.trim(),
       spentAt: form.spentAt,
     };
 
@@ -182,7 +170,7 @@ export function ExpensesPage() {
       header: 'Date',
       sortable: true,
       width: '150px',
-      render: (e) => formatDay(e.spentAt),
+      render: (e) => formatDay(e.spentAt, DATE_LABEL),
     },
     {
       key: 'category',
@@ -201,7 +189,7 @@ export function ExpensesPage() {
       sortable: true,
       align: 'right',
       width: '140px',
-      render: (e) => nrs(e.amount),
+      render: (e) => formatNrs(e.amount),
     },
     {
       key: 'actions',
@@ -224,7 +212,7 @@ export function ExpensesPage() {
           <h2 className="menu-page__title">Expenses</h2>
           <p className="menu-page__subtitle">
             {expenses.length} expense{expenses.length === 1 ? '' : 's'} ·{' '}
-            {nrs(total)} total
+            {formatNrs(total)} total
           </p>
         </div>
         <Button leadingIcon={<Plus size={18} />} onClick={openCreate}>
@@ -348,7 +336,7 @@ export function ExpensesPage() {
       >
         <p>
           Remove this {removeTarget?.category} expense of{' '}
-          {removeTarget ? nrs(removeTarget.amount) : ''}? This can’t be undone.
+          {removeTarget ? formatNrs(removeTarget.amount) : ''}? This can’t be undone.
         </p>
       </Modal>
     </div>

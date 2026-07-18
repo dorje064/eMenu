@@ -1,53 +1,57 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { BarChart3, Receipt, TrendingUp, Trophy, Wallet } from 'lucide-react';
 import { DashboardCard, EmptyState } from '@org/ui';
 import { ordersApi } from '../api/orders.api';
-import { expensesApi } from '../api/expenses.api';
+import { ApiError } from '../api/client';
 import type { DashboardStats } from '../api/types';
 import { SalesChart } from '../components/SalesChart';
+import { formatNrs } from '../utils/format';
 import './DashboardHome.css';
-
-/** Today as a local ISO date (YYYY-MM-DD) — matches the API's day boundaries. */
-function todayIso(): string {
-  const d = new Date();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${d.getFullYear()}-${m}-${day}`;
-}
-
-function nrs(n: number): string {
-  return `NRs ${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
 
 export function DashboardHome() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [expensesToday, setExpensesToday] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      setStats(await ordersApi.stats());
+    } catch (err) {
+      setStats(null);
+      setLoadError(
+        err instanceof ApiError ? err.message : 'Failed to load dashboard',
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const today = todayIso();
-    Promise.all([
-      ordersApi.stats(),
-      expensesApi.list({ from: today, to: today }),
-    ])
-      .then(([s, expenses]) => {
-        setStats(s);
-        setExpensesToday(expenses.reduce((sum, e) => sum + e.amount, 0));
-      })
-      .catch(() => {
-        setStats(null);
-        setExpensesToday(0);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+    load();
+  }, [load]);
+
+  if (loadError) {
+    return (
+      <div className="dash-home">
+        <EmptyState
+          variant="error-empty"
+          title="Couldn’t load the dashboard"
+          description={loadError}
+          action={{ label: 'Retry', onClick: load }}
+        />
+      </div>
+    );
+  }
 
   const state = loading ? 'loading' : 'loaded';
   const salesToday = stats?.salesToday ?? 0;
-  const netIncome = salesToday - expensesToday;
+  const expensesToday = stats?.expensesToday ?? 0;
+  const netIncome = stats?.netIncome ?? 0;
   const netAccent = netIncome >= 0 ? 'success' : 'error';
-
   const topItems = stats?.topItems ?? [];
-  const salesByDay = useMemo(() => stats?.salesByDay ?? [], [stats]);
+  const salesByDay = stats?.salesByDay ?? [];
 
   return (
     <div className="dash-home">
@@ -55,7 +59,7 @@ export function DashboardHome() {
       <div className="dash-home__grid">
         <DashboardCard
           label="Total sales today"
-          value={nrs(salesToday)}
+          value={formatNrs(salesToday)}
           context="Paid orders"
           icon={<TrendingUp size={18} />}
           accent="success"
@@ -63,7 +67,7 @@ export function DashboardHome() {
         />
         <DashboardCard
           label="Today's expenses"
-          value={nrs(expensesToday)}
+          value={formatNrs(expensesToday)}
           context="Recorded today"
           icon={<Receipt size={18} />}
           accent="warning"
@@ -71,7 +75,7 @@ export function DashboardHome() {
         />
         <DashboardCard
           label="Net income"
-          value={nrs(netIncome)}
+          value={formatNrs(netIncome)}
           context="Sales − expenses"
           icon={<Wallet size={18} />}
           accent={netAccent}
@@ -102,7 +106,7 @@ export function DashboardHome() {
                   <span className="dash-toplist__rank">{i + 1}</span>
                   <span className="dash-toplist__name">{item.name}</span>
                   <span className="dash-toplist__qty">{item.quantity} sold</span>
-                  <span className="dash-toplist__revenue">{nrs(item.revenue)}</span>
+                  <span className="dash-toplist__revenue">{formatNrs(item.revenue)}</span>
                 </li>
               ))}
             </ol>

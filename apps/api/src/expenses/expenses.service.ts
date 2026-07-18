@@ -1,6 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, Repository } from 'typeorm';
+import {
+  Between,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
+import { localDateKey } from '../common/date.util';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { ExpenseDto } from './dto/expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
@@ -22,7 +28,7 @@ export class ExpensesService {
       ownerId,
       amount: dto.amount,
       category: dto.category,
-      note: dto.note ?? null,
+      note: normalizeNote(dto.note),
       spentAt: dto.spentAt ?? today(),
     });
     await this.expenses.save(expense);
@@ -51,7 +57,8 @@ export class ExpensesService {
     const expense = await this.getOwned(ownerId, id);
     if (dto.amount !== undefined) expense.amount = dto.amount;
     if (dto.category !== undefined) expense.category = dto.category;
-    if (dto.note !== undefined) expense.note = dto.note ?? null;
+    // `note` present (even as "") means "set it" — an emptied note clears to null.
+    if (dto.note !== undefined) expense.note = normalizeNote(dto.note);
     if (dto.spentAt !== undefined) expense.spentAt = dto.spentAt;
     await this.expenses.save(expense);
     return toDto(expense);
@@ -87,14 +94,24 @@ export class ExpensesService {
   }
 }
 
-/** Today as an ISO date string (YYYY-MM-DD), server local time. */
+/** Today as an ISO date string (YYYY-MM-DD), server local time — matches the
+ *  day boundaries used by the orders stats aggregation. */
 function today(): string {
-  return new Date().toISOString().slice(0, 10);
+  return localDateKey(new Date());
 }
 
-/** Build the optional spentAt date filter for findAll. */
+/** Normalize an optional note: blank/whitespace-only becomes null. */
+function normalizeNote(note?: string | null): string | null {
+  return note?.trim() ? note.trim() : null;
+}
+
+/** Build the optional spentAt date filter for findAll, honouring an open-ended
+ *  range (from-only or to-only) as well as a bounded one. */
 function spentAtWhere(range?: { from?: string; to?: string }) {
-  if (range?.from && range?.to) return { spentAt: Between(range.from, range.to) };
+  const { from, to } = range ?? {};
+  if (from && to) return { spentAt: Between(from, to) };
+  if (from) return { spentAt: MoreThanOrEqual(from) };
+  if (to) return { spentAt: LessThanOrEqual(to) };
   return {};
 }
 
