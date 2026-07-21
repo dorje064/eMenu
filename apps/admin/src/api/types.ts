@@ -132,6 +132,21 @@ export interface UploadResult {
   imageUrl: string;
 }
 
+/** One rejected row from a bulk menu upload. */
+export interface BulkUploadRowError {
+  row: number;
+  message: string;
+}
+
+/** Summary returned by a bulk menu upload (partial success). */
+export interface BulkUploadResult {
+  total: number;
+  created: number;
+  failed: number;
+  createdCategories: string[];
+  errors: BulkUploadRowError[];
+}
+
 /** Order lifecycle states, mirrored from the API's ORDER_STATUSES. */
 export type OrderStatus =
   | 'pending'

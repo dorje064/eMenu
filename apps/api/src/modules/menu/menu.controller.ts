@@ -31,13 +31,19 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { OwnerId } from '../auth/owner-id.decorator';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
+import { BulkUploadResultDto } from './dto/bulk-upload-result.dto';
 import { CreateFoodItemDto } from './dto/create-food-item.dto';
 import { UpdateFoodItemDto } from './dto/update-food-item.dto';
 import { FoodItemDto } from './dto/food-item.dto';
 import { ImageResultDto, UploadResultDto } from './dto/image-result.dto';
 import { ImageService } from './image.service';
+import { parseMenuSpreadsheet } from './menu-bulk.util';
 import { MenuService } from './menu.service';
-import { imageMulterOptions, UPLOAD_ROUTE_PREFIX } from './upload.constants';
+import {
+  imageMulterOptions,
+  spreadsheetMulterOptions,
+  UPLOAD_ROUTE_PREFIX,
+} from './upload.constants';
 
 @ApiTags('menu')
 @Controller('menu')
@@ -106,6 +112,34 @@ export class MenuController {
       throw new BadRequestException('No file uploaded under field "file".');
     }
     return { imageUrl: `${UPLOAD_ROUTE_PREFIX}/${file.filename}` };
+  }
+
+  @Post('items/bulk')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('owner')
+  @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
+  @ApiOperation({
+    summary: 'Bulk-create menu items from a .csv or .xlsx file (requires auth)',
+  })
+  @ApiCreatedResponse({ type: BulkUploadResultDto })
+  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
+  @UseInterceptors(FileInterceptor('file', spreadsheetMulterOptions))
+  bulkUpload(
+    @OwnerId() ownerId: string,
+    @UploadedFile() file?: { buffer: Buffer },
+  ): Promise<BulkUploadResultDto> {
+    if (!file) {
+      throw new BadRequestException('No file uploaded under field "file".');
+    }
+    const rows = parseMenuSpreadsheet(file.buffer);
+    return this.menuService.bulkCreate(ownerId, rows);
   }
 
   @Get('items/:id')

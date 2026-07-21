@@ -1,6 +1,14 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Eye, Pencil, Plus, Trash2, UtensilsCrossed } from 'lucide-react';
+import {
+  Download,
+  Eye,
+  FileUp,
+  Pencil,
+  Plus,
+  Trash2,
+  UtensilsCrossed,
+} from 'lucide-react';
 import {
   Button,
   DataTable,
@@ -20,11 +28,20 @@ import { queryKeys } from '../../api/queryKeys';
 import { ImagePicker } from '../../components/ImagePicker';
 import { MenuPreview, MENU_TEMPLATES } from '../../components/MenuPreview';
 import type {
+  BulkUploadResult,
   CreateFoodItemInput,
   FoodItem,
   MenuTemplate,
 } from '../../api/types';
 import './style.css';
+
+/** Header + a couple of example rows the "Download template" button hands out. */
+const BULK_TEMPLATE_CSV = [
+  'name,description,category,price,prepTimeMinutes,imageUrl,available',
+  '"Margherita Pizza","San Marzano tomato, mozzarella, basil",Mains,12.5,15,,true',
+  '"Iced Latte","Double shot over ice",Drinks,4,5,,true',
+  '"Garlic Bread",,Sides,3.5,8,,true',
+].join('\n');
 
 const currency = (n: number) =>
   `NRs ${new Intl.NumberFormat('en-US', {
@@ -89,6 +106,13 @@ export function MenuPage() {
   const [fieldErrors, setFieldErrors] = useState<string | null>(null);
 
   const [deleteTarget, setDeleteTarget] = useState<FoodItem | null>(null);
+
+  // Bulk upload (.csv / .xlsx)
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkFile, setBulkFile] = useState<File | null>(null);
+  const [bulkResult, setBulkResult] = useState<BulkUploadResult | null>(null);
+  const [bulkError, setBulkError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] =
@@ -183,6 +207,59 @@ export function MenuPage() {
   const handleDelete = () => {
     if (!deleteTarget) return;
     deleteMutation.mutate(deleteTarget);
+  };
+
+  const openBulk = () => {
+    setBulkFile(null);
+    setBulkResult(null);
+    setBulkError(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    setBulkOpen(true);
+  };
+
+  const downloadTemplate = () => {
+    const blob = new Blob([BULK_TEMPLATE_CSV], {
+      type: 'text/csv;charset=utf-8',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'menu-template.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const bulkMutation = useMutation({
+    mutationFn: (file: File) => menuApi.bulkUpload(file),
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.menu() });
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      setBulkResult(result);
+      if (result.created > 0) {
+        show({
+          semantic: result.failed ? 'info' : 'success',
+          message: `Imported ${result.created} item${
+            result.created === 1 ? '' : 's'
+          }${result.failed ? `, ${result.failed} skipped` : ''}`,
+        });
+      } else {
+        show({
+          semantic: 'error',
+          message: 'No items imported — check the errors below.',
+        });
+      }
+    },
+    onError: (err) => {
+      setBulkError(
+        err instanceof ApiError ? err.message : 'Could not upload the file.',
+      );
+    },
+  });
+
+  const handleBulkUpload = () => {
+    if (!bulkFile) return;
+    setBulkError(null);
+    bulkMutation.mutate(bulkFile);
   };
 
   const openPreview = () => {
@@ -284,6 +361,13 @@ export function MenuPage() {
             disabled={items.length === 0}
           >
             Preview menu
+          </Button>
+          <Button
+            variant="secondary"
+            leadingIcon={<FileUp size={18} />}
+            onClick={openBulk}
+          >
+            Bulk upload
           </Button>
           <Button leadingIcon={<Plus size={18} />} onClick={openCreate}>
             Add item
@@ -428,6 +512,94 @@ export function MenuPage() {
         <p>
           Delete “{deleteTarget?.name}” from the menu? This can’t be undone.
         </p>
+      </Modal>
+
+      <Modal
+        open={bulkOpen}
+        onClose={() => setBulkOpen(false)}
+        title="Bulk upload menu items"
+        variant="form"
+        size="lg"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setBulkOpen(false)}>
+              Close
+            </Button>
+            <Button
+              onClick={handleBulkUpload}
+              loading={bulkMutation.isPending}
+              disabled={!bulkFile}
+            >
+              Upload
+            </Button>
+          </>
+        }
+      >
+        <div className="menu-bulk">
+          <p className="menu-bulk__intro">
+            Upload a <strong>.csv</strong> or <strong>.xlsx</strong> file to add
+            many items at once. The first row must be the header. Columns:{' '}
+            <code>name</code>, <code>category</code>, <code>price</code>{' '}
+            (required) and optional <code>description</code>,{' '}
+            <code>prepTimeMinutes</code>, <code>imageUrl</code>,{' '}
+            <code>available</code>. Unknown categories are created automatically.
+          </p>
+
+          <Button
+            variant="tertiary"
+            leadingIcon={<Download size={16} />}
+            onClick={downloadTemplate}
+          >
+            Download CSV template
+          </Button>
+
+          <label className="menu-bulk__file">
+            <span className="menu-bulk__file-label">Choose file</span>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv,.xlsx"
+              onChange={(e) => {
+                setBulkFile(e.currentTarget.files?.[0] ?? null);
+                setBulkResult(null);
+                setBulkError(null);
+              }}
+            />
+          </label>
+
+          {bulkError && (
+            <p className="menu-form__error" role="alert">
+              {bulkError}
+            </p>
+          )}
+
+          {bulkResult && (
+            <div className="menu-bulk__result" role="status">
+              <p className="menu-bulk__summary">
+                Imported <strong>{bulkResult.created}</strong> of{' '}
+                {bulkResult.total} row{bulkResult.total === 1 ? '' : 's'}
+                {bulkResult.failed > 0
+                  ? ` · ${bulkResult.failed} skipped`
+                  : ''}
+                .
+              </p>
+              {bulkResult.createdCategories.length > 0 && (
+                <p className="menu-bulk__cats">
+                  New categories: {bulkResult.createdCategories.join(', ')}
+                </p>
+              )}
+              {bulkResult.errors.length > 0 && (
+                <ul className="menu-bulk__errors">
+                  {bulkResult.errors.map((e) => (
+                    <li key={e.row}>
+                      <strong>Row {e.row}:</strong> {e.message}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+        </div>
       </Modal>
 
       <Modal

@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { existsSync, mkdirSync } from 'node:fs';
 import { extname, join } from 'node:path';
 import { BadRequestException } from '@nestjs/common';
-import { diskStorage } from 'multer';
+import { diskStorage, memoryStorage } from 'multer';
 
 /** Absolute directory where uploaded images are written. */
 export const UPLOAD_DIR = join(process.cwd(), 'apps/api/uploads');
@@ -40,6 +40,24 @@ export const imageMulterOptions = {
         new BadRequestException(
           'Only JPEG, PNG, WebP, GIF or AVIF images are allowed.',
         ),
+        false,
+      );
+  },
+};
+
+const MAX_SHEET_BYTES = 2 * 1024 * 1024; // 2 MB
+
+/** Inline multer config for the menu bulk-upload route. The spreadsheet is
+ *  parsed in memory (never written to disk), so use memoryStorage. Accepts
+ *  .csv and .xlsx by extension (browser mime types for these are inconsistent). */
+export const spreadsheetMulterOptions = {
+  storage: memoryStorage(),
+  limits: { fileSize: MAX_SHEET_BYTES },
+  fileFilter: (_req: unknown, file: MulterFile, cb: FileFilterCb) => {
+    if (/\.(csv|xlsx)$/i.test(file.originalname)) cb(null, true);
+    else
+      cb(
+        new BadRequestException('Only .csv or .xlsx files are allowed.'),
         false,
       );
   },

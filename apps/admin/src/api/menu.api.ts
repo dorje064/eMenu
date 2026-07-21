@@ -1,5 +1,6 @@
 import { apiRequest } from './client';
 import type {
+  BulkUploadResult,
   CreateFoodItemInput,
   FoodItem,
   ImageSearchResult,
@@ -45,6 +46,17 @@ export const menuApi = {
     const data = new FormData();
     data.append('file', file);
     return apiRequest<UploadResult>('/menu/upload', {
+      method: 'POST',
+      body: data,
+      auth: true,
+    });
+  },
+
+  /** Bulk-create menu items from a .csv/.xlsx file; returns a per-row summary. */
+  bulkUpload: (file: File) => {
+    const data = new FormData();
+    data.append('file', file);
+    return apiRequest<BulkUploadResult>('/menu/items/bulk', {
       method: 'POST',
       body: data,
       auth: true,
