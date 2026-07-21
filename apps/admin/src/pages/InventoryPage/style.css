@@ -1,0 +1,50 @@
+/* Inventory-specific bits layered on top of the shared MenuPage styles. */
+
+.inv-qty {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}
+
+.inv-badge {
+  display: inline-block;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full, 999px);
+  background: var(--color-danger-100, #fde8e8);
+  color: var(--color-danger-700, #b42318);
+  font-size: var(--text-caption-size, 0.75rem);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.inv-hint {
+  margin: var(--space-1) 0 0;
+  color: var(--text-secondary);
+  font-size: var(--text-caption-size, 0.8125rem);
+  line-height: var(--text-caption-line, 1.4);
+}
+
+/* Per-dish consumption rows under the dish multi-select. */
+.inv-links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--radius-md);
+  background: var(--color-neutral-50);
+}
+
+.inv-links__row {
+  display: grid;
+  grid-template-columns: 1fr 140px;
+  align-items: end;
+  gap: var(--space-3);
+}
+
+.inv-links__name {
+  padding-bottom: var(--space-2);
+  color: var(--text-primary);
+  font-weight: 500;
+}

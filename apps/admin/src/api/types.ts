@@ -181,6 +181,52 @@ export interface CreateExpenseInput {
 
 export type UpdateExpenseInput = Partial<CreateExpenseInput>;
 
+/** One dish → per-unit consumption pairing on an inventory item. */
+export interface InventoryLink {
+  /** Linked menu dish (FoodItem.id). */
+  foodItemId: string;
+  /** Units of the item consumed per one unit of the dish sold. */
+  quantityPerUnit: number;
+}
+
+/** A stock item tracked by the café owner. */
+export interface InventoryItem {
+  id: string;
+  name: string;
+  unit: string | null;
+  quantity: number;
+  /** Dishes whose sale consumes this item, with per-unit amounts. */
+  links: InventoryLink[];
+  lowStockThreshold: number | null;
+  note: string | null;
+  /** True when a threshold is set and quantity is at/below it. */
+  lowStock: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateInventoryInput {
+  name: string;
+  quantity: number;
+  unit?: string;
+  /** Replaces the full set of dish links. */
+  links?: InventoryLink[];
+  /** null disables the low-stock warning. */
+  lowStockThreshold?: number | null;
+  note?: string;
+}
+
+export type UpdateInventoryInput = Partial<CreateInventoryInput>;
+
+/** Manual adjustment reasons (auto reasons live only on the server). */
+export type AdjustReason = 'restock' | 'waste' | 'correction';
+
+export interface AdjustInventoryInput {
+  delta: number;
+  reason: AdjustReason;
+  note?: string;
+}
+
 /** One day's total paid sales in the dashboard's 30-day series. */
 export interface SalesByDay {
   date: string;

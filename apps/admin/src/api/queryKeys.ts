@@ -10,6 +10,7 @@ export const queryKeys = {
   tables: ['tables'] as const,
   staff: ['staff'] as const,
   settings: ['settings'] as const,
+  inventory: ['inventory'] as const,
   categories: (activeOnly?: boolean) =>
     ['categories', { activeOnly: activeOnly ?? false }] as const,
   menu: (category?: string) => ['menu', { category: category ?? null }] as const,

@@ -35,6 +35,12 @@ export class Order {
   @Column({ type: 'real', default: 0 })
   total!: number;
 
+  /** Whether this order's inventory consumption has been applied. Set true when
+   *  the order is marked `paid`, back to false if it leaves `paid`. Guards
+   *  against double-deducting stock across repeated status changes. */
+  @Column({ name: 'stock_applied', type: 'boolean', default: false })
+  stockApplied!: boolean;
+
   @OneToMany(() => OrderItem, (item) => item.order, {
     cascade: true,
     eager: true,

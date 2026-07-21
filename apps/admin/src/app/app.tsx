@@ -5,6 +5,7 @@ import { DashboardLayout } from '../components/DashboardLayout';
 import { CategoriesPage } from '../pages/CategoriesPage';
 import { DashboardHome } from '../pages/DashboardPage';
 import { ExpensesPage } from '../pages/ExpensesPage';
+import { InventoryPage } from '../pages/InventoryPage';
 import { LoginPage } from '../pages/LoginPage';
 import { MenuPage } from '../pages/MenuPage';
 import { OrdersPage } from '../pages/OrdersPage';
@@ -40,6 +41,9 @@ export function App() {
           </Route>
           <Route element={<RequireRole feature="expenses" />}>
             <Route path="/expenses" element={<ExpensesPage />} />
+          </Route>
+          <Route element={<RequireRole feature="inventory" />}>
+            <Route path="/inventory" element={<InventoryPage />} />
           </Route>
           <Route element={<RequireRole feature="tables" />}>
             <Route path="/tables" element={<TablesPage />} />

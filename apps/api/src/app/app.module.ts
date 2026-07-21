@@ -5,6 +5,7 @@ import { dataSourceOptions } from '../database/data-source';
 import { AuthModule } from '../modules/auth/auth.module';
 import { CategoryModule } from '../modules/category/category.module';
 import { ExpensesModule } from '../modules/expenses/expenses.module';
+import { InventoryModule } from '../modules/inventory/inventory.module';
 import { MenuModule } from '../modules/menu/menu.module';
 import { NotificationsModule } from '../modules/notifications/notifications.module';
 import { OrdersModule } from '../modules/orders/orders.module';
@@ -33,6 +34,7 @@ import { AppService } from './app.service';
     AuthModule,
     CategoryModule,
     ExpensesModule,
+    InventoryModule,
     MenuModule,
     NotificationsModule,
     OrdersModule,

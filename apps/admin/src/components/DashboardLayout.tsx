@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   Bell,
   BellOff,
+  Boxes,
   ClipboardList,
   LayoutDashboard,
   LogOut,
@@ -29,13 +30,62 @@ const NAV: {
   end: boolean;
   feature: Feature;
 }[] = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true, feature: 'dashboard' },
-  { to: '/menu', label: 'Menu', icon: UtensilsCrossed, end: false, feature: 'menu' },
-  { to: '/orders', label: 'Orders', icon: ClipboardList, end: false, feature: 'orders' },
-  { to: '/categories', label: 'Categories', icon: Tags, end: false, feature: 'categories' },
-  { to: '/expenses', label: 'Expenses', icon: Wallet, end: false, feature: 'expenses' },
-  { to: '/tables', label: 'Tables', icon: QrCode, end: false, feature: 'tables' },
-  { to: '/staff', label: 'Staff', icon: UsersRound, end: false, feature: 'staff' },
+  {
+    to: '/',
+    label: 'Dashboard',
+    icon: LayoutDashboard,
+    end: true,
+    feature: 'dashboard',
+  },
+  {
+    to: '/orders',
+    label: 'Orders',
+    icon: ClipboardList,
+    end: false,
+    feature: 'orders',
+  },
+  {
+    to: '/inventory',
+    label: 'Inventory',
+    icon: Boxes,
+    end: false,
+    feature: 'inventory',
+  },
+  {
+    to: '/menu',
+    label: 'Menu',
+    icon: UtensilsCrossed,
+    end: false,
+    feature: 'menu',
+  },
+  {
+    to: '/categories',
+    label: 'Categories',
+    icon: Tags,
+    end: false,
+    feature: 'categories',
+  },
+  {
+    to: '/expenses',
+    label: 'Expenses',
+    icon: Wallet,
+    end: false,
+    feature: 'expenses',
+  },
+  {
+    to: '/tables',
+    label: 'Tables',
+    icon: QrCode,
+    end: false,
+    feature: 'tables',
+  },
+  {
+    to: '/staff',
+    label: 'Staff',
+    icon: UsersRound,
+    end: false,
+    feature: 'staff',
+  },
 ];
 
 export function DashboardLayout() {
@@ -165,9 +215,7 @@ export function DashboardLayout() {
               variant="secondary"
               size="sm"
               shape="icon"
-              aria-label={
-                muted ? 'Enable order sound' : 'Mute order sound'
-              }
+              aria-label={muted ? 'Enable order sound' : 'Mute order sound'}
               aria-pressed={!muted}
               onClick={toggleSound}
               leadingIcon={muted ? <BellOff size={16} /> : <Bell size={16} />}

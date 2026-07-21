@@ -9,6 +9,7 @@ import { In, Repository } from 'typeorm';
 import type { UserRole } from '../auth/roles';
 import { localDateKey, startOfLocalDay } from '../../common/date.util';
 import { ExpensesService } from '../expenses/expenses.service';
+import { InventoryService } from '../inventory/inventory.service';
 import { FoodItem } from '../menu/entities/food-item.entity';
 import { NotificationsService } from '../notifications/notifications.service';
 import { ORDER_STATUS_RANK, type OrderStatus } from './order-status';
@@ -33,6 +34,7 @@ export class OrdersService {
     private readonly foodItems: Repository<FoodItem>,
     private readonly notifications: NotificationsService,
     private readonly expensesService: ExpensesService,
+    private readonly inventoryService: InventoryService,
   ) {}
 
   async create(ownerId: string, dto: CreateOrderDto): Promise<Order> {
@@ -212,6 +214,26 @@ export class OrdersService {
       throw new ForbiddenException('Kitchen staff cannot mark orders as paid');
     }
     const order = await this.findOne(ownerId, id);
+    const wasPaid = order.status === 'paid';
+    const willBePaid = dto.status === 'paid';
+
+    // Reconcile inventory around the paid boundary, exactly once per order.
+    if (willBePaid && !order.stockApplied) {
+      await this.inventoryService.applyOrderConsumption(
+        ownerId,
+        order.id,
+        toConsumptionLines(order),
+      );
+      order.stockApplied = true;
+    } else if (wasPaid && !willBePaid && order.stockApplied) {
+      await this.inventoryService.revertOrderConsumption(
+        ownerId,
+        order.id,
+        toConsumptionLines(order),
+      );
+      order.stockApplied = false;
+    }
+
     order.status = dto.status;
     return this.orders.save(order);
   }
@@ -260,6 +282,20 @@ export class OrdersService {
       }
     }
 
+    // Undo any stock already drawn down by the sources (each against its own
+    // original lines) before the order shapes change; a paid merge result
+    // re-applies the combined consumption once, below.
+    for (const src of found) {
+      if (src.stockApplied) {
+        await this.inventoryService.revertOrderConsumption(
+          ownerId,
+          src.id,
+          toConsumptionLines(src),
+        );
+        src.stockApplied = false;
+      }
+    }
+
     const items = [...byFood.values()];
     const total = items.reduce((sum, l) => sum + l.price * l.quantity, 0);
 
@@ -279,6 +315,19 @@ export class OrdersService {
     primary.status = status;
     primary.note = notes.length ? [...new Set(notes)].join(' • ') : null;
 
+    // A merged order that lands in `paid` consumes stock once for its combined
+    // lines (sources were reverted above), keeping the ledger balanced.
+    if (status === 'paid') {
+      await this.inventoryService.applyOrderConsumption(
+        ownerId,
+        primary.id,
+        items.map((l) => ({ foodItemId: l.foodItemId, quantity: l.quantity })),
+      );
+      primary.stockApplied = true;
+    } else {
+      primary.stockApplied = false;
+    }
+
     // Remove the now-merged siblings (their items cascade-delete), then persist
     // the enriched primary. Deleting first frees any collapsed item rows.
     if (rest.length) {
@@ -291,6 +340,16 @@ export class OrdersService {
 /** Round to 2 decimal places (currency). */
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
+}
+
+/** Reduce an order to the (dish, quantity) pairs inventory consumption needs. */
+function toConsumptionLines(
+  order: Order,
+): { foodItemId: string; quantity: number }[] {
+  return order.items.map((i) => ({
+    foodItemId: i.foodItemId,
+    quantity: i.quantity,
+  }));
 }
 
 /** Shape the order for the notification payload — mirrors OrderDto (no ownerId),
