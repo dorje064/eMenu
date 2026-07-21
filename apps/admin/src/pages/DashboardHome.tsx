@@ -93,7 +93,10 @@ export function DashboardHome() {
           {loading ? (
             <ul className="dash-toplist">
               {[0, 1, 2, 3, 4].map((i) => (
-                <li key={i} className="dash-toplist__row dash-toplist__row--skeleton">
+                <li
+                  key={i}
+                  className="dash-toplist__row dash-toplist__row--skeleton"
+                >
                   <span className="dash-skel dash-skel--name" />
                   <span className="dash-skel dash-skel--val" />
                 </li>
@@ -105,8 +108,12 @@ export function DashboardHome() {
                 <li key={item.name} className="dash-toplist__row">
                   <span className="dash-toplist__rank">{i + 1}</span>
                   <span className="dash-toplist__name">{item.name}</span>
-                  <span className="dash-toplist__qty">{item.quantity} sold</span>
-                  <span className="dash-toplist__revenue">{formatNrs(item.revenue)}</span>
+                  <span className="dash-toplist__qty">
+                    {item.quantity} sold
+                  </span>
+                  <span className="dash-toplist__revenue">
+                    {formatNrs(item.revenue)}
+                  </span>
                 </li>
               ))}
             </ol>

@@ -5,7 +5,6 @@ import {
   DataTable,
   EmptyState,
   Modal,
-  OrderStatusBadge,
   Overlay,
   Select,
   Spinner,
@@ -16,37 +15,20 @@ import {
   type TabItem,
 } from '@org/ui';
 
-import { ordersApi } from '../api/orders.api';
-import { tablesApi } from '../api/tables.api';
-import { ApiError } from '../api/client';
-import { useAuth } from '../auth/AuthContext';
-import { useUnseenOrders } from '../notifications/UnseenOrdersContext';
-import type { Order, OrderStatus, RestaurantTable } from '../api/types';
-import './MenuPage.css';
-import './OrdersPage.css';
-
-const currency = (n: number) =>
-  `NRs ${new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(n)}`;
-
-/** API status → OrderStatusBadge (canonical UI vocabulary) + display label. */
-const STATUS_BADGE = {
-  pending: { badge: 'placed', label: 'Pending' },
-  preparing: { badge: 'preparing', label: 'Preparing' },
-  served: { badge: 'completed', label: 'Served' },
-  paid: { badge: 'completed', label: 'Paid' },
-  cancelled: { badge: 'cancelled', label: 'Cancelled' },
-} as const;
-
-/** Statuses selectable per active order (Paid is reached via "Mark paid"). */
-const ROW_STATUS_OPTIONS: SelectOption[] = [
-  { value: 'pending', label: 'Pending' },
-  { value: 'preparing', label: 'Preparing' },
-  { value: 'served', label: 'Served' },
-  { value: 'cancelled', label: 'Cancelled' },
-];
+import { ordersApi } from '../../api/orders.api';
+import { tablesApi } from '../../api/tables.api';
+import { ApiError } from '../../api/client';
+import { useAuth } from '../../auth/AuthContext';
+import { useUnseenOrders } from '../../notifications/UnseenOrdersContext';
+import type { Order, OrderStatus, RestaurantTable } from '../../api/types';
+import {
+  OrderCard,
+  ROW_STATUS_OPTIONS,
+  currency,
+  timeFmt,
+} from './components/OrderCard';
+import '../MenuPage.css';
+import './style.css';
 
 /** Active-tab status filter — never includes Paid (Paid has its own tab). */
 const FILTER_OPTIONS: SelectOption[] = [
@@ -55,100 +37,6 @@ const FILTER_OPTIONS: SelectOption[] = [
 ];
 
 type ActiveFilter = 'all' | Exclude<OrderStatus, 'paid'>;
-
-const timeFmt = new Intl.DateTimeFormat('en-GB', {
-  day: '2-digit',
-  month: 'short',
-  hour: '2-digit',
-  minute: '2-digit',
-});
-
-/** A single active order rendered as a selectable card. */
-function OrderCard({
-  order,
-  updating,
-  selected,
-  canMarkPaid,
-  onToggleSelect,
-  onChangeStatus,
-}: {
-  order: Order;
-  updating: boolean;
-  selected: boolean;
-  canMarkPaid: boolean;
-  onToggleSelect: () => void;
-  onChangeStatus: (status: OrderStatus) => void;
-}) {
-  const totalQty = order.items.reduce((sum, l) => sum + l.quantity, 0);
-
-  return (
-    <div className={`order-card${selected ? ' order-card--selected' : ''}`}>
-      <div className="order-card__head">
-        <label className="order-card__select">
-          <input
-            type="checkbox"
-            checked={selected}
-            onChange={onToggleSelect}
-            aria-label={`Select order for Table ${order.tableNumber} to merge`}
-          />
-          <div>
-            <span className="order-card__table">Table {order.tableNumber}</span>
-            <span className="order-card__time">
-              {timeFmt.format(new Date(order.createdAt))}
-            </span>
-          </div>
-        </label>
-        <OrderStatusBadge
-          status={STATUS_BADGE[order.status].badge}
-          label={STATUS_BADGE[order.status].label}
-          size="sm"
-        />
-      </div>
-
-      <ul className="order-dishes">
-        {order.items.map((line) => (
-          <li key={line.id} className="order-dishes__line">
-            <span className="order-dishes__qty">{line.quantity}×</span>
-            <span className="order-dishes__name">{line.name}</span>
-            <span className="order-dishes__price">
-              {currency(line.price * line.quantity)}
-            </span>
-          </li>
-        ))}
-      </ul>
-
-      {order.note && <p className="order-card__note">“{order.note}”</p>}
-
-      <div className="order-card__total">
-        <span>
-          {totalQty} item{totalQty === 1 ? '' : 's'}
-        </span>
-        <span className="order-card__total-amount">
-          {currency(order.total)}
-        </span>
-      </div>
-
-      <div className="order-card__actions">
-        <Select
-          options={ROW_STATUS_OPTIONS}
-          value={order.status}
-          disabled={updating}
-          onChange={(value) => onChangeStatus(value as OrderStatus)}
-          aria-label={`Update status for Table ${order.tableNumber}`}
-        />
-        {canMarkPaid && (
-          <Button
-            variant="secondary"
-            disabled={updating}
-            onClick={() => onChangeStatus('paid')}
-          >
-            Mark paid
-          </Button>
-        )}
-      </div>
-    </div>
-  );
-}
 
 /** Compact per-order dish list rendered inside a DataTable cell. */
 function ItemsCell({ order }: { order: Order }) {
@@ -298,9 +186,7 @@ export function OrdersPage() {
       const updated = await ordersApi.updateStatus(order.id, status);
       // Update in place — the Active/Paid split re-derives, so an order marked
       // paid moves to the Paid tab automatically.
-      setOrders((prev) =>
-        prev.map((o) => (o.id === updated.id ? updated : o)),
-      );
+      setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
       show({ semantic: 'success', message: `Order marked ${status}` });
     } catch (err) {
       show({

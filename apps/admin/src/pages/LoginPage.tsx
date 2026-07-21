@@ -70,11 +70,13 @@ export function LoginPage() {
 
         {mode === 'signup' && (
           <Input
-            label="Full name"
+            label="Restaurant name"
             required
             value={fullName}
-            onChange={(e) => setFullName(e.currentTarget.value)}
-            placeholder="Asha Sharma"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setFullName(e.currentTarget.value)
+            }
+            placeholder="Hamro Cafe"
             autoComplete="name"
           />
         )}
@@ -84,7 +86,9 @@ export function LoginPage() {
           type="email"
           required
           value={email}
-          onChange={(e) => setEmail(e.currentTarget.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setEmail(e.currentTarget.value)
+          }
           placeholder="you@restaurant.com"
           autoComplete="email"
         />
@@ -94,7 +98,9 @@ export function LoginPage() {
           type="password"
           required
           value={password}
-          onChange={(e) => setPassword(e.currentTarget.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setPassword(e.currentTarget.value)
+          }
           placeholder="••••••••"
           autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
           helperText={mode === 'signup' ? 'At least 8 characters.' : undefined}
