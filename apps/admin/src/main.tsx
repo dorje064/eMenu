@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import * as ReactDOM from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ToastProvider } from '@org/ui';
 import App from './app/app';
 import { AuthProvider } from './auth/AuthContext';
@@ -31,6 +32,7 @@ root.render(
           <ToastProvider>
             <App />
           </ToastProvider>
+          <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
       </AuthProvider>
     </BrowserRouter>
