@@ -1,11 +1,15 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 /**
- * Adds inventory tracking: `inventory_items` (owner-scoped stock),
- * `inventory_links` (which dishes consume an item, and how much per unit sold),
- * and `inventory_adjustments` (an audit ledger of every quantity change —
- * manual + paid-order consumption). Also adds `orders.stock_applied` so
- * paid-order stock is deducted exactly once.
+ * Adds inventory tracking: `inventory_items` (owner-scoped stock, initially
+ * linked to a single menu dish via `food_item_id`) and `inventory_adjustments`
+ * (an audit ledger of every quantity change — manual + paid-order consumption).
+ * Also adds `orders.stock_applied` so paid-order stock is deducted exactly once.
+ *
+ * NOTE: the single `food_item_id` link is superseded by the `inventory_links`
+ * join table in migration 1752100000000-InventoryLinks. This migration is left
+ * as originally shipped (it has already run in deployed databases); do not edit
+ * it — schema changes go in later migrations.
  */
 export class Inventory1752000000000 implements MigrationInterface {
   name = 'Inventory1752000000000';
@@ -18,6 +22,7 @@ export class Inventory1752000000000 implements MigrationInterface {
         "name" character varying NOT NULL,
         "unit" character varying,
         "quantity" real NOT NULL DEFAULT 0,
+        "food_item_id" character varying,
         "low_stock_threshold" real,
         "note" text,
         "created_at" TIMESTAMP NOT NULL DEFAULT now(),
@@ -28,20 +33,8 @@ export class Inventory1752000000000 implements MigrationInterface {
     await queryRunner.query(
       `CREATE INDEX "IDX_inventory_items_owner" ON "inventory_items" ("owner_id")`,
     );
-
     await queryRunner.query(
-      `CREATE TABLE "inventory_links" (
-        "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-        "itemId" uuid,
-        "food_item_id" character varying NOT NULL,
-        "quantity_per_unit" real NOT NULL DEFAULT 1,
-        CONSTRAINT "PK_inventory_links" PRIMARY KEY ("id"),
-        CONSTRAINT "FK_inventory_links_item" FOREIGN KEY ("itemId")
-          REFERENCES "inventory_items"("id") ON DELETE CASCADE
-      )`,
-    );
-    await queryRunner.query(
-      `CREATE INDEX "IDX_inventory_links_food" ON "inventory_links" ("food_item_id")`,
+      `CREATE INDEX "IDX_inventory_items_food" ON "inventory_items" ("food_item_id")`,
     );
 
     await queryRunner.query(
@@ -72,8 +65,7 @@ export class Inventory1752000000000 implements MigrationInterface {
     await queryRunner.query(`ALTER TABLE "orders" DROP COLUMN "stock_applied"`);
     await queryRunner.query(`DROP INDEX "IDX_inventory_adjustments_owner"`);
     await queryRunner.query(`DROP TABLE "inventory_adjustments"`);
-    await queryRunner.query(`DROP INDEX "IDX_inventory_links_food"`);
-    await queryRunner.query(`DROP TABLE "inventory_links"`);
+    await queryRunner.query(`DROP INDEX "IDX_inventory_items_food"`);
     await queryRunner.query(`DROP INDEX "IDX_inventory_items_owner"`);
     await queryRunner.query(`DROP TABLE "inventory_items"`);
   }

@@ -20,6 +20,7 @@ import { InitialSchema1719700000000 } from './migrations/1719700000000-InitialSc
 import { StaffRoles1751800000000 } from './migrations/1751800000000-StaffRoles';
 import { Expenses1751900000000 } from './migrations/1751900000000-Expenses';
 import { Inventory1752000000000 } from './migrations/1752000000000-Inventory';
+import { InventoryLinks1752100000000 } from './migrations/1752100000000-InventoryLinks';
 
 /** All persisted entities. Listed explicitly so the webpack-bundled API and
  *  the TypeORM CLI resolve the same set (globs don't survive bundling). */
@@ -43,6 +44,7 @@ const migrations = [
   StaffRoles1751800000000,
   Expenses1751900000000,
   Inventory1752000000000,
+  InventoryLinks1752100000000,
 ];
 
 /**
