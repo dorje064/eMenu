@@ -2,17 +2,33 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-3);
   background: var(--surface-card);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
-  padding: var(--space-5);
+  padding: var(--space-6) var(--space-7, 2rem);
+  min-height: 168px;
+  justify-content: space-between;
   font-family: var(--font-family-base);
   min-width: 0;
   overflow: hidden;
   transition:
     box-shadow 120ms ease,
-    transform 80ms ease;
+    transform 80ms ease,
+    border-color 120ms ease;
+}
+
+/* Subtle lift on hover so the KPI cards feel tactile. */
+.emenu-dashcard:hover {
+  box-shadow: var(--elevation-2, 0 6px 16px rgba(16, 24, 40, 0.08));
+  border-color: var(--color-neutral-300);
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .emenu-dashcard:hover {
+    transform: none;
+  }
 }
 
 /* Left status accent stripe */
@@ -56,8 +72,30 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-neutral-400);
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--color-neutral-100);
+  color: var(--color-neutral-500);
   flex-shrink: 0;
+}
+
+/* Tint the icon badge to match the card's status accent. */
+.emenu-dashcard--accent-success .emenu-dashcard__icon {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+}
+.emenu-dashcard--accent-error .emenu-dashcard__icon {
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+}
+.emenu-dashcard--accent-warning .emenu-dashcard__icon {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+}
+.emenu-dashcard--accent-info .emenu-dashcard__icon {
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
 }
 
 .emenu-dashcard__value {
@@ -68,6 +106,7 @@
   color: var(--color-neutral-900);
   font-variant-numeric: tabular-nums;
   font-feature-settings: 'tnum';
+  letter-spacing: -0.01em;
 }
 
 .emenu-dashcard__meta {

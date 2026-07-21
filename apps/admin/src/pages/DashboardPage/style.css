@@ -6,7 +6,7 @@
 
 .dash-home__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 264px), 1fr));
   gap: var(--space-6);
 }
 
@@ -16,6 +16,26 @@
   display: grid;
   grid-template-columns: minmax(280px, 2fr) minmax(320px, 3fr);
   gap: var(--space-6);
+}
+
+/* Restock list rows: status dot + name + tag + quantity. */
+.dash-restock__row {
+  grid-template-columns: auto 1fr auto auto;
+}
+
+.dash-restock__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.dash-restock__dot--low {
+  background: var(--color-warning-text);
+}
+
+.dash-restock__dot--out {
+  background: var(--color-error-text);
 }
 
 @media (max-width: 900px) {
