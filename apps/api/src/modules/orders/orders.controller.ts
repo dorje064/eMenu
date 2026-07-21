@@ -49,7 +49,7 @@ export class OrdersController {
   findAll(
     @OwnerId() ownerId: string,
     @Query('status') status?: string,
-    @Query('table') table?: string
+    @Query('table') table?: string,
   ): Promise<OrderDto[]> {
     return this.ordersService.findAll(ownerId, status, table);
   }
@@ -61,7 +61,7 @@ export class OrdersController {
   @ApiNotFoundResponse({ description: 'One or more orders not found' })
   merge(
     @OwnerId() ownerId: string,
-    @Body() dto: MergeOrdersDto
+    @Body() dto: MergeOrdersDto,
   ): Promise<OrderDto> {
     return this.ordersService.mergeOrders(ownerId, dto);
   }
@@ -84,7 +84,7 @@ export class OrdersController {
   @ApiNotFoundResponse({ description: 'Order not found' })
   findOne(
     @OwnerId() ownerId: string,
-    @Param('id') id: string
+    @Param('id') id: string,
   ): Promise<OrderDto> {
     return this.ordersService.findOne(ownerId, id);
   }
@@ -97,7 +97,7 @@ export class OrdersController {
     @OwnerId() ownerId: string,
     @CurrentCustomer() user: Customer,
     @Param('id') id: string,
-    @Body() dto: UpdateOrderStatusDto
+    @Body() dto: UpdateOrderStatusDto,
   ): Promise<OrderDto> {
     return this.ordersService.updateStatus(ownerId, id, dto, user.role);
   }

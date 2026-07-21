@@ -4,9 +4,9 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import * as bcrypt from 'bcryptjs';
 import AppDataSource from '../data-source';
-import { Customer } from '../../auth/entities/customer.entity';
-import { Category } from '../../category/entities/category.entity';
-import { FoodItem } from '../../menu/entities/food-item.entity';
+import { Customer } from '../../modules/auth/entities/customer.entity';
+import { Category } from '../../modules/category/entities/category.entity';
+import { FoodItem } from '../../modules/menu/entities/food-item.entity';
 
 interface SeedItem {
   name: string;
@@ -15,7 +15,7 @@ interface SeedItem {
 }
 
 const items: SeedItem[] = JSON.parse(
-  readFileSync(join(__dirname, 'menu-items.json'), 'utf8')
+  readFileSync(join(__dirname, 'menu-items.json'), 'utf8'),
 );
 
 /** Display order for categories the seed may need to create. */
@@ -46,11 +46,11 @@ async function resolveOwner(): Promise<Customer> {
         email,
         passwordHash: await bcrypt.hash(
           process.env.SEED_PASSWORD ?? 'password123',
-          10
+          10,
         ),
         fullName: process.env.SEED_NAME ?? 'Seeded Café',
         phone: null,
-      })
+      }),
     );
     console.log(`Created café account ${email}`);
     return created;
@@ -65,7 +65,7 @@ async function resolveOwner(): Promise<Customer> {
         passwordHash: await bcrypt.hash('password123', 10),
         fullName: 'Demo Café',
         phone: null,
-      })
+      }),
     );
     console.log('No accounts found — created demo@emenu.test / password123');
     return created;
@@ -73,7 +73,7 @@ async function resolveOwner(): Promise<Customer> {
 
   throw new Error(
     'Multiple café accounts exist. Set SEED_EMAIL to choose one:\n' +
-      all.map((c) => `  - ${c.email}`).join('\n')
+      all.map((c) => `  - ${c.email}`).join('\n'),
   );
 }
 
@@ -98,7 +98,7 @@ async function main(): Promise<void> {
             description: null,
             sortOrder: CATEGORY_ORDER[name] ?? 99,
             active: true,
-          })
+          }),
         );
         console.log(`+ category: ${name}`);
       }
@@ -125,13 +125,13 @@ async function main(): Promise<void> {
           prepTimeMinutes: 15,
           imageUrl: null,
           available: true,
-        })
+        }),
       );
       added++;
     }
 
     console.log(
-      `\nSeeded menu for ${owner.email}: ${added} added, ${skipped} already existed (${items.length} total).`
+      `\nSeeded menu for ${owner.email}: ${added} added, ${skipped} already existed (${items.length} total).`,
     );
   } finally {
     await AppDataSource.destroy();

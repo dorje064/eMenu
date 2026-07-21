@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import type { UserRole } from '../auth/roles';
-import { localDateKey, startOfLocalDay } from '../common/date.util';
+import { localDateKey, startOfLocalDay } from '../../common/date.util';
 import { ExpensesService } from '../expenses/expenses.service';
 import { FoodItem } from '../menu/entities/food-item.entity';
 import { NotificationsService } from '../notifications/notifications.service';
@@ -32,7 +32,7 @@ export class OrdersService {
     @InjectRepository(FoodItem)
     private readonly foodItems: Repository<FoodItem>,
     private readonly notifications: NotificationsService,
-    private readonly expensesService: ExpensesService
+    private readonly expensesService: ExpensesService,
   ) {}
 
   async create(ownerId: string, dto: CreateOrderDto): Promise<Order> {
@@ -41,13 +41,15 @@ export class OrdersService {
     for (const line of dto.items) {
       quantities.set(
         line.foodItemId,
-        (quantities.get(line.foodItemId) ?? 0) + line.quantity
+        (quantities.get(line.foodItemId) ?? 0) + line.quantity,
       );
     }
 
     const ids = [...quantities.keys()];
     // Only this café's items can be ordered.
-    const found = await this.foodItems.find({ where: { id: In(ids), ownerId } });
+    const found = await this.foodItems.find({
+      where: { id: In(ids), ownerId },
+    });
     const byId = new Map(found.map((f) => [f.id, f]));
 
     const lines: OrderItem[] = [];
@@ -81,7 +83,11 @@ export class OrdersService {
 
     // Push a real-time notification to the café's admin dashboard(s). Fire and
     // forget — a missing subscriber is a no-op and never affects the response.
-    this.notifications.emitToOwner(saved.ownerId, 'order.created', toOrderPayload(saved));
+    this.notifications.emitToOwner(
+      saved.ownerId,
+      'order.created',
+      toOrderPayload(saved),
+    );
 
     return saved;
   }
@@ -89,7 +95,7 @@ export class OrdersService {
   findAll(
     ownerId: string,
     status?: string,
-    tableNumber?: string
+    tableNumber?: string,
   ): Promise<Order[]> {
     return this.orders.find({
       where: {
@@ -145,7 +151,10 @@ export class OrdersService {
     for (const row of orderRows) {
       const createdAt = new Date(row.createdAt);
       const total = Number(row.total) || 0;
-      byDay.set(localDateKey(createdAt), (byDay.get(localDateKey(createdAt)) ?? 0) + total);
+      byDay.set(
+        localDateKey(createdAt),
+        (byDay.get(localDateKey(createdAt)) ?? 0) + total,
+      );
       if (createdAt >= startOfToday) salesToday += total;
     }
 
@@ -179,7 +188,7 @@ export class OrdersService {
     // Today's expenses on the same day boundary, so net income is coherent.
     const todayKey = localDateKey(startOfToday);
     const expensesToday = round2(
-      await this.expensesService.totalForRange(ownerId, todayKey, todayKey)
+      await this.expensesService.totalForRange(ownerId, todayKey, todayKey),
     );
 
     return {
@@ -195,14 +204,12 @@ export class OrdersService {
     ownerId: string,
     id: string,
     dto: UpdateOrderStatusDto,
-    role: UserRole = 'owner'
+    role: UserRole = 'owner',
   ): Promise<Order> {
     // Kitchen staff advance prep status but cannot settle payment — only the
     // owner or a waiter may mark an order paid.
     if (role === 'kitchen' && dto.status === 'paid') {
-      throw new ForbiddenException(
-        'Kitchen staff cannot mark orders as paid',
-      );
+      throw new ForbiddenException('Kitchen staff cannot mark orders as paid');
     }
     const order = await this.findOne(ownerId, id);
     order.status = dto.status;
@@ -230,7 +237,7 @@ export class OrdersService {
     const tableNumber = found[0].tableNumber;
     if (found.some((o) => o.tableNumber !== tableNumber)) {
       throw new BadRequestException(
-        'Only orders from the same table can be merged.'
+        'Only orders from the same table can be merged.',
       );
     }
 
@@ -260,7 +267,7 @@ export class OrdersService {
     const status = found.reduce<OrderStatus>(
       (best, o) =>
         ORDER_STATUS_RANK[o.status] < ORDER_STATUS_RANK[best] ? o.status : best,
-      found[0].status
+      found[0].status,
     );
 
     const notes = found

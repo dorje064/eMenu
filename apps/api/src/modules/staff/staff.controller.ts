@@ -88,10 +88,7 @@ export class StaffController {
   @ApiOperation({ summary: 'Remove a staff member' })
   @ApiNoContentResponse({ description: 'Staff member removed' })
   @ApiNotFoundResponse({ description: 'Staff member not found' })
-  remove(
-    @OwnerId() ownerId: string,
-    @Param('id') id: string,
-  ): Promise<void> {
+  remove(@OwnerId() ownerId: string, @Param('id') id: string): Promise<void> {
     return this.staffService.remove(ownerId, id);
   }
 }

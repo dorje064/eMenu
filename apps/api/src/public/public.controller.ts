@@ -15,12 +15,12 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { CategoryService } from '../category/category.service';
-import { MenuService } from '../menu/menu.service';
-import { CreateOrderDto } from '../orders/dto/create-order.dto';
-import { OrderDto } from '../orders/dto/order.dto';
-import { OrdersService } from '../orders/orders.service';
-import { SettingsService } from '../settings/settings.service';
+import { CategoryService } from '../modules/category/category.service';
+import { MenuService } from '../modules/menu/menu.service';
+import { CreateOrderDto } from '../modules/orders/dto/create-order.dto';
+import { OrderDto } from '../modules/orders/dto/order.dto';
+import { OrdersService } from '../modules/orders/orders.service';
+import { SettingsService } from '../modules/settings/settings.service';
 import { PublicMenuDto } from './dto/public-menu.dto';
 
 /**
@@ -35,11 +35,13 @@ export class PublicController {
     private readonly menuService: MenuService,
     private readonly categoryService: CategoryService,
     private readonly settingsService: SettingsService,
-    private readonly ordersService: OrdersService
+    private readonly ordersService: OrdersService,
   ) {}
 
   @Get('menu')
-  @ApiOperation({ summary: "Get a café's full menu (categories, items, template)" })
+  @ApiOperation({
+    summary: "Get a café's full menu (categories, items, template)",
+  })
   @ApiQuery({ name: 'cafe', required: true, description: 'Café (owner) id.' })
   @ApiOkResponse({ type: PublicMenuDto })
   async menu(@Query('cafe') cafe?: string): Promise<PublicMenuDto> {

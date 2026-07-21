@@ -5,8 +5,8 @@ import { join } from 'node:path';
 import * as readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
 import AppDataSource from '../data-source';
-import { Customer } from '../../auth/entities/customer.entity';
-import { Category } from '../../category/entities/category.entity';
+import { Customer } from '../../modules/auth/entities/customer.entity';
+import { Category } from '../../modules/category/entities/category.entity';
 
 interface SeedCategory {
   name: string;
@@ -15,7 +15,7 @@ interface SeedCategory {
 }
 
 const categories: SeedCategory[] = JSON.parse(
-  readFileSync(join(__dirname, 'categories.json'), 'utf8')
+  readFileSync(join(__dirname, 'categories.json'), 'utf8'),
 );
 
 /**
@@ -42,7 +42,7 @@ async function promptForCustomerId(): Promise<string> {
   const rl = readline.createInterface({ input, output });
   try {
     const answer = await rl.question(
-      '\nEnter customer_id to seed categories for: '
+      '\nEnter customer_id to seed categories for: ',
     );
     return answer.trim();
   } finally {
@@ -62,7 +62,7 @@ async function main(): Promise<void> {
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!UUID_RE.test(customerId)) {
       throw new Error(
-        `"${customerId}" is not a valid customer_id (expected a UUID).`
+        `"${customerId}" is not a valid customer_id (expected a UUID).`,
       );
     }
 
@@ -91,14 +91,14 @@ async function main(): Promise<void> {
           description: cat.description ?? null,
           sortOrder: cat.sortOrder,
           active: true,
-        })
+        }),
       );
       added++;
       console.log(`+ ${cat.name}`);
     }
 
     console.log(
-      `\nSeeded categories for ${owner.email}: ${added} added, ${skipped} already existed (${categories.length} total).`
+      `\nSeeded categories for ${owner.email}: ${added} added, ${skipped} already existed (${categories.length} total).`,
     );
   } finally {
     await AppDataSource.destroy();

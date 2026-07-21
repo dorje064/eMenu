@@ -42,7 +42,7 @@ export class TablesController {
   @ApiCreatedResponse({ type: TableDto })
   create(
     @OwnerId() ownerId: string,
-    @Body() dto: CreateTableDto
+    @Body() dto: CreateTableDto,
   ): Promise<TableDto> {
     return this.tablesService.create(ownerId, dto);
   }
@@ -60,7 +60,7 @@ export class TablesController {
   @ApiNotFoundResponse({ description: 'Table not found' })
   findOne(
     @OwnerId() ownerId: string,
-    @Param('id') id: string
+    @Param('id') id: string,
   ): Promise<TableDto> {
     return this.tablesService.findOne(ownerId, id);
   }
@@ -72,7 +72,7 @@ export class TablesController {
   update(
     @OwnerId() ownerId: string,
     @Param('id') id: string,
-    @Body() dto: UpdateTableDto
+    @Body() dto: UpdateTableDto,
   ): Promise<TableDto> {
     return this.tablesService.update(ownerId, id, dto);
   }
@@ -82,10 +82,7 @@ export class TablesController {
   @ApiOperation({ summary: 'Delete a table' })
   @ApiNoContentResponse({ description: 'Table deleted' })
   @ApiNotFoundResponse({ description: 'Table not found' })
-  remove(
-    @OwnerId() ownerId: string,
-    @Param('id') id: string
-  ): Promise<void> {
+  remove(@OwnerId() ownerId: string, @Param('id') id: string): Promise<void> {
     return this.tablesService.remove(ownerId, id);
   }
 }

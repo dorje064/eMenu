@@ -24,7 +24,9 @@ export class SettingsController {
   constructor(private readonly settingsService: SettingsService) {}
 
   @Get()
-  @ApiOperation({ summary: "Get this café's settings (e.g. customer menu template)" })
+  @ApiOperation({
+    summary: "Get this café's settings (e.g. customer menu template)",
+  })
   @ApiOkResponse({ type: SettingsDto })
   get(@OwnerId() ownerId: string): Promise<SettingsDto> {
     return this.settingsService.get(ownerId);
@@ -35,7 +37,7 @@ export class SettingsController {
   @ApiOkResponse({ type: SettingsDto })
   update(
     @OwnerId() ownerId: string,
-    @Body() dto: UpdateSettingsDto
+    @Body() dto: UpdateSettingsDto,
   ): Promise<SettingsDto> {
     return this.settingsService.update(ownerId, dto);
   }

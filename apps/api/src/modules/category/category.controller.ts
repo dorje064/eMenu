@@ -44,7 +44,7 @@ export class CategoryController {
   @ApiCreatedResponse({ type: CategoryDto })
   create(
     @OwnerId() ownerId: string,
-    @Body() dto: CreateCategoryDto
+    @Body() dto: CreateCategoryDto,
   ): Promise<CategoryDto> {
     return this.categoryService.create(ownerId, dto);
   }
@@ -55,7 +55,7 @@ export class CategoryController {
   @ApiOkResponse({ type: [CategoryDto] })
   findAll(
     @OwnerId() ownerId: string,
-    @Query('activeOnly') activeOnly?: boolean
+    @Query('activeOnly') activeOnly?: boolean,
   ): Promise<CategoryDto[]> {
     return this.categoryService.findAll(ownerId, activeOnly);
   }
@@ -66,7 +66,7 @@ export class CategoryController {
   @ApiNotFoundResponse({ description: 'Category not found' })
   findOne(
     @OwnerId() ownerId: string,
-    @Param('id') id: string
+    @Param('id') id: string,
   ): Promise<CategoryDto> {
     return this.categoryService.findOne(ownerId, id);
   }
@@ -78,7 +78,7 @@ export class CategoryController {
   update(
     @OwnerId() ownerId: string,
     @Param('id') id: string,
-    @Body() dto: UpdateCategoryDto
+    @Body() dto: UpdateCategoryDto,
   ): Promise<CategoryDto> {
     return this.categoryService.update(ownerId, id, dto);
   }
@@ -88,10 +88,7 @@ export class CategoryController {
   @ApiOperation({ summary: 'Delete a category' })
   @ApiNoContentResponse({ description: 'Category deleted' })
   @ApiNotFoundResponse({ description: 'Category not found' })
-  remove(
-    @OwnerId() ownerId: string,
-    @Param('id') id: string
-  ): Promise<void> {
+  remove(@OwnerId() ownerId: string, @Param('id') id: string): Promise<void> {
     return this.categoryService.remove(ownerId, id);
   }
 }

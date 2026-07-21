@@ -56,7 +56,7 @@ export class MenuController {
   @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
   create(
     @OwnerId() ownerId: string,
-    @Body() dto: CreateFoodItemDto
+    @Body() dto: CreateFoodItemDto,
   ): Promise<FoodItemDto> {
     return this.menuService.create(ownerId, dto);
   }
@@ -71,7 +71,7 @@ export class MenuController {
   @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
   findAll(
     @OwnerId() ownerId: string,
-    @Query('category') category?: string
+    @Query('category') category?: string,
   ): Promise<FoodItemDto[]> {
     return this.menuService.findAll(ownerId, category);
   }
@@ -118,7 +118,7 @@ export class MenuController {
   @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
   findOne(
     @OwnerId() ownerId: string,
-    @Param('id') id: string
+    @Param('id') id: string,
   ): Promise<FoodItemDto> {
     return this.menuService.findOne(ownerId, id);
   }
@@ -134,7 +134,7 @@ export class MenuController {
   update(
     @OwnerId() ownerId: string,
     @Param('id') id: string,
-    @Body() dto: UpdateFoodItemDto
+    @Body() dto: UpdateFoodItemDto,
   ): Promise<FoodItemDto> {
     return this.menuService.update(ownerId, id, dto);
   }
@@ -148,10 +148,7 @@ export class MenuController {
   @ApiNoContentResponse({ description: 'Item deleted' })
   @ApiNotFoundResponse({ description: 'Item not found' })
   @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
-  remove(
-    @OwnerId() ownerId: string,
-    @Param('id') id: string
-  ): Promise<void> {
+  remove(@OwnerId() ownerId: string, @Param('id') id: string): Promise<void> {
     return this.menuService.remove(ownerId, id);
   }
 }
