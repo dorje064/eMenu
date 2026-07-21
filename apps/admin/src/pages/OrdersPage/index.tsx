@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ClipboardList, GitMerge, RefreshCw, X } from 'lucide-react';
 import {
   Button,
@@ -18,16 +19,17 @@ import {
 import { ordersApi } from '../../api/orders.api';
 import { tablesApi } from '../../api/tables.api';
 import { ApiError } from '../../api/client';
+import { queryKeys } from '../../api/queryKeys';
 import { useAuth } from '../../auth/AuthContext';
 import { useUnseenOrders } from '../../notifications/UnseenOrdersContext';
-import type { Order, OrderStatus, RestaurantTable } from '../../api/types';
+import type { Order, OrderStatus } from '../../api/types';
 import {
   OrderCard,
   ROW_STATUS_OPTIONS,
   currency,
   timeFmt,
 } from './components/OrderCard';
-import '../MenuPage.css';
+import '../MenuPage/style.css';
 import './style.css';
 
 /** Active-tab status filter — never includes Paid (Paid has its own tab). */
@@ -60,52 +62,45 @@ export function OrdersPage() {
   const { can } = useAuth();
   const canMarkPaid = can('markPaid');
   const { clear: clearUnseen } = useUnseenOrders();
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [tables, setTables] = useState<RestaurantTable[]>([]);
+  const queryClient = useQueryClient();
+
   // Table numbers seen across loads — accumulated so the filter keeps offering
   // a table even when none are defined on the Tables page.
   const [seenTables, setSeenTables] = useState<Set<string>>(new Set());
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
   const [tab, setTab] = useState<'active' | 'paid'>('active');
   const [statusFilter, setStatusFilter] = useState<ActiveFilter>('all');
   const [tableFilter, setTableFilter] = useState<string>('all');
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [confirmMerge, setConfirmMerge] = useState(false);
-  const [merging, setMerging] = useState(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setLoadError(null);
-    try {
-      // Fetch every status for the chosen table; the Active/Paid split and the
-      // status sub-filter are applied client-side below.
-      setOrders(
-        await ordersApi.list({
-          table: tableFilter === 'all' ? undefined : tableFilter,
-        }),
-      );
-    } catch (err) {
-      setLoadError(
-        err instanceof ApiError ? err.message : 'Failed to load orders',
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [tableFilter]);
+  const tableParam = tableFilter === 'all' ? undefined : tableFilter;
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  // Fetch every status for the chosen table; the Active/Paid split and the
+  // status sub-filter are applied client-side below. The key includes the
+  // table filter, so switching tables refetches automatically.
+  const {
+    data: orders = [],
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.orders({ table: tableParam }),
+    queryFn: () => ordersApi.list({ table: tableParam }),
+  });
 
-  // Load the café's tables once for the "filter by table" dropdown.
-  useEffect(() => {
-    tablesApi
-      .list()
-      .then(setTables)
-      .catch(() => setTables([]));
-  }, []);
+  const loadError = isError
+    ? error instanceof ApiError
+      ? error.message
+      : 'Failed to load orders'
+    : null;
+
+  // The café's tables feed the "filter by table" dropdown.
+  const { data: tables = [] } = useQuery({
+    queryKey: queryKeys.tables,
+    queryFn: () => tablesApi.list(),
+  });
 
   // Viewing the Orders page marks incoming orders as seen (clears the badge).
   useEffect(() => {
@@ -179,51 +174,50 @@ export function OrdersPage() {
 
   const clearSelection = () => setSelectedIds(new Set());
 
-  const changeStatus = async (order: Order, status: OrderStatus) => {
-    if (status === order.status) return;
-    setUpdatingId(order.id);
-    try {
-      const updated = await ordersApi.updateStatus(order.id, status);
-      // Update in place — the Active/Paid split re-derives, so an order marked
-      // paid moves to the Paid tab automatically.
-      setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
+  // Invalidating the orders query refetches — the Active/Paid split re-derives,
+  // so an order marked paid moves to the Paid tab automatically.
+  const statusMutation = useMutation({
+    mutationFn: ({ order, status }: { order: Order; status: OrderStatus }) =>
+      ordersApi.updateStatus(order.id, status),
+    onSuccess: (_updated, { status }) => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
       show({ semantic: 'success', message: `Order marked ${status}` });
-    } catch (err) {
+    },
+    onError: (err) => {
       show({
         semantic: 'error',
         message:
           err instanceof ApiError ? err.message : 'Could not update the order.',
       });
-    } finally {
-      setUpdatingId(null);
-    }
+    },
+  });
+
+  const changeStatus = (order: Order, status: OrderStatus) => {
+    if (status === order.status) return;
+    statusMutation.mutate({ order, status });
   };
 
-  const runMerge = async () => {
-    setMerging(true);
-    try {
-      const merged = await ordersApi.merge(selectedOrders.map((o) => o.id));
-      const mergedAway = new Set(selectedOrders.map((o) => o.id));
-      setOrders((prev) => [
-        merged,
-        ...prev.filter((o) => !mergedAway.has(o.id)),
-      ]);
+  const mergeMutation = useMutation({
+    mutationFn: (orderIds: string[]) => ordersApi.merge(orderIds),
+    onSuccess: (merged) => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
       clearSelection();
       setConfirmMerge(false);
       show({
         semantic: 'success',
         message: `Merged into one order for Table ${merged.tableNumber}`,
       });
-    } catch (err) {
+    },
+    onError: (err) => {
       show({
         semantic: 'error',
         message:
           err instanceof ApiError ? err.message : 'Could not merge the orders.',
       });
-    } finally {
-      setMerging(false);
-    }
-  };
+    },
+  });
+
+  const runMerge = () => mergeMutation.mutate(selectedOrders.map((o) => o.id));
 
   const switchTab = (next: string) => {
     setTab(next as 'active' | 'paid');
@@ -289,7 +283,7 @@ export function OrdersPage() {
         </div>
       )}
 
-      {loading ? (
+      {isLoading ? (
         <div className="orders-loading">
           <Spinner />
         </div>
@@ -306,7 +300,10 @@ export function OrdersPage() {
             <OrderCard
               key={order.id}
               order={order}
-              updating={updatingId === order.id}
+              updating={
+                statusMutation.isPending &&
+                statusMutation.variables?.order.id === order.id
+              }
               selected={selectedIds.has(order.id)}
               canMarkPaid={canMarkPaid}
               onToggleSelect={() => toggleSelect(order.id)}
@@ -370,7 +367,7 @@ export function OrdersPage() {
         rows={paidOrders}
         getRowId={(o) => o.id}
         ariaLabel="Paid orders"
-        loading={loading}
+        loading={isLoading}
         emptyMessage="No paid orders yet."
       />
     </div>
@@ -411,8 +408,8 @@ export function OrdersPage() {
           <Button
             variant="secondary"
             leadingIcon={<RefreshCw size={18} />}
-            onClick={load}
-            loading={loading}
+            onClick={() => refetch()}
+            loading={isFetching}
           >
             Refresh
           </Button>
@@ -424,7 +421,7 @@ export function OrdersPage() {
           variant="error-empty"
           title="Couldn’t load orders"
           description={loadError}
-          action={{ label: 'Retry', onClick: load }}
+          action={{ label: 'Retry', onClick: () => refetch() }}
         />
       ) : (
         <Tabs
@@ -437,18 +434,24 @@ export function OrdersPage() {
 
       <Modal
         open={confirmMerge}
-        onClose={() => (merging ? undefined : setConfirmMerge(false))}
+        onClose={() =>
+          mergeMutation.isPending ? undefined : setConfirmMerge(false)
+        }
         title="Merge orders"
         footer={
           <>
             <Button
               variant="secondary"
               onClick={() => setConfirmMerge(false)}
-              disabled={merging}
+              disabled={mergeMutation.isPending}
             >
               Cancel
             </Button>
-            <Button variant="primary" onClick={runMerge} loading={merging}>
+            <Button
+              variant="primary"
+              onClick={runMerge}
+              loading={mergeMutation.isPending}
+            >
               Merge {selectedOrders.length} orders
             </Button>
           </>

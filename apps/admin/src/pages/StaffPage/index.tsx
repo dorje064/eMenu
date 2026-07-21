@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, UsersRound } from 'lucide-react';
 import {
   Button,
@@ -13,10 +14,11 @@ import {
   type DropdownItem,
   type SelectOption,
 } from '@org/ui';
-import { staffApi } from '../api/staff.api';
-import { ApiError } from '../api/client';
-import type { CreateStaffInput, Staff, StaffRole } from '../api/types';
-import './MenuPage.css';
+import { staffApi } from '../../api/staff.api';
+import { queryKeys } from '../../api/queryKeys';
+import { ApiError } from '../../api/client';
+import type { CreateStaffInput, Staff, StaffRole } from '../../api/types';
+import '../MenuPage/style.css';
 
 const ROLE_LABEL: Record<StaffRole, string> = {
   kitchen: 'Kitchen',
@@ -37,40 +39,99 @@ const EMPTY_FORM: CreateStaffInput = {
 
 export function StaffPage() {
   const { show } = useToast();
-  const [staff, setStaff] = useState<Staff[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  const {
+    data: staff = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.staff,
+    queryFn: () => staffApi.list(),
+  });
+  const loadError = isError
+    ? error instanceof ApiError
+      ? error.message
+      : 'Failed to load staff'
+    : null;
 
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState<CreateStaffInput>(EMPTY_FORM);
   const [formError, setFormError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
 
   // Row-scoped state: the member being password-reset or removed.
   const [resetTarget, setResetTarget] = useState<Staff | null>(null);
   const [newPassword, setNewPassword] = useState('');
   const [resetError, setResetError] = useState<string | null>(null);
-  const [resetting, setResetting] = useState(false);
   const [removeTarget, setRemoveTarget] = useState<Staff | null>(null);
-  const [removing, setRemoving] = useState(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setLoadError(null);
-    try {
-      setStaff(await staffApi.list());
-    } catch (err) {
-      setLoadError(
-        err instanceof ApiError ? err.message : 'Failed to load staff',
+  const createMutation = useMutation({
+    mutationFn: (input: CreateStaffInput) => staffApi.create(input),
+    onSuccess: (created) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.staff });
+      setModalOpen(false);
+      show({ semantic: 'success', message: `Added ${created.fullName}` });
+    },
+    onError: (err) => {
+      setFormError(
+        err instanceof ApiError ? err.message : 'Could not add the staff member.',
       );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+  });
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  const updateMutation = useMutation({
+    mutationFn: (vars: {
+      member: Staff;
+      patch: { role?: StaffRole; active?: boolean };
+      successMsg: string;
+    }) => staffApi.update(vars.member.id, vars.patch),
+    onSuccess: (_updated, vars) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.staff });
+      show({ semantic: 'success', message: vars.successMsg });
+    },
+    onError: (err) => {
+      show({
+        semantic: 'error',
+        message:
+          err instanceof ApiError ? err.message : 'Could not update the staff member.',
+      });
+    },
+  });
+
+  const resetMutation = useMutation({
+    mutationFn: (vars: { id: string; password: string; fullName: string }) =>
+      staffApi.resetPassword(vars.id, vars.password),
+    onSuccess: (_updated, vars) => {
+      show({
+        semantic: 'success',
+        message: `Password reset for ${vars.fullName}`,
+      });
+      setResetTarget(null);
+    },
+    onError: (err) => {
+      setResetError(
+        err instanceof ApiError ? err.message : 'Could not reset the password.',
+      );
+    },
+  });
+
+  const removeMutation = useMutation({
+    mutationFn: (member: Staff) => staffApi.remove(member.id),
+    onSuccess: (_data, member) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.staff });
+      show({ semantic: 'success', message: `Removed ${member.fullName}` });
+      setRemoveTarget(null);
+    },
+    onError: (err) => {
+      show({
+        semantic: 'error',
+        message:
+          err instanceof ApiError ? err.message : 'Could not remove the staff member.',
+      });
+    },
+  });
 
   const openCreate = () => {
     setForm(EMPTY_FORM);
@@ -78,49 +139,27 @@ export function StaffPage() {
     setModalOpen(true);
   };
 
-  const handleCreate = async () => {
+  const handleCreate = () => {
     setFormError(null);
     if (!form.fullName.trim()) return setFormError('Full name is required.');
     if (!form.email.trim()) return setFormError('Email is required.');
     if (form.password.length < 8)
       return setFormError('Password must be at least 8 characters.');
 
-    setSaving(true);
-    try {
-      const created = await staffApi.create({
-        fullName: form.fullName.trim(),
-        email: form.email.trim(),
-        role: form.role,
-        password: form.password,
-      });
-      setStaff((prev) => [created, ...prev]);
-      setModalOpen(false);
-      show({ semantic: 'success', message: `Added ${created.fullName}` });
-    } catch (err) {
-      setFormError(
-        err instanceof ApiError ? err.message : 'Could not add the staff member.',
-      );
-    } finally {
-      setSaving(false);
-    }
+    createMutation.mutate({
+      fullName: form.fullName.trim(),
+      email: form.email.trim(),
+      role: form.role,
+      password: form.password,
+    });
   };
 
-  const applyUpdate = async (
+  const applyUpdate = (
     member: Staff,
     patch: { role?: StaffRole; active?: boolean },
     successMsg: string,
   ) => {
-    try {
-      const updated = await staffApi.update(member.id, patch);
-      setStaff((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
-      show({ semantic: 'success', message: successMsg });
-    } catch (err) {
-      show({
-        semantic: 'error',
-        message:
-          err instanceof ApiError ? err.message : 'Could not update the staff member.',
-      });
-    }
+    updateMutation.mutate({ member, patch, successMsg });
   };
 
   const handleAction = (member: Staff, action: string): void => {
@@ -151,45 +190,21 @@ export function StaffPage() {
     }
   };
 
-  const handleReset = async () => {
+  const handleReset = () => {
     if (!resetTarget) return;
     setResetError(null);
     if (newPassword.length < 8)
       return setResetError('Password must be at least 8 characters.');
-    setResetting(true);
-    try {
-      await staffApi.resetPassword(resetTarget.id, newPassword);
-      show({
-        semantic: 'success',
-        message: `Password reset for ${resetTarget.fullName}`,
-      });
-      setResetTarget(null);
-    } catch (err) {
-      setResetError(
-        err instanceof ApiError ? err.message : 'Could not reset the password.',
-      );
-    } finally {
-      setResetting(false);
-    }
+    resetMutation.mutate({
+      id: resetTarget.id,
+      password: newPassword,
+      fullName: resetTarget.fullName,
+    });
   };
 
-  const handleRemove = async () => {
+  const handleRemove = () => {
     if (!removeTarget) return;
-    setRemoving(true);
-    try {
-      await staffApi.remove(removeTarget.id);
-      setStaff((prev) => prev.filter((s) => s.id !== removeTarget.id));
-      show({ semantic: 'success', message: `Removed ${removeTarget.fullName}` });
-      setRemoveTarget(null);
-    } catch (err) {
-      show({
-        semantic: 'error',
-        message:
-          err instanceof ApiError ? err.message : 'Could not remove the staff member.',
-      });
-    } finally {
-      setRemoving(false);
-    }
+    removeMutation.mutate(removeTarget);
   };
 
   const rowActions = (member: Staff): DropdownItem[] => [
@@ -263,9 +278,9 @@ export function StaffPage() {
           variant="error-empty"
           title="Couldn’t load staff"
           description={loadError}
-          action={{ label: 'Retry', onClick: load }}
+          action={{ label: 'Retry', onClick: () => refetch() }}
         />
-      ) : !loading && staff.length === 0 ? (
+      ) : !isLoading && staff.length === 0 ? (
         <EmptyState
           variant="first-use"
           icon={<UsersRound />}
@@ -279,7 +294,7 @@ export function StaffPage() {
           rows={staff}
           getRowId={(s) => s.id}
           ariaLabel="Staff"
-          loading={loading}
+          loading={isLoading}
           emptyMessage="No staff yet."
         />
       )}
@@ -295,7 +310,7 @@ export function StaffPage() {
             <Button variant="secondary" onClick={() => setModalOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleCreate} loading={saving}>
+            <Button onClick={handleCreate} loading={createMutation.isPending}>
               Add staff
             </Button>
           </>
@@ -366,7 +381,7 @@ export function StaffPage() {
             <Button variant="secondary" onClick={() => setResetTarget(null)}>
               Cancel
             </Button>
-            <Button onClick={handleReset} loading={resetting}>
+            <Button onClick={handleReset} loading={resetMutation.isPending}>
               Reset password
             </Button>
           </>
@@ -400,7 +415,7 @@ export function StaffPage() {
             <Button variant="secondary" onClick={() => setRemoveTarget(null)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleRemove} loading={removing}>
+            <Button variant="destructive" onClick={handleRemove} loading={removeMutation.isPending}>
               Remove
             </Button>
           </>

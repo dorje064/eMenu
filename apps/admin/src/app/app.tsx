@@ -3,7 +3,7 @@ import { RequireAuth } from '../auth/RequireAuth';
 import { RequireRole } from '../auth/RequireRole';
 import { DashboardLayout } from '../components/DashboardLayout';
 import { CategoriesPage } from '../pages/CategoriesPage';
-import { DashboardHome } from '../pages/DashboardHome';
+import { DashboardHome } from '../pages/DashboardPage';
 import { ExpensesPage } from '../pages/ExpensesPage';
 import { LoginPage } from '../pages/LoginPage';
 import { MenuPage } from '../pages/MenuPage';

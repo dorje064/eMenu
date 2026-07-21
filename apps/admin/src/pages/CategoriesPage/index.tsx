@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Pencil, Plus, Tags, Trash2 } from 'lucide-react';
 import {
   Button,
@@ -9,10 +10,11 @@ import {
   useToast,
   type DataTableColumn,
 } from '@org/ui';
-import { categoryApi } from '../api/category.api';
-import { ApiError } from '../api/client';
-import type { Category, CreateCategoryInput } from '../api/types';
-import './MenuPage.css';
+import { categoryApi } from '../../api/category.api';
+import { ApiError } from '../../api/client';
+import { queryKeys } from '../../api/queryKeys';
+import type { Category, CreateCategoryInput } from '../../api/types';
+import '../MenuPage/style.css';
 
 const EMPTY_FORM: CreateCategoryInput = {
   name: '',
@@ -23,36 +25,78 @@ const EMPTY_FORM: CreateCategoryInput = {
 
 export function CategoriesPage() {
   const { show } = useToast();
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  const {
+    data: categories = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.categories(),
+    queryFn: () => categoryApi.list(),
+  });
+
+  const loadError = isError
+    ? error instanceof ApiError
+      ? error.message
+      : 'Failed to load categories'
+    : null;
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<CreateCategoryInput>(EMPTY_FORM);
   const [fieldErrors, setFieldErrors] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
 
   const [deleteTarget, setDeleteTarget] = useState<Category | null>(null);
-  const [removing, setRemoving] = useState(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setLoadError(null);
-    try {
-      setCategories(await categoryApi.list());
-    } catch (err) {
-      setLoadError(
-        err instanceof ApiError ? err.message : 'Failed to load categories',
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const createMutation = useMutation({
+    mutationFn: (payload: CreateCategoryInput) => categoryApi.create(payload),
+    onSuccess: (created) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.categories() });
+      show({
+        semantic: 'success',
+        message: `Added category “${created.name}”`,
+      });
+      setModalOpen(false);
+    },
+    onError: (err) =>
+      setFieldErrors(
+        err instanceof ApiError ? err.message : 'Could not save the category.',
+      ),
+  });
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  const updateMutation = useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: CreateCategoryInput }) =>
+      categoryApi.update(id, payload),
+    onSuccess: (updated) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.categories() });
+      show({ semantic: 'success', message: `Updated “${updated.name}”` });
+      setModalOpen(false);
+    },
+    onError: (err) =>
+      setFieldErrors(
+        err instanceof ApiError ? err.message : 'Could not save the category.',
+      ),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (target: Category) => categoryApi.remove(target.id),
+    onSuccess: (_data, target) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.categories() });
+      show({ semantic: 'success', message: `Deleted “${target.name}”` });
+      setDeleteTarget(null);
+    },
+    onError: (err) =>
+      show({
+        semantic: 'error',
+        message:
+          err instanceof ApiError
+            ? err.message
+            : 'Could not delete the category.',
+      }),
+  });
 
   const openCreate = () => {
     setEditingId(null);
@@ -78,63 +122,28 @@ export function CategoriesPage() {
     value: CreateCategoryInput[K],
   ) => setForm((f) => ({ ...f, [key]: value }));
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     setFieldErrors(null);
     if (!form.name.trim()) {
       setFieldErrors('Name is required.');
       return;
     }
-    setSaving(true);
-    try {
-      const payload: CreateCategoryInput = {
-        name: form.name.trim(),
-        description: form.description?.trim() || undefined,
-        sortOrder: Number(form.sortOrder) || 0,
-        active: form.active,
-      };
-      if (editingId) {
-        const updated = await categoryApi.update(editingId, payload);
-        setCategories((prev) =>
-          prev.map((c) => (c.id === editingId ? updated : c)),
-        );
-        show({ semantic: 'success', message: `Updated “${updated.name}”` });
-      } else {
-        const created = await categoryApi.create(payload);
-        setCategories((prev) => [...prev, created]);
-        show({
-          semantic: 'success',
-          message: `Added category “${created.name}”`,
-        });
-      }
-      setModalOpen(false);
-    } catch (err) {
-      setFieldErrors(
-        err instanceof ApiError ? err.message : 'Could not save the category.',
-      );
-    } finally {
-      setSaving(false);
+    const payload: CreateCategoryInput = {
+      name: form.name.trim(),
+      description: form.description?.trim() || undefined,
+      sortOrder: Number(form.sortOrder) || 0,
+      active: form.active,
+    };
+    if (editingId) {
+      updateMutation.mutate({ id: editingId, payload });
+    } else {
+      createMutation.mutate(payload);
     }
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!deleteTarget) return;
-    setRemoving(true);
-    try {
-      await categoryApi.remove(deleteTarget.id);
-      setCategories((prev) => prev.filter((c) => c.id !== deleteTarget.id));
-      show({ semantic: 'success', message: `Deleted “${deleteTarget.name}”` });
-      setDeleteTarget(null);
-    } catch (err) {
-      show({
-        semantic: 'error',
-        message:
-          err instanceof ApiError
-            ? err.message
-            : 'Could not delete the category.',
-      });
-    } finally {
-      setRemoving(false);
-    }
+    deleteMutation.mutate(deleteTarget);
   };
 
   const columns: DataTableColumn<Category>[] = [
@@ -202,9 +211,9 @@ export function CategoriesPage() {
           variant="error-empty"
           title="Couldn’t load categories"
           description={loadError}
-          action={{ label: 'Retry', onClick: load }}
+          action={{ label: 'Retry', onClick: () => refetch() }}
         />
-      ) : !loading && categories.length === 0 ? (
+      ) : !isLoading && categories.length === 0 ? (
         <EmptyState
           variant="first-use"
           icon={<Tags />}
@@ -218,7 +227,7 @@ export function CategoriesPage() {
           columns={columns}
           rows={categories}
           getRowId={(r) => r.id}
-          loading={loading}
+          loading={isLoading}
         />
       )}
 
@@ -232,7 +241,10 @@ export function CategoriesPage() {
             <Button variant="secondary" onClick={() => setModalOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSubmit} loading={saving}>
+            <Button
+              onClick={handleSubmit}
+              loading={createMutation.isPending || updateMutation.isPending}
+            >
               {editingId ? 'Save changes' : 'Add category'}
             </Button>
           </>
@@ -291,7 +303,7 @@ export function CategoriesPage() {
             <Button
               variant="destructive"
               onClick={handleDelete}
-              loading={removing}
+              loading={deleteMutation.isPending}
             >
               Delete
             </Button>

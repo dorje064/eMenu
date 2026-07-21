@@ -2,9 +2,9 @@ import { useState, type FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { UtensilsCrossed } from 'lucide-react';
 import { Button, Input } from '@org/ui';
-import { ApiError } from '../api/client';
-import { useAuth } from '../auth/AuthContext';
-import './LoginPage.css';
+import { ApiError } from '../../api/client';
+import { useAuth } from '../../auth/AuthContext';
+import './style.css';
 
 type Mode = 'login' | 'signup';
 

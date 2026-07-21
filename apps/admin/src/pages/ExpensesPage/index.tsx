@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Plus, Wallet } from 'lucide-react';
 import {
   Button,
@@ -11,12 +12,13 @@ import {
   type DataTableColumn,
   type DropdownItem,
 } from '@org/ui';
-import { expensesApi } from '../api/expenses.api';
-import { ApiError } from '../api/client';
-import type { CreateExpenseInput, Expense } from '../api/types';
-import { formatDay, formatNrs, todayIso } from '../utils/format';
-import './MenuPage.css';
-import './ExpensesPage.css';
+import { expensesApi } from '../../api/expenses.api';
+import { queryKeys } from '../../api/queryKeys';
+import { ApiError } from '../../api/client';
+import type { CreateExpenseInput, Expense } from '../../api/types';
+import { formatDay, formatNrs, todayIso } from '../../utils/format';
+import '../MenuPage/style.css';
+import './style.css';
 
 const DATE_LABEL: Intl.DateTimeFormatOptions = {
   year: 'numeric',
@@ -40,36 +42,31 @@ const emptyForm = (): FormState => ({
 
 export function ExpensesPage() {
   const { show } = useToast();
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Expense | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [formError, setFormError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
 
   const [removeTarget, setRemoveTarget] = useState<Expense | null>(null);
-  const [removing, setRemoving] = useState(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setLoadError(null);
-    try {
-      setExpenses(await expensesApi.list());
-    } catch (err) {
-      setLoadError(
-        err instanceof ApiError ? err.message : 'Failed to load expenses',
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const {
+    data: expenses = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.expenses(),
+    queryFn: () => expensesApi.list(),
+  });
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  const loadError = isError
+    ? error instanceof ApiError
+      ? error.message
+      : 'Failed to load expenses'
+    : null;
 
   const total = useMemo(
     () => expenses.reduce((sum, e) => sum + e.amount, 0),
@@ -95,7 +92,25 @@ export function ExpensesPage() {
     setModalOpen(true);
   };
 
-  const handleSave = async () => {
+  const saveMutation = useMutation({
+    mutationFn: (payload: CreateExpenseInput) =>
+      editing ? expensesApi.update(editing.id, payload) : expensesApi.create(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      show({
+        semantic: 'success',
+        message: editing ? 'Expense updated' : 'Expense added',
+      });
+      setModalOpen(false);
+    },
+    onError: (err) => {
+      setFormError(
+        err instanceof ApiError ? err.message : 'Could not save the expense.',
+      );
+    },
+  });
+
+  const handleSave = () => {
     setFormError(null);
     const amount = Number(form.amount);
     if (!form.amount.trim() || Number.isNaN(amount) || amount < 0)
@@ -112,46 +127,28 @@ export function ExpensesPage() {
       spentAt: form.spentAt,
     };
 
-    setSaving(true);
-    try {
-      if (editing) {
-        const updated = await expensesApi.update(editing.id, payload);
-        setExpenses((prev) =>
-          prev.map((e) => (e.id === updated.id ? updated : e)),
-        );
-        show({ semantic: 'success', message: 'Expense updated' });
-      } else {
-        const created = await expensesApi.create(payload);
-        setExpenses((prev) => [created, ...prev]);
-        show({ semantic: 'success', message: 'Expense added' });
-      }
-      setModalOpen(false);
-    } catch (err) {
-      setFormError(
-        err instanceof ApiError ? err.message : 'Could not save the expense.',
-      );
-    } finally {
-      setSaving(false);
-    }
+    saveMutation.mutate(payload);
   };
 
-  const handleRemove = async () => {
-    if (!removeTarget) return;
-    setRemoving(true);
-    try {
-      await expensesApi.remove(removeTarget.id);
-      setExpenses((prev) => prev.filter((e) => e.id !== removeTarget.id));
+  const removeMutation = useMutation({
+    mutationFn: (id: string) => expensesApi.remove(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['expenses'] });
       show({ semantic: 'success', message: 'Expense removed' });
       setRemoveTarget(null);
-    } catch (err) {
+    },
+    onError: (err) => {
       show({
         semantic: 'error',
         message:
           err instanceof ApiError ? err.message : 'Could not remove the expense.',
       });
-    } finally {
-      setRemoving(false);
-    }
+    },
+  });
+
+  const handleRemove = () => {
+    if (!removeTarget) return;
+    removeMutation.mutate(removeTarget.id);
   };
 
   const rowActions = (): DropdownItem[] => [
@@ -225,9 +222,9 @@ export function ExpensesPage() {
           variant="error-empty"
           title="Couldn’t load expenses"
           description={loadError}
-          action={{ label: 'Retry', onClick: load }}
+          action={{ label: 'Retry', onClick: () => refetch() }}
         />
-      ) : !loading && expenses.length === 0 ? (
+      ) : !isLoading && expenses.length === 0 ? (
         <EmptyState
           variant="first-use"
           icon={<Wallet />}
@@ -241,7 +238,7 @@ export function ExpensesPage() {
           rows={expenses}
           getRowId={(e) => e.id}
           ariaLabel="Expenses"
-          loading={loading}
+          loading={isLoading}
           emptyMessage="No expenses yet."
         />
       )}
@@ -256,7 +253,7 @@ export function ExpensesPage() {
             <Button variant="secondary" onClick={() => setModalOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSave} loading={saving}>
+            <Button onClick={handleSave} loading={saveMutation.isPending}>
               {editing ? 'Save changes' : 'Add expense'}
             </Button>
           </>
@@ -328,7 +325,7 @@ export function ExpensesPage() {
             <Button variant="secondary" onClick={() => setRemoveTarget(null)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleRemove} loading={removing}>
+            <Button variant="destructive" onClick={handleRemove} loading={removeMutation.isPending}>
               Remove
             </Button>
           </>

@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Eye, Pencil, Plus, Trash2, UtensilsCrossed } from 'lucide-react';
 import {
   Button,
@@ -11,19 +12,19 @@ import {
   type DataTableColumn,
   type SelectOption,
 } from '@org/ui';
-import { menuApi } from '../api/menu.api';
-import { categoryApi } from '../api/category.api';
-import { settingsApi } from '../api/settings.api';
-import { ApiError } from '../api/client';
-import { ImagePicker } from '../components/ImagePicker';
-import { MenuPreview, MENU_TEMPLATES } from '../components/MenuPreview';
+import { menuApi } from '../../api/menu.api';
+import { categoryApi } from '../../api/category.api';
+import { settingsApi } from '../../api/settings.api';
+import { ApiError } from '../../api/client';
+import { queryKeys } from '../../api/queryKeys';
+import { ImagePicker } from '../../components/ImagePicker';
+import { MenuPreview, MENU_TEMPLATES } from '../../components/MenuPreview';
 import type {
-  Category,
   CreateFoodItemInput,
   FoodItem,
   MenuTemplate,
-} from '../api/types';
-import './MenuPage.css';
+} from '../../api/types';
+import './style.css';
 
 const currency = (n: number) =>
   `NRs ${new Intl.NumberFormat('en-US', {
@@ -43,56 +44,60 @@ const EMPTY_FORM: CreateFoodItemInput = {
 
 export function MenuPage() {
   const { show } = useToast();
-  const [items, setItems] = useState<FoodItem[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  // Three independent queries; the page shows a single combined loading/error
+  // state derived from them (previously one Promise.all in a manual loader).
+  const itemsQuery = useQuery({
+    queryKey: queryKeys.menu(),
+    queryFn: () => menuApi.list(),
+  });
+  const categoriesQuery = useQuery({
+    queryKey: queryKeys.categories(true),
+    queryFn: () => categoryApi.list(true),
+  });
+  const settingsQuery = useQuery({
+    queryKey: queryKeys.settings,
+    queryFn: () => settingsApi.get(),
+  });
+
+  const items = itemsQuery.data ?? [];
+  const categories = categoriesQuery.data ?? [];
+  const savedTemplate: MenuTemplate =
+    settingsQuery.data?.menuTemplate ?? 'classic';
+
+  const loading =
+    itemsQuery.isLoading ||
+    categoriesQuery.isLoading ||
+    settingsQuery.isLoading;
+  const loadErrorSource =
+    itemsQuery.error ?? categoriesQuery.error ?? settingsQuery.error;
+  const loadError = loadErrorSource
+    ? loadErrorSource instanceof ApiError
+      ? loadErrorSource.message
+      : 'Failed to load menu'
+    : null;
+  const reload = () => {
+    itemsQuery.refetch();
+    categoriesQuery.refetch();
+    settingsQuery.refetch();
+  };
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<CreateFoodItemInput>(EMPTY_FORM);
   const [fieldErrors, setFieldErrors] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
 
   const [deleteTarget, setDeleteTarget] = useState<FoodItem | null>(null);
-  const [removing, setRemoving] = useState(false);
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] =
     useState<MenuTemplate>('classic');
-  const [savedTemplate, setSavedTemplate] = useState<MenuTemplate>('classic');
-  const [savingTemplate, setSavingTemplate] = useState(false);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    setLoadError(null);
-    try {
-      const [menuItems, cats, settings] = await Promise.all([
-        menuApi.list(),
-        categoryApi.list(true),
-        settingsApi.get(),
-      ]);
-      setItems(menuItems);
-      setCategories(cats);
-      setSavedTemplate(settings.menuTemplate);
-      setSelectedTemplate(settings.menuTemplate);
-    } catch (err) {
-      setLoadError(
-        err instanceof ApiError ? err.message : 'Failed to load menu',
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
 
   const categoryOptions: SelectOption[] = categories.map((c) => ({
     value: c.name,
     label: c.name,
   }));
-
-  useEffect(() => {
-    load();
-  }, [load]);
 
   const openCreate = () => {
     setEditingId(null);
@@ -121,62 +126,63 @@ export function MenuPage() {
     value: CreateFoodItemInput[K],
   ) => setForm((f) => ({ ...f, [key]: value }));
 
-  const handleSubmit = async () => {
+  const saveMutation = useMutation({
+    mutationFn: (payload: CreateFoodItemInput) =>
+      editingId ? menuApi.update(editingId, payload) : menuApi.create(payload),
+    onSuccess: (saved) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.menu() });
+      show({
+        semantic: 'success',
+        message: editingId
+          ? `Updated “${saved.name}”`
+          : `Added “${saved.name}” to the menu`,
+      });
+      setModalOpen(false);
+    },
+    onError: (err) => {
+      setFieldErrors(
+        err instanceof ApiError ? err.message : 'Could not save the item.',
+      );
+    },
+  });
+
+  const handleSubmit = () => {
     setFieldErrors(null);
     if (!form.name.trim() || !form.category.trim()) {
       setFieldErrors('Name and category are required.');
       return;
     }
-    setSaving(true);
-    try {
-      const payload: CreateFoodItemInput = {
-        name: form.name.trim(),
-        category: form.category.trim(),
-        price: Number(form.price),
-        prepTimeMinutes: Number(form.prepTimeMinutes) || 15,
-        description: form.description?.trim() || undefined,
-        imageUrl: form.imageUrl?.trim() || undefined,
-        available: form.available,
-      };
-      if (editingId) {
-        const updated = await menuApi.update(editingId, payload);
-        setItems((prev) => prev.map((i) => (i.id === editingId ? updated : i)));
-        show({ semantic: 'success', message: `Updated “${updated.name}”` });
-      } else {
-        const created = await menuApi.create(payload);
-        setItems((prev) => [...prev, created]);
-        show({
-          semantic: 'success',
-          message: `Added “${created.name}” to the menu`,
-        });
-      }
-      setModalOpen(false);
-    } catch (err) {
-      setFieldErrors(
-        err instanceof ApiError ? err.message : 'Could not save the item.',
-      );
-    } finally {
-      setSaving(false);
-    }
+    const payload: CreateFoodItemInput = {
+      name: form.name.trim(),
+      category: form.category.trim(),
+      price: Number(form.price),
+      prepTimeMinutes: Number(form.prepTimeMinutes) || 15,
+      description: form.description?.trim() || undefined,
+      imageUrl: form.imageUrl?.trim() || undefined,
+      available: form.available,
+    };
+    saveMutation.mutate(payload);
   };
 
-  const handleDelete = async () => {
-    if (!deleteTarget) return;
-    setRemoving(true);
-    try {
-      await menuApi.remove(deleteTarget.id);
-      setItems((prev) => prev.filter((i) => i.id !== deleteTarget.id));
-      show({ semantic: 'success', message: `Deleted “${deleteTarget.name}”` });
+  const deleteMutation = useMutation({
+    mutationFn: (item: FoodItem) => menuApi.remove(item.id),
+    onSuccess: (_data, item) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.menu() });
+      show({ semantic: 'success', message: `Deleted “${item.name}”` });
       setDeleteTarget(null);
-    } catch (err) {
+    },
+    onError: (err) => {
       show({
         semantic: 'error',
         message:
           err instanceof ApiError ? err.message : 'Could not delete the item.',
       });
-    } finally {
-      setRemoving(false);
-    }
+    },
+  });
+
+  const handleDelete = () => {
+    if (!deleteTarget) return;
+    deleteMutation.mutate(deleteTarget);
   };
 
   const openPreview = () => {
@@ -184,13 +190,11 @@ export function MenuPage() {
     setPreviewOpen(true);
   };
 
-  const saveTemplate = async () => {
-    setSavingTemplate(true);
-    try {
-      const updated = await settingsApi.update({
-        menuTemplate: selectedTemplate,
-      });
-      setSavedTemplate(updated.menuTemplate);
+  const templateMutation = useMutation({
+    mutationFn: (template: MenuTemplate) =>
+      settingsApi.update({ menuTemplate: template }),
+    onSuccess: (updated) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.settings });
       const label =
         MENU_TEMPLATES.find((t) => t.id === updated.menuTemplate)?.label ??
         updated.menuTemplate;
@@ -198,7 +202,8 @@ export function MenuPage() {
         semantic: 'success',
         message: `Customer menu set to the “${label}” template`,
       });
-    } catch (err) {
+    },
+    onError: (err) => {
       show({
         semantic: 'error',
         message:
@@ -206,10 +211,10 @@ export function MenuPage() {
             ? err.message
             : 'Could not save the template.',
       });
-    } finally {
-      setSavingTemplate(false);
-    }
-  };
+    },
+  });
+
+  const saveTemplate = () => templateMutation.mutate(selectedTemplate);
 
   const columns: DataTableColumn<FoodItem>[] = [
     { key: 'name', header: 'Item', render: (r) => <strong>{r.name}</strong> },
@@ -291,7 +296,7 @@ export function MenuPage() {
           variant="error-empty"
           title="Couldn’t load the menu"
           description={loadError}
-          action={{ label: 'Retry', onClick: load }}
+          action={{ label: 'Retry', onClick: reload }}
         />
       ) : !loading && items.length === 0 ? (
         <EmptyState
@@ -322,7 +327,7 @@ export function MenuPage() {
             <Button variant="secondary" onClick={() => setModalOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSubmit} loading={saving}>
+            <Button onClick={handleSubmit} loading={saveMutation.isPending}>
               {editingId ? 'Save changes' : 'Add item'}
             </Button>
           </>
@@ -413,7 +418,7 @@ export function MenuPage() {
             <Button
               variant="destructive"
               onClick={handleDelete}
-              loading={removing}
+              loading={deleteMutation.isPending}
             >
               Delete
             </Button>
@@ -461,7 +466,7 @@ export function MenuPage() {
           </div>
           <Button
             onClick={saveTemplate}
-            loading={savingTemplate}
+            loading={templateMutation.isPending}
             disabled={selectedTemplate === savedTemplate}
           >
             {selectedTemplate === savedTemplate

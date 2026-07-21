@@ -1,36 +1,30 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { BarChart3, Receipt, TrendingUp, Trophy, Wallet } from 'lucide-react';
 import { DashboardCard, EmptyState } from '@org/ui';
-import { ordersApi } from '../api/orders.api';
-import { ApiError } from '../api/client';
-import type { DashboardStats } from '../api/types';
-import { SalesChart } from '../components/SalesChart';
-import { formatNrs } from '../utils/format';
-import './DashboardHome.css';
+import { ordersApi } from '../../api/orders.api';
+import { ApiError } from '../../api/client';
+import { queryKeys } from '../../api/queryKeys';
+import { SalesChart } from '../../components/SalesChart';
+import { formatNrs } from '../../utils/format';
+import './style.css';
 
 export function DashboardHome() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const {
+    data: stats,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.dashboardStats,
+    queryFn: () => ordersApi.stats(),
+  });
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setLoadError(null);
-    try {
-      setStats(await ordersApi.stats());
-    } catch (err) {
-      setStats(null);
-      setLoadError(
-        err instanceof ApiError ? err.message : 'Failed to load dashboard',
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+  const loadError = isError
+    ? error instanceof ApiError
+      ? error.message
+      : 'Failed to load dashboard'
+    : null;
 
   if (loadError) {
     return (
@@ -39,13 +33,13 @@ export function DashboardHome() {
           variant="error-empty"
           title="Couldn’t load the dashboard"
           description={loadError}
-          action={{ label: 'Retry', onClick: load }}
+          action={{ label: 'Retry', onClick: () => refetch() }}
         />
       </div>
     );
   }
 
-  const state = loading ? 'loading' : 'loaded';
+  const state = isLoading ? 'loading' : 'loaded';
   const salesToday = stats?.salesToday ?? 0;
   const expensesToday = stats?.expensesToday ?? 0;
   const netIncome = stats?.netIncome ?? 0;
@@ -90,7 +84,7 @@ export function DashboardHome() {
             <Trophy size={18} aria-hidden="true" />
             <h2 className="dash-panel__title">Top selling items</h2>
           </header>
-          {loading ? (
+          {isLoading ? (
             <ul className="dash-toplist">
               {[0, 1, 2, 3, 4].map((i) => (
                 <li
@@ -133,7 +127,7 @@ export function DashboardHome() {
             <h2 className="dash-panel__title">Sales per day</h2>
             <span className="dash-panel__sub">Last 30 days</span>
           </header>
-          {loading ? (
+          {isLoading ? (
             <div className="dash-chart-skeleton" aria-hidden="true" />
           ) : (
             <SalesChart data={salesByDay} />
